@@ -10,7 +10,11 @@ class HistoryScreen extends StatelessWidget {
       body: ListView.builder(
         itemCount: 10,
         itemBuilder: (context, index) {
-          return Container();
+          return Container(
+            child: Center(
+              child: Text('WPDA History'),
+            ),
+          );
         },
       ),
     );
