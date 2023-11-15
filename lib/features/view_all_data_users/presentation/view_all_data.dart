@@ -17,11 +17,9 @@ class ViewAllData extends StatelessWidget {
       body: Column(
         children: [
           Expanded(
-            child: FutureBuilder<List<AllUsers>>(
+            child: FutureBuilder(
               future: getUserUsecase.getAllUsers(),
               builder: (context, snapshot) {
-                var data = snapshot.data;
-
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
                     child: CircularProgressIndicator(),
@@ -31,7 +29,8 @@ class ViewAllData extends StatelessWidget {
                     child: Text(snapshot.hasError.toString()),
                   );
                 } else {
-                  var result = data!.map((e) {
+                  List<AllUsers> usersData = snapshot.data! ?? [];
+                  var result = usersData.map((e) {
                     return e.profile_completed;
                   });
                   return Consumer<LoginProvider>(builder: (context, value, _) {
@@ -70,20 +69,21 @@ class ViewAllData extends StatelessWidget {
                             : Container(),
                         Expanded(
                           child: ListView.builder(
-                            itemCount: data.length,
+                            itemCount: usersData.length,
                             itemBuilder: (context, index) {
-                              var dataUser = data[index];
+                              final userData = usersData[index];
+                              final historyWpda = userData.dataWpda;
                               return ListTile(
                                 onTap: () {
                                   Navigator.push(context,
                                       MaterialPageRoute(builder: (context) {
                                     return ViewAllDataUsers(
-                                      allUsers: dataUser,
+                                      userData: userData,
                                     );
                                   }));
                                 },
                                 title: Text(
-                                  dataUser.fullName,
+                                  userData.fullName,
                                   style: MyFonts.customTextStyle(
                                     15,
                                     FontWeight.w500,
@@ -91,7 +91,7 @@ class ViewAllData extends StatelessWidget {
                                   ),
                                 ),
                                 subtitle: Text(
-                                  dataUser.email,
+                                  userData.email,
                                   style: MyFonts.customTextStyle(
                                     13,
                                     FontWeight.w500,
@@ -102,7 +102,7 @@ class ViewAllData extends StatelessWidget {
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    (value.userId == dataUser.id)
+                                    (value.userId == userData.id)
                                         ? Container(
                                             height: 30,
                                             width: 50,
@@ -123,7 +123,7 @@ class ViewAllData extends StatelessWidget {
                                             ),
                                           )
                                         : Container(),
-                                    (dataUser.profile_completed == "0")
+                                    (userData.profile_completed == "0")
                                         ? Icon(
                                             Icons.dangerous,
                                             color: MyColor.colorRed,

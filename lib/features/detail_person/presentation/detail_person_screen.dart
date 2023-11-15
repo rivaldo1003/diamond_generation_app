@@ -2,6 +2,7 @@ import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
+import 'package:diamond_generation_app/shared/widgets/button.dart';
 import 'package:diamond_generation_app/shared/widgets/list_info_user.dart';
 import 'package:flutter/material.dart';
 

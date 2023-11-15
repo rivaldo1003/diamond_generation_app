@@ -30,7 +30,7 @@ class WPDAScreen extends StatelessWidget {
       ),
       appBar: AppBarWidget(title: 'WPDA'),
       body: Column(
-        // crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
             padding: EdgeInsets.all(20),

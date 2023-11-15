@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:diamond_generation_app/core/models/all_users.dart';
+import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
@@ -338,7 +339,8 @@ class ApiService {
       headers: headers,
     );
     if (response.statusCode == 200) {
-      List<dynamic> jsonResponse = json.decode(response.body)['users_data'];
+      Map<String, dynamic> data = json.decode(response.body);
+      List<dynamic> jsonResponse = data['users_data'];
       var result = jsonResponse.map((json) {
         return AllUsers.fromJson(json);
       }).toList();
@@ -437,6 +439,21 @@ class ApiService {
       }).toList();
     } else {
       throw Exception('Failed to get all wpda data');
+    }
+  }
+
+  Future<List<HistoryWpda>> getAllWpdaByUserId(String userId) async {
+    final headers = {"Content-Type": "application/json"};
+    final url = Uri.parse(
+        'http://192.168.0.164/diamond_generation/history_wpda.php?user_id=${userId}');
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonResponse = json.decode(response.body)['history'];
+      return jsonResponse.map((json) {
+        return HistoryWpda.fromJson(json);
+      }).toList();
+    } else {
+      throw Exception('Failed to load data WPDA');
     }
   }
 }

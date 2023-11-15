@@ -1,24 +1,26 @@
 import 'package:diamond_generation_app/core/models/all_users.dart';
+import 'package:diamond_generation_app/features/view_detail_all_data_users/presentation/wpda_user_screen.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
+import 'package:diamond_generation_app/shared/widgets/button.dart';
 import 'package:diamond_generation_app/shared/widgets/card_detail_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class ViewAllDataUsers extends StatelessWidget {
-  final AllUsers allUsers;
+  final AllUsers userData;
 
   const ViewAllDataUsers({
     super.key,
-    required this.allUsers,
+    required this.userData,
   });
 
   @override
   Widget build(BuildContext context) {
-    String registrationDate = allUsers.registration_date.split(' ').first;
+    String registrationDate = userData.registration_date.split(' ').first;
     String formatDate = DateFormat('dd MMMM yyyy', 'id')
-        .format(DateTime.parse(allUsers.registration_date));
+        .format(DateTime.parse(userData.registration_date));
     return Scaffold(
       appBar: AppBarWidget(title: 'Detail User'),
       body: Column(
@@ -47,7 +49,7 @@ class ViewAllDataUsers extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  allUsers.fullName,
+                  userData.fullName,
                   style: MyFonts.customTextStyle(
                     18,
                     FontWeight.bold,
@@ -73,7 +75,7 @@ class ViewAllDataUsers extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          allUsers.role,
+                          userData.role,
                           style: MyFonts.customTextStyle(
                             14,
                             FontWeight.bold,
@@ -115,45 +117,60 @@ class ViewAllDataUsers extends StatelessWidget {
                     CardDetailProfile(
                       iconData: Icons.numbers,
                       title: 'Account Number',
-                      value: allUsers.account_number,
+                      value: userData.account_number,
                     ),
                     SizedBox(height: 4),
                     CardDetailProfile(
                       iconData: Icons.email,
                       title: 'Email',
-                      value: allUsers.email,
+                      value: userData.email,
                     ),
                     SizedBox(height: 4),
                     CardDetailProfile(
                       iconData: Icons.home_rounded,
                       title: 'Address',
-                      value: allUsers.address,
+                      value: userData.address,
                     ),
                     SizedBox(height: 4),
                     CardDetailProfile(
                       iconData: Icons.phone,
                       title: 'Phone',
-                      value: allUsers.phoneNumber,
+                      value: userData.phoneNumber,
                     ),
                     SizedBox(height: 4),
                     CardDetailProfile(
                       iconData: Icons.person,
                       title: 'Gender',
-                      value: allUsers.gender,
+                      value: userData.gender,
                     ),
                     SizedBox(height: 4),
                     CardDetailProfile(
                       iconData: Icons.add_location_alt,
                       title: 'Place and Date of Birth',
-                      value: '${allUsers.birthPlace}' +
+                      value: '${userData.birthPlace}' +
                           ', ' +
-                          '${allUsers.birthDate}',
+                          '${userData.birthDate}',
                     ),
                     SizedBox(height: 4),
                   ],
                 ),
               ],
             )),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: ButtonWidget(
+              title: 'Lihat WPDA',
+              color: MyColor.primaryColor,
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return WpdaUserScreen(
+                    allUsers: userData,
+                    totalWpda: userData.dataWpda.length.toString(),
+                  );
+                }));
+              },
+            ),
           ),
         ],
       ),

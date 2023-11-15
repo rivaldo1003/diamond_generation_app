@@ -24,6 +24,9 @@ class CardWpda extends StatelessWidget {
     var currentDateFormat =
         DateFormat('dd MMMM yyyy', 'id').format(DateTime.parse(currentDate));
 
+    String dateResult =
+        DateFormat('dd MMM yy').format(DateTime.parse(wpda.createdAt));
+
     return Column(
       children: [
         GestureDetector(
@@ -112,68 +115,71 @@ class CardWpda extends StatelessWidget {
                       ),
                     ],
                   ),
-                  content: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        wpda.isiKitab,
-                        style: MyFonts.customTextStyle(
-                          14,
-                          FontWeight.w500,
-                          MyColor.whiteColor,
+                  content: Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          wpda.isiKitab,
+                          style: MyFonts.customTextStyle(
+                            14,
+                            FontWeight.w500,
+                            MyColor.whiteColor,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 8),
-                      Divider(),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'PT : ',
-                            style: MyFonts.customTextStyle(
-                              14,
-                              FontWeight.bold,
-                              MyColor.colorLightBlue,
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              '${wpda.pesanTuhan}',
+                        SizedBox(height: 8),
+                        Divider(),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'PT : ',
                               style: MyFonts.customTextStyle(
                                 14,
-                                FontWeight.w500,
-                                MyColor.whiteColor,
+                                FontWeight.bold,
+                                MyColor.colorLightBlue,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 8),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'AP : ',
-                            style: MyFonts.customTextStyle(
-                              14,
-                              FontWeight.bold,
-                              MyColor.colorLightBlue,
+                            Expanded(
+                              child: Text(
+                                '${wpda.pesanTuhan}',
+                                style: MyFonts.customTextStyle(
+                                  14,
+                                  FontWeight.w500,
+                                  MyColor.whiteColor,
+                                ),
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              '${wpda.aplikasiKehidupan}',
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'AP : ',
                               style: MyFonts.customTextStyle(
                                 14,
-                                FontWeight.w500,
-                                MyColor.whiteColor,
+                                FontWeight.bold,
+                                MyColor.colorLightBlue,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                            Expanded(
+                              child: Text(
+                                '${wpda.aplikasiKehidupan}',
+                                style: MyFonts.customTextStyle(
+                                  14,
+                                  FontWeight.w500,
+                                  MyColor.whiteColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                   actions: [
                     Consumer<LoginProvider>(builder: (context, value, _) {
@@ -218,6 +224,7 @@ class CardWpda extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Card(
+              color: MyColor.colorBlackBg,
               child: Padding(
                 padding: EdgeInsets.all(20),
                 child: Column(
@@ -331,7 +338,7 @@ class CardWpda extends StatelessWidget {
                                         ),
                                       )
                                     : Text(
-                                        formatDate,
+                                        dateResult,
                                         style: MyFonts.customTextStyle(
                                           12,
                                           FontWeight.bold,

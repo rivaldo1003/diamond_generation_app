@@ -1,3 +1,4 @@
+import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,8 @@ class WpdaProvider with ChangeNotifier {
   }
 
   List<WPDA> wpdas = [];
+  List<HistoryWpda> historyWpda = [];
+
   Future refreshAllUsers() async {
     wpdas = await _getUserUsecase.getAllWpda();
     notifyListeners();

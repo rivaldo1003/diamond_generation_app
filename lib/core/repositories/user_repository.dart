@@ -1,4 +1,5 @@
 import 'package:diamond_generation_app/core/models/all_users.dart';
+import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/services/api_services.dart';
@@ -13,6 +14,7 @@ abstract class UserRepository {
   Future<List<AllUsers>> getAllUser();
   Future<void> createWpda(Map<String, dynamic> body, BuildContext context);
   Future<List<WPDA>> getAllWpda();
+  Future<List<HistoryWpda>> getAllWpdaByUserId(String userId);
 }
 
 class UserRepositoryImpl implements UserRepository {
@@ -62,5 +64,10 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<List<WPDA>> getAllWpda() async {
     return await apiService.getAllWpda();
+  }
+
+  @override
+  Future<List<HistoryWpda>> getAllWpdaByUserId(String userId) async {
+    return await apiService.getAllWpdaByUserId(userId);
   }
 }

@@ -1,4 +1,4 @@
-import 'package:diamond_generation_app/features/history/presentation/history_screen.dart';
+import 'package:diamond_generation_app/features/history_wpda/presentation/history_screen.dart';
 import 'package:diamond_generation_app/features/home/presentation/home_screen.dart';
 import 'package:diamond_generation_app/features/profile/presentation/profile_screen.dart';
 import 'package:diamond_generation_app/features/wpda/presentation/wpda_screen.dart';
