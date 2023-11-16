@@ -10,4 +10,7 @@ class ApiConstants {
   static const getAllUser = baseUrl + 'read_all_users.php';
   static const createWpdaUrl = baseUrl + 'wpda.php';
   static const getAllWpdaUrl = baseUrl + 'read_all_wpda.php';
+  static const approveUserUrl = baseUrl + 'approved.php';
+  static const deleteUserUrl = baseUrl + 'delete_user.php';
+  static const editWpdaUrl = baseUrl + 'edit_wpda.php';
 }

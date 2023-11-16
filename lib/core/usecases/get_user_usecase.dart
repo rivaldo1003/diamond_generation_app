@@ -51,4 +51,13 @@ class GetUserUsecase {
   Future<List<HistoryWpda>> getAllWpdaByUserID(String userId) async {
     return await userRepository.getAllWpdaByUserId(userId);
   }
+
+  Future<void> approveUser(
+      Map<String, dynamic> body, BuildContext context) async {
+    await userRepository.approveUser(body, context);
+  }
+
+  Future<void> deleteUser(String userId, BuildContext context) async {
+    await userRepository.deleteUser(userId, context);
+  }
 }

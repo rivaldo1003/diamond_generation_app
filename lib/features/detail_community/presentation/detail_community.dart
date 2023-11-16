@@ -5,6 +5,7 @@ import 'package:diamond_generation_app/features/detail_community/data/widgets/sh
 import 'package:diamond_generation_app/features/detail_person/presentation/detail_person_screen.dart';
 import 'package:diamond_generation_app/features/login/data/utils/user_controller.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
+import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/card_header_community.dart';
 import 'package:diamond_generation_app/shared/widgets/textfield.dart';
@@ -32,7 +33,6 @@ class _DetailCommunityState extends State<DetailCommunity> {
   @override
   void initState() {
     super.initState();
-
     _userDataProvider = UserDataProvider(context, widget.urlApi);
   }
 
@@ -159,7 +159,14 @@ class _DetailCommunityState extends State<DetailCommunity> {
                         builder: (context, value, _) => Expanded(
                           child: value.fiteredUser.isEmpty
                               ? Center(
-                                  child: Text('No users found'),
+                                  child: Text(
+                                    'No users found',
+                                    style: MyFonts.customTextStyle(
+                                      14,
+                                      FontWeight.w500,
+                                      MyColor.whiteColor,
+                                    ),
+                                  ),
                                 )
                               : ListView.builder(
                                   physics: BouncingScrollPhysics(),

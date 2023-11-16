@@ -15,6 +15,8 @@ abstract class UserRepository {
   Future<void> createWpda(Map<String, dynamic> body, BuildContext context);
   Future<List<WPDA>> getAllWpda();
   Future<List<HistoryWpda>> getAllWpdaByUserId(String userId);
+  Future<void> approveUser(Map<String, dynamic> body, BuildContext context);
+  Future<void> deleteUser(String userId, BuildContext context);
 }
 
 class UserRepositoryImpl implements UserRepository {
@@ -69,5 +71,16 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<List<HistoryWpda>> getAllWpdaByUserId(String userId) async {
     return await apiService.getAllWpdaByUserId(userId);
+  }
+
+  @override
+  Future<void> approveUser(
+      Map<String, dynamic> body, BuildContext context) async {
+    await apiService.approveUser(body, context);
+  }
+
+  @override
+  Future<void> deleteUser(String userId, BuildContext context) async {
+    await apiService.deleteUser(userId, context);
   }
 }

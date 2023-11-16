@@ -4,12 +4,14 @@ import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
+import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_register.dart';
 import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
 import 'package:diamond_generation_app/features/register_form/presentation/register_form.dart';
+import 'package:diamond_generation_app/features/view_all_data_users/data/providers/view_all_data_user_provider.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
@@ -73,6 +75,8 @@ class ApiService {
               }),
               (route) => false,
             );
+            TextFieldControllerLogin.emailController.text = '';
+            TextFieldControllerLogin.passwordController.text = '';
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 backgroundColor: MyColor.colorGreen,
@@ -86,9 +90,6 @@ class ApiService {
                 ),
               ),
             );
-          }).then((_) {
-            TextFieldControllerLogin.emailController.text = '';
-            TextFieldControllerLogin.passwordController.text = '';
           });
         } else {
           showDialog(
@@ -149,7 +150,7 @@ class ApiService {
             SnackBar(
               backgroundColor: MyColor.colorRed,
               content: Text(
-                '${data['message'] + '. Try again'}',
+                '${data['message']}',
                 style: MyFonts.customTextStyle(
                   14,
                   FontWeight.w500,
@@ -196,7 +197,7 @@ class ApiService {
             SnackBar(
               backgroundColor: MyColor.colorGreen,
               content: Text(
-                '${data['message'] + '!' + ' Login now'}',
+                '${data['message'] + ' Login now'}',
                 style: MyFonts.customTextStyle(
                   14,
                   FontWeight.w500,
@@ -271,6 +272,10 @@ class ApiService {
             }),
             (route) => false,
           );
+          registerFormProvider.fullNameController.text = '';
+          registerFormProvider.addressController.text = '';
+          registerFormProvider.phoneNumberController.text = '';
+          registerFormProvider.placeOfBirthController.text = '';
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: MyColor.colorGreen,
@@ -285,10 +290,6 @@ class ApiService {
             ),
           );
         });
-        registerFormProvider.fullNameController.text = '';
-        registerFormProvider.addressController.text = '';
-        registerFormProvider.phoneNumberController.text = '';
-        registerFormProvider.placeOfBirthController.text = '';
       } else {
         showDialog(
             barrierDismissible: false,
@@ -454,6 +455,99 @@ class ApiService {
       }).toList();
     } else {
       throw Exception('Failed to load data WPDA');
+    }
+  }
+
+  Future<void> approveUser(
+      Map<String, dynamic> body, BuildContext context) async {
+    try {
+      final viewAllDataUserProvider =
+          Provider.of<SearchUserProvider>(context, listen: false);
+
+      final headers = {"Content-Type": "application/json"};
+      final response = await http.post(
+        Uri.parse(ApiConstants.approveUserUrl),
+        headers: headers,
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success']) {
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            },
+          );
+          Future.delayed(Duration(seconds: 2), () {
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: MyColor.colorGreen,
+                content: Text(
+                  '${data['message']}',
+                  style: MyFonts.customTextStyle(
+                    14,
+                    FontWeight.w500,
+                    MyColor.whiteColor,
+                  ),
+                ),
+              ),
+            );
+            Navigator.pop(context);
+          });
+        } else {
+          throw Exception(data['message']);
+        }
+      } else {
+        throw Exception('Failed to approve user');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+  Future<void> deleteUser(String userId, BuildContext context) async {
+    final response = await http
+        .delete(Uri.parse(ApiConstants.deleteUserUrl + '?id=${userId}'));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['success']) {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorGreen,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          Navigator.pop(context);
+        });
+      } else {
+        throw Exception(data['message']);
+      }
+    } else {
+      throw Exception('Failed to approve user');
     }
   }
 }

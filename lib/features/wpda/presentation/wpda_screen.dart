@@ -137,7 +137,7 @@ class WPDAScreen extends StatelessWidget {
                         'WPDA Data is empty',
                         style: MyFonts.customTextStyle(
                           14,
-                          FontWeight.bold,
+                          FontWeight.w500,
                           MyColor.whiteColor,
                         ),
                       ),

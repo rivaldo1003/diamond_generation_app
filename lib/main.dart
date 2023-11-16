@@ -4,12 +4,14 @@ import 'package:diamond_generation_app/core/services/api_services.dart';
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/data/providers/bottom_nav_bar_provider.dart';
+import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
 import 'package:diamond_generation_app/features/home/data/providers/home_provider.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/profile/data/providers/profile_provider.dart';
 import 'package:diamond_generation_app/features/register/data/providers/register_provider.dart';
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
 import 'package:diamond_generation_app/features/splash_screen/presentation/splash_screen.dart';
+import 'package:diamond_generation_app/features/view_all_data_users/data/providers/view_all_data_user_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/theme.dart';
@@ -32,6 +34,17 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => ProfileProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => SearchUserProvider(
+            getUserUsecase: GetUserUsecase(
+              userRepository: UserRepositoryImpl(
+                apiService: ApiService(
+                  urlApi: ApiConstants.getAllUser,
+                ),
+              ),
+            ),
+          ),
         ),
         ChangeNotifierProvider(
             create: (context) => WpdaProvider(

@@ -23,6 +23,8 @@ class CardHistoryWpda extends StatelessWidget {
     String currentDate = DateTime.now().toString();
     var currentDateFormat =
         DateFormat('dd MMMM yyyy', 'id').format(DateTime.parse(currentDate));
+    String dateResult =
+        DateFormat('dd MMM yy').format(DateTime.parse(historyWpda.createdAt));
     return GestureDetector(
       onTap: () {
         showDialog(
@@ -83,7 +85,7 @@ class CardHistoryWpda extends StatelessWidget {
                                       ],
                                     )
                                   : Text(
-                                      historyWpda.createdAt,
+                                      dateResult + ' | ${timeOnly}',
                                       textAlign: TextAlign.end,
                                       style: MyFonts.customTextStyle(
                                         12,
@@ -334,7 +336,7 @@ class CardHistoryWpda extends StatelessWidget {
                   ),
                   SizedBox(height: 12),
                   Text(
-                    'Karena begitu besar kasih Allah akan dunia ini supaya Ia mengaruniakan anaknya yang Tuhan, supaya setiap orang yang percaya kepadanya tidak binasa, melinkan memperoleh hidup yang kekal',
+                    historyWpda.isiKitab,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 4,
                     style: MyFonts.customTextStyle(

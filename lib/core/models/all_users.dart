@@ -11,6 +11,7 @@ class AllUsers {
   final String birthPlace;
   final String birthDate;
   final String profile_completed;
+  final String statusPersetujuan;
   final List<DataWpda> dataWpda;
 
   AllUsers({
@@ -27,6 +28,7 @@ class AllUsers {
     required this.birthDate,
     required this.profile_completed,
     required this.dataWpda,
+    required this.statusPersetujuan,
   });
 
   factory AllUsers.fromJson(Map<String, dynamic> json) {
@@ -46,6 +48,7 @@ class AllUsers {
       birthPlace: json['birth_place'].toString(),
       birthDate: json['birth_date'].toString(),
       profile_completed: json['profile_completed'].toString(),
+      statusPersetujuan: json['status_persetujuan'].toString(),
       dataWpda: parsedWpdaHistoryList,
     );
   }
