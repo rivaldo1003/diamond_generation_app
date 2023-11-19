@@ -1,7 +1,10 @@
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
+import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
+import 'package:diamond_generation_app/features/wpda/presentation/edit_wpda.screen.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -14,9 +17,26 @@ class CardWpda extends StatelessWidget {
     required this.wpda,
   });
 
+  String convertTimeFormat(String originalTime) {
+    // Membuat formatter untuk waktu dengan format HH.mm.ss
+    DateFormat originalFormat = DateFormat('HH:mm:ss');
+
+    // Parsing waktu dari string ke objek DateTime
+    DateTime dateTime = originalFormat.parseStrict(originalTime);
+
+    // Membuat formatter baru untuk waktu dengan format HH.mm
+    DateFormat newFormat = DateFormat('HH:mm');
+
+    // Mengonversi waktu ke format yang diinginkan
+    return newFormat.format(dateTime);
+  }
+
   @override
   Widget build(BuildContext context) {
-    String timeOnly = wpda.createdAt.split(' ').last;
+    String time = wpda.createdAt.split(' ').last;
+
+    String timeOnly = convertTimeFormat(time);
+
     String formatDate =
         DateFormat('dd MMMM yyyy', 'id').format(DateTime.parse(wpda.createdAt));
 
@@ -26,6 +46,7 @@ class CardWpda extends StatelessWidget {
 
     String dateResult =
         DateFormat('dd MMM yy').format(DateTime.parse(wpda.createdAt));
+    final wpdaProvider = Provider.of<WpdaProvider>(context);
 
     return Column(
       children: [
@@ -196,18 +217,52 @@ class CardWpda extends StatelessWidget {
                                 icon: Icon(Icons.favorite_border_outlined),
                               ),
                               IconButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return EditWpdaScreen(
+                                      wpda: wpda,
+                                    );
+                                  }));
+                                },
                                 icon: Icon(
                                   Icons.edit,
                                   color: MyColor.colorLightBlue,
                                 ),
                               ),
-                              IconButton(
-                                onPressed: () {},
-                                icon: Icon(
-                                  Icons.delete,
-                                  color: MyColor.colorRed,
-                                ),
+                              Consumer<LoginProvider>(
+                                builder: (context, _value, _) {
+                                  if (value.userId == null) {
+                                    value.loadUserId();
+                                    return CircularProgressIndicator();
+                                  } else {
+                                    return IconButton(
+                                      onPressed: () {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return CustomDialog(
+                                                onApprovePressed: (context) {
+                                                  wpdaProvider.deleteWpda({
+                                                    "user_id": value.userId,
+                                                    "wpda_id": wpda.id,
+                                                  }, context);
+                                                },
+                                                title:
+                                                    'Delete WPDA confirmation',
+                                                content:
+                                                    'Are you sure you want to delete this WPDA?',
+                                                textColorYes: 'Delete',
+                                              );
+                                            });
+                                      },
+                                      icon: Icon(
+                                        Icons.delete,
+                                        color: MyColor.colorRed,
+                                      ),
+                                    );
+                                  }
+                                },
                               ),
                             ],
                           );
@@ -223,164 +278,181 @@ class CardWpda extends StatelessWidget {
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Card(
-              color: MyColor.colorBlackBg,
-              child: Padding(
-                padding: EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+            child: Consumer<LoginProvider>(builder: (context, value, _) {
+              if (value.userId == null) {
+                value.loadUserId();
+                return CircularProgressIndicator();
+              } else {
+                return Card(
+                  color: MyColor.colorBlackBg,
+                  child: Container(
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: (value.userId == wpda.userId &&
+                                currentDateFormat == formatDate)
+                            ? MyColor.greyText
+                            : MyColor.colorBlackBg,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CircleAvatar(
-                          backgroundImage:
-                              AssetImage('assets/images/profile_empty.jpg'),
-                          backgroundColor: Colors.white,
-                          radius: 20,
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundImage:
+                                  AssetImage('assets/images/profile_empty.jpg'),
+                              backgroundColor: Colors.white,
+                              radius: 20,
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Consumer<LoginProvider>(
+                                    builder: (context, value, _) {
+                                      if (value.userId == null) {
+                                        value.loadUserId();
+                                        return CircularProgressIndicator();
+                                      } else {
+                                        return Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                wpda.fullName,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: MyFonts.customTextStyle(
+                                                  14,
+                                                  FontWeight.bold,
+                                                  MyColor.whiteColor,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(width: 12),
+                                            (wpda.userId == value.userId)
+                                                ? Container(
+                                                    height: 20,
+                                                    width: 60,
+                                                    decoration: BoxDecoration(
+                                                      color: MyColor.colorGreen,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              5),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        'You',
+                                                        style: MyFonts
+                                                            .customTextStyle(
+                                                          14,
+                                                          FontWeight.bold,
+                                                          MyColor.whiteColor,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                : Container(),
+                                          ],
+                                        );
+                                      }
+                                    },
+                                  ),
+                                  Text(
+                                    wpda.email,
+                                    style: MyFonts.customTextStyle(
+                                      14,
+                                      FontWeight.w500,
+                                      MyColor.greyText,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Consumer<LoginProvider>(
-                                builder: (context, value, _) {
-                                  if (value.userId == null) {
-                                    value.loadUserId();
-                                    return CircularProgressIndicator();
-                                  } else {
-                                    return Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            wpda.fullName,
-                                            overflow: TextOverflow.ellipsis,
+                        SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                wpda.kitabBacaan,
+                                style: MyFonts.customTextStyle(
+                                  16,
+                                  FontWeight.bold,
+                                  MyColor.colorLightBlue,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Container(
+                                height: 30,
+                                // width: MediaQuery.of(context).size.width * 0.3,
+                                decoration: BoxDecoration(
+                                  // color: MyColor.whiteColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    (currentDateFormat == formatDate)
+                                        ? Text(
+                                            'Hari ini',
                                             style: MyFonts.customTextStyle(
-                                              14,
+                                              12,
+                                              FontWeight.bold,
+                                              MyColor.colorLightBlue,
+                                            ),
+                                          )
+                                        : Text(
+                                            dateResult,
+                                            style: MyFonts.customTextStyle(
+                                              12,
                                               FontWeight.bold,
                                               MyColor.whiteColor,
                                             ),
                                           ),
-                                        ),
-                                        SizedBox(width: 12),
-                                        (wpda.userId == value.userId)
-                                            ? Container(
-                                                height: 20,
-                                                width: 60,
-                                                decoration: BoxDecoration(
-                                                  color: MyColor.colorGreen,
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                ),
-                                                child: Center(
-                                                  child: Text(
-                                                    'You',
-                                                    style:
-                                                        MyFonts.customTextStyle(
-                                                      14,
-                                                      FontWeight.bold,
-                                                      MyColor.whiteColor,
-                                                    ),
-                                                  ),
-                                                ),
-                                              )
-                                            : Container(),
-                                      ],
-                                    );
-                                  }
-                                },
-                              ),
-                              Text(
-                                wpda.email,
-                                style: MyFonts.customTextStyle(
-                                  14,
-                                  FontWeight.w500,
-                                  MyColor.greyText,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            wpda.kitabBacaan,
-                            style: MyFonts.customTextStyle(
-                              16,
-                              FontWeight.bold,
-                              MyColor.colorLightBlue,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            height: 30,
-                            // width: MediaQuery.of(context).size.width * 0.3,
-                            decoration: BoxDecoration(
-                              // color: MyColor.whiteColor,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                (currentDateFormat == formatDate)
-                                    ? Text(
-                                        'Hari ini',
-                                        style: MyFonts.customTextStyle(
-                                          12,
-                                          FontWeight.bold,
-                                          MyColor.colorLightBlue,
-                                        ),
-                                      )
-                                    : Text(
-                                        dateResult,
-                                        style: MyFonts.customTextStyle(
-                                          12,
-                                          FontWeight.bold,
-                                          MyColor.whiteColor,
-                                        ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      '| ' + timeOnly,
+                                      style: MyFonts.customTextStyle(
+                                        12,
+                                        FontWeight.bold,
+                                        MyColor.colorLightBlue,
                                       ),
-                                SizedBox(width: 4),
-                                Text(
-                                  '| ' + timeOnly,
-                                  style: MyFonts.customTextStyle(
-                                    12,
-                                    FontWeight.bold,
-                                    MyColor.colorLightBlue,
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 12),
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            wpda.isiKitab,
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                            style: MyFonts.customTextStyle(
+                              14,
+                              FontWeight.w500,
+                              MyColor.whiteColor,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 12),
-                    Container(
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        wpda.isiKitab,
-                        maxLines: 4,
-                        overflow: TextOverflow.ellipsis,
-                        style: MyFonts.customTextStyle(
-                          14,
-                          FontWeight.w500,
-                          MyColor.whiteColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+                  ),
+                );
+              }
+            }),
           ),
         ),
         Divider(

@@ -15,6 +15,7 @@ class TextFieldWidget extends StatelessWidget {
   bool? readOnly;
   Color? textColor;
   int? maxLines;
+  TextInputType? keyboardType;
 
   TextFieldWidget({
     super.key,
@@ -30,11 +31,13 @@ class TextFieldWidget extends StatelessWidget {
     this.readOnly,
     this.textColor,
     this.maxLines,
+    this.keyboardType,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      keyboardType: keyboardType,
       onTap: onTap,
       enableSuggestions: false,
       autocorrect: false,

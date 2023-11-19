@@ -1,5 +1,6 @@
+import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
-import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
+import 'package:diamond_generation_app/features/wpda/data/providers/edit_wpda_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/button.dart';
@@ -7,12 +8,23 @@ import 'package:diamond_generation_app/shared/widgets/textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class AddWPDAForm extends StatelessWidget {
+class EditWpdaScreen extends StatelessWidget {
+  final WPDA wpda;
+
+  EditWpdaScreen({super.key, required this.wpda});
+
   @override
   Widget build(BuildContext context) {
-    final wpdaProvider = Provider.of<WpdaProvider>(context);
+    final editWpdaProvider =
+        Provider.of<EditWpdaProvider>(context, listen: false);
+
+    editWpdaProvider.kitabBacaanController.text = wpda.kitabBacaan;
+    editWpdaProvider.isiKitabController.text = wpda.isiKitab;
+    editWpdaProvider.pesanTuhanController.text = wpda.pesanTuhan;
+    editWpdaProvider.aplikasiKehidupanController.text = wpda.aplikasiKehidupan;
+
     return Scaffold(
-      appBar: AppBarWidget(title: 'Add WPDA'),
+      appBar: AppBarWidget(title: 'Edit WPDA'),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -24,15 +36,13 @@ class AddWPDAForm extends StatelessWidget {
                     TextFieldWidget(
                       hintText: 'Kitab bacaan',
                       obscureText: false,
-                      controller: wpdaProvider.kitabBacaanController,
-                      textColor: MyColor.greyText,
-                      focusNode: wpdaProvider.kitabBacaanFocusNode,
-                      errorText: wpdaProvider.showRequiredMessageKitabBacaan
+                      controller: editWpdaProvider.kitabBacaanController,
+                      focusNode: editWpdaProvider.kitabBacaanFocusNode,
+                      errorText: editWpdaProvider.showRequiredMessageKitabBacaan
                           ? 'Data Required'
                           : null,
                       onChanged: (value) {
-                        wpdaProvider.showRequiredMessageKitabBacaan = false;
-                        wpdaProvider.notifyListeners();
+                        editWpdaProvider.showRequiredMessageKitabBacaan = false;
                       },
                       suffixIcon: Icon(
                         Icons.book,
@@ -42,15 +52,14 @@ class AddWPDAForm extends StatelessWidget {
                     TextFieldWidget(
                       hintText: 'Isi kitab',
                       obscureText: false,
-                      controller: wpdaProvider.isiKitabController,
+                      controller: editWpdaProvider.isiKitabController,
                       textColor: MyColor.greyText,
-                      focusNode: wpdaProvider.isiKitabFocusNode,
-                      errorText: wpdaProvider.showRequiredMessageIsiKitab
+                      focusNode: editWpdaProvider.isiKitabFocusNode,
+                      errorText: editWpdaProvider.showRequiredMessageIsiKitab
                           ? 'Data Required'
                           : null,
                       onChanged: (value) {
-                        wpdaProvider.showRequiredMessageIsiKitab = false;
-                        wpdaProvider.notifyListeners();
+                        editWpdaProvider.showRequiredMessageIsiKitab = false;
                       },
                       suffixIcon: Icon(
                         Icons.book,
@@ -61,15 +70,14 @@ class AddWPDAForm extends StatelessWidget {
                     TextFieldWidget(
                       hintText: 'Pesan Tuhan',
                       obscureText: false,
-                      controller: wpdaProvider.pesanTuhanController,
+                      controller: editWpdaProvider.pesanTuhanController,
                       textColor: MyColor.greyText,
-                      focusNode: wpdaProvider.pesanTuhanFocusNode,
-                      errorText: wpdaProvider.showRequiredMessagePesanTuhan
+                      focusNode: editWpdaProvider.pesanTuhanFocusNode,
+                      errorText: editWpdaProvider.showRequiredMessagePesanTuhan
                           ? 'Data Required'
                           : null,
                       onChanged: (value) {
-                        wpdaProvider.showRequiredMessagePesanTuhan = false;
-                        wpdaProvider.notifyListeners();
+                        editWpdaProvider.showRequiredMessagePesanTuhan = false;
                       },
                       suffixIcon: Icon(
                         Icons.book,
@@ -80,17 +88,16 @@ class AddWPDAForm extends StatelessWidget {
                     TextFieldWidget(
                       hintText: 'Aplikasi dalam kehidupan',
                       obscureText: false,
-                      controller: wpdaProvider.aplikasiKehidupanController,
+                      controller: editWpdaProvider.aplikasiKehidupanController,
                       textColor: MyColor.greyText,
-                      focusNode: wpdaProvider.aplikasiKehidupanFocusNode,
+                      focusNode: editWpdaProvider.aplikasiKehidupanFocusNode,
                       errorText:
-                          wpdaProvider.showRequiredMessageAplikasiKehidupan
+                          editWpdaProvider.showRequiredMessageAplikasiKehidupan
                               ? 'Data Required'
                               : null,
                       onChanged: (value) {
-                        wpdaProvider.showRequiredMessageAplikasiKehidupan =
+                        editWpdaProvider.showRequiredMessageAplikasiKehidupan =
                             false;
-                        wpdaProvider.notifyListeners();
                       },
                       suffixIcon: Icon(
                         Icons.book,
@@ -107,16 +114,18 @@ class AddWPDAForm extends StatelessWidget {
                 return CircularProgressIndicator();
               } else {
                 return ButtonWidget(
-                  title: 'Send WPDA',
+                  title: 'Edit WPDA',
                   color: MyColor.primaryColor,
                   onPressed: () {
-                    wpdaProvider.onSubmit({
+                    editWpdaProvider.onSubmit({
                       'user_id': value.userId,
-                      'kitab_bacaan': wpdaProvider.kitabBacaanController.text,
-                      'isi_kitab': wpdaProvider.isiKitabController.text,
-                      'pesan_tuhan': wpdaProvider.pesanTuhanController.text,
+                      'wpda_id': wpda.id,
+                      'kitab_bacaan':
+                          editWpdaProvider.kitabBacaanController.text,
+                      'isi_kitab': editWpdaProvider.isiKitabController.text,
+                      'pesan_tuhan': editWpdaProvider.pesanTuhanController.text,
                       'aplikasi_kehidupan':
-                          wpdaProvider.aplikasiKehidupanController.text,
+                          editWpdaProvider.aplikasiKehidupanController.text,
                     }, context);
                   },
                 );

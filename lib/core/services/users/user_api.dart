@@ -11,19 +11,19 @@ import 'package:diamond_generation_app/features/login/data/utils/controller_regi
 import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
 import 'package:diamond_generation_app/features/register_form/presentation/register_form.dart';
-import 'package:diamond_generation_app/features/view_all_data_users/data/providers/view_all_data_user_provider.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/utils/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-class ApiService {
+class UserApi {
   final String urlApi;
 
-  ApiService({
+  UserApi({
     required this.urlApi,
   });
 
@@ -58,6 +58,7 @@ class ApiService {
         loginProvider.saveAccountNumber(data['account_number']);
         loginProvider.saveUserId(data['user_id']);
         loginProvider.saveProfileCompleted(data['profile_completed']);
+        print(data);
         if (data['role'] == 'admin') {
           showDialog(
               barrierDismissible: false,
@@ -75,8 +76,7 @@ class ApiService {
               }),
               (route) => false,
             );
-            TextFieldControllerLogin.emailController.text = '';
-            TextFieldControllerLogin.passwordController.text = '';
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 backgroundColor: MyColor.colorGreen,
@@ -90,6 +90,8 @@ class ApiService {
                 ),
               ),
             );
+            TextFieldControllerLogin.emailController.text = '';
+            TextFieldControllerLogin.passwordController.text = '';
           });
         } else {
           showDialog(
@@ -105,7 +107,9 @@ class ApiService {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) {
-                  return RegisterForm();
+                  return RegisterForm(
+                    token: data['token'],
+                  );
                 }),
                 (route) => false,
               );
@@ -223,13 +227,11 @@ class ApiService {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
+              backgroundColor: MyColor.colorRed,
               content: Text(
                 '${data['message']}',
                 style: MyFonts.customTextStyle(
-                  14,
-                  FontWeight.w500,
-                  Colors.red,
-                ),
+                    14, FontWeight.w500, MyColor.whiteColor),
               ),
             ),
           );
@@ -244,6 +246,7 @@ class ApiService {
       Map<String, dynamic> body, BuildContext context) async {
     final registerFormProvider =
         Provider.of<RegisterFormProvider>(context, listen: false);
+    final loginProvider = Provider.of<LoginProvider>(context, listen: false);
     final headers = {
       "Content-Type": "application/json",
     };
@@ -254,7 +257,9 @@ class ApiService {
     );
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      if (data['success'] == true) {
+      if (data['success']) {
+        print('PROFILE COMPLETED REGISTER FORM ${data['profile_completed']}');
+        loginProvider.saveProfileCompleted(data['profile_completed']);
         showDialog(
             barrierDismissible: false,
             context: context,
@@ -321,8 +326,7 @@ class ApiService {
   Future<Map<String, dynamic>> getUserProfile(int userId) async {
     final headers = {"Content-Type": "application/json"};
     final response = await http.get(
-      Uri.parse(
-          'http://192.168.0.164/diamond_generation/read_user_profile.php?user_id=${userId}'),
+      Uri.parse(ApiConstants.readUserProfileByIdUrl + '?user_id=${userId}'),
       headers: headers,
     );
     if (response.statusCode == 200) {
@@ -350,111 +354,30 @@ class ApiService {
     throw Exception('Failed to load all users');
   }
 
-  Future<void> createWpda(
-      Map<String, dynamic> body, BuildContext context) async {
-    final headers = {
-      "Content-Type": "application/json",
-    };
-    final response = await http.post(
-      Uri.parse(ApiConstants.createWpdaUrl),
-      headers: headers,
-      body: json.encode(body),
-    );
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['success']) {
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            });
-        Future.delayed(Duration(seconds: 2), () {
-          Navigator.pop(context);
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) {
-              return BottomNavigationPage(
-                index: 1,
-              );
-            }),
-            (route) => false,
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: MyColor.colorGreen,
-              content: Text(
-                '${data['message']}',
-                style: MyFonts.customTextStyle(
-                  14,
-                  FontWeight.w500,
-                  MyColor.whiteColor,
-                ),
-              ),
-            ),
-          );
-        });
-      } else {
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            });
-        Future.delayed(Duration(seconds: 2), () {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: MyColor.colorRed,
-              content: Text(
-                '${data['message']}',
-                style: MyFonts.customTextStyle(
-                  14,
-                  FontWeight.w500,
-                  MyColor.whiteColor,
-                ),
-              ),
-            ),
-          );
-        });
-      }
-    } else {
-      throw Exception('Failed to create WPDA');
-    }
-  }
+  // Future<List<HistoryWpda>> getAllWpdaByUserId(String userId) async {
+  //   final headers = {"Content-Type": "application/json"};
+  //   final url = Uri.parse(ApiConstants.historyWpdaUrl + '?user_id=${userId}');
+  //   final response = await http.get(url);
+  //   if (response.statusCode == 200) {
+  //     final List<dynamic> jsonResponse = json.decode(response.body)['history'];
+  //     return jsonResponse.map((json) {
+  //       return HistoryWpda.fromJson(json);
+  //     }).toList();
+  //   } else {
+  //     throw Exception('Failed to load data WPDA');
+  //   }
+  // }
 
-  Future<List<WPDA>> getAllWpda() async {
-    final headers = {"Content-Type": "application/json"};
-    final response = await http.get(
-      Uri.parse(ApiConstants.getAllWpdaUrl),
-      headers: headers,
-    );
-    if (response.statusCode == 200) {
-      List<dynamic> jsonResponse = json.decode(response.body)['wpda'];
-      return jsonResponse.map((json) {
-        return WPDA.fromJson(json);
-      }).toList();
-    } else {
-      throw Exception('Failed to get all wpda data');
-    }
-  }
-
-  Future<List<HistoryWpda>> getAllWpdaByUserId(String userId) async {
-    final headers = {"Content-Type": "application/json"};
-    final url = Uri.parse(
-        'http://192.168.0.164/diamond_generation/history_wpda.php?user_id=${userId}');
+  Future<History> getAllWpdaByUserId(String userId) async {
+    final url = Uri.parse(ApiConstants.historyWpdaUrl + '?user_id=${userId}');
     final response = await http.get(url);
+
     if (response.statusCode == 200) {
-      final List<dynamic> jsonResponse = json.decode(response.body)['history'];
-      return jsonResponse.map((json) {
-        return HistoryWpda.fromJson(json);
-      }).toList();
+      final Map<String, dynamic> jsonResponse = json.decode(response.body);
+
+      return History.fromJson(jsonResponse);
     } else {
-      throw Exception('Failed to load data WPDA');
+      throw Exception('Failed to load history data');
     }
   }
 

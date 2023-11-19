@@ -10,10 +10,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class RegisterForm extends StatelessWidget {
+  final String token;
+
+  RegisterForm({
+    super.key,
+    required this.token,
+  });
+
   @override
   Widget build(BuildContext context) {
     final registerFormProvider = Provider.of<RegisterFormProvider>(context);
     final registerProvider = Provider.of<RegisterProvider>(context);
+    final loginProvider = Provider.of<LoginProvider>(context);
+    print('DARI REGISTER FORM :${token}');
     return Scaffold(
       appBar: AppBarWidget(title: 'Enter Personal Information'),
       body: Column(
@@ -68,6 +77,7 @@ class RegisterForm extends StatelessWidget {
                         SizedBox(height: 12),
                         TextFieldWidget(
                           hintText: 'Phone Number',
+                          keyboardType: TextInputType.phone,
                           suffixIcon: Icon(Icons.phone),
                           obscureText: false,
                           focusNode: registerFormProvider.phoneNumberFocusNode,

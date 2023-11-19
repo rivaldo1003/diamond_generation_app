@@ -18,7 +18,6 @@ class ViewAllDataUsers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String registrationDate = userData.registration_date.split(' ').first;
     String formatDate = DateFormat('dd MMMM yyyy', 'id')
         .format(DateTime.parse(userData.registration_date));
     return Scaffold(

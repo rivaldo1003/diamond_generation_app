@@ -1,21 +1,109 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/profile/data/providers/profile_provider.dart';
+import 'package:diamond_generation_app/features/profile/models/image.dart';
+import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/button.dart';
 import 'package:diamond_generation_app/shared/widgets/card_detail_profile.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:package_info/package_info.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  String appVersion = '';
+
+  Future<void> getVersion() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      appVersion = packageInfo.version;
+    });
+  }
+
+  @override
+  void initState() {
+    getVersion();
+    super.initState();
+  }
+
+  File? _imageFile;
+  File? resultImage;
+  String? imageUrlCheck;
+
+  Future<void> _uploadImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      File imageFile = File(pickedFile.path);
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse(ApiConstants.uploadImageUrl),
+      );
+      request.fields['user_id'] = '203'; // Ganti dengan ID pengguna
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'profile_picture',
+          imageFile.path,
+        ),
+      );
+
+      try {
+        final streamedResponse = await request.send();
+        if (streamedResponse.statusCode == 200) {
+          final response = await http.Response.fromStream(streamedResponse);
+          final Map<String, dynamic> responseData = json.decode(response.body);
+          print(responseData);
+
+          // Jika gambar berhasil diunggah, atur gambar yang dipilih pada tampilan profil
+          setState(() {
+            _imageFile = imageFile;
+          });
+          fetchImage("203");
+        } else {
+          print('Upload failed');
+        }
+      } catch (e) {
+        print('Error during upload: $e');
+      }
+    }
+  }
+
+  Future<void> fetchImage(String userId) async {
+    final response = await http
+        .get(Uri.parse(ApiConstants.readImageUrl + '?user_id=${userId}'));
+    if (response.statusCode == 200) {
+      final List<dynamic> dataImage = json.decode(response.body)['data'];
+      for (var item in dataImage) {
+        imageUrlCheck = item['image_path'];
+        resultImage = File(imageUrlCheck!);
+      }
+    } else {
+      throw Exception('Failed to load images');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
     final getUserUsecase = Provider.of<GetUserUsecase>(context);
+
     return Scaffold(
       appBar: AppBarWidget(title: 'Account'),
       body: Consumer<LoginProvider>(builder: (context, value, _) {
@@ -32,7 +120,26 @@ class ProfileScreen extends StatelessWidget {
                   child: CircularProgressIndicator(),
                 );
               } else if (snapshot.hasError) {
-                return Text('Error : ${snapshot.hasError}');
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/images/emoji.png',
+                        height: MediaQuery.of(context).size.height * 0.15,
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Server connection error. Please try again later',
+                        style: MyFonts.customTextStyle(
+                          14,
+                          FontWeight.w500,
+                          MyColor.whiteColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
               } else {
                 Map<String, dynamic> dataUser = snapshot.data!;
                 if (dataUser['success']) {
@@ -47,24 +154,67 @@ class ProfileScreen extends StatelessWidget {
                         child: SingleChildScrollView(
                           child: Column(
                             children: [
-                              Container(
-                                margin: EdgeInsets.only(
-                                  top: 16,
-                                  bottom: 18,
-                                ),
-                                height: 120,
-                                width: 120,
-                                child: CircleAvatar(
-                                  backgroundImage: AssetImage(
-                                      'assets/images/profile_empty.jpg'),
-                                ),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 5.0,
+                              Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  (_imageFile == null)
+                                      ? Container(
+                                          margin: EdgeInsets.only(
+                                            top: 16,
+                                            bottom: 18,
+                                          ),
+                                          height: 120,
+                                          width: 120,
+                                          child: CircleAvatar(
+                                            backgroundImage: AssetImage(
+                                                'assets/images/profile_empty.jpg'),
+                                          ),
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 5.0,
+                                            ),
+                                          ),
+                                        )
+                                      : Container(
+                                          margin: EdgeInsets.only(
+                                            top: 16,
+                                            bottom: 18,
+                                          ),
+                                          height: 120,
+                                          width: 120,
+                                          child: CircleAvatar(
+                                            backgroundImage:
+                                                FileImage(resultImage!),
+                                          ),
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 5.0,
+                                            ),
+                                          ),
+                                        ),
+                                  Positioned(
+                                    bottom: 20,
+                                    right: 0,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _uploadImage();
+                                      },
+                                      child: Container(
+                                        height: 40,
+                                        width: 40,
+                                        child: Icon(Icons.add),
+                                        decoration: BoxDecoration(
+                                          color: MyColor.colorLightBlue,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
                               Text(
                                 '${profileData['full_name']}',
@@ -171,7 +321,19 @@ class ProfileScreen extends StatelessWidget {
                                         ', ' +
                                         profileData['birth_date'],
                                   ),
-                                  SizedBox(height: 4),
+                                  SizedBox(height: 32),
+                                  (appVersion != null)
+                                      ? Center(
+                                          child: Text(
+                                            'App Version - ${appVersion} ',
+                                            style: MyFonts.customTextStyle(
+                                              12,
+                                              FontWeight.w500,
+                                              MyColor.greyText,
+                                            ),
+                                          ),
+                                        )
+                                      : CircularProgressIndicator(),
                                 ],
                               ),
                             ],

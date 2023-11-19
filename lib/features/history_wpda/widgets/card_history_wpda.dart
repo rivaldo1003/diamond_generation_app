@@ -14,9 +14,25 @@ class CardHistoryWpda extends StatelessWidget {
     required this.historyWpda,
   });
 
+  String convertTimeFormat(String originalTime) {
+    // Membuat formatter untuk waktu dengan format HH.mm.ss
+    DateFormat originalFormat = DateFormat('HH:mm:ss');
+
+    // Parsing waktu dari string ke objek DateTime
+    DateTime dateTime = originalFormat.parseStrict(originalTime);
+
+    // Membuat formatter baru untuk waktu dengan format HH.mm
+    DateFormat newFormat = DateFormat('HH:mm');
+
+    // Mengonversi waktu ke format yang diinginkan
+    return newFormat.format(dateTime);
+  }
+
   @override
   Widget build(BuildContext context) {
-    String timeOnly = historyWpda.createdAt.split(' ').last;
+    String time = historyWpda.createdAt.split(' ').last;
+
+    String timeOnly = convertTimeFormat(time);
     String formatDate = DateFormat('dd MMMM yyyy', 'id')
         .format(DateTime.parse(historyWpda.createdAt));
 
@@ -25,6 +41,7 @@ class CardHistoryWpda extends StatelessWidget {
         DateFormat('dd MMMM yyyy', 'id').format(DateTime.parse(currentDate));
     String dateResult =
         DateFormat('dd MMM yy').format(DateTime.parse(historyWpda.createdAt));
+
     return GestureDetector(
       onTap: () {
         showDialog(
@@ -293,44 +310,56 @@ class CardHistoryWpda extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        historyWpda.kitabBacaan,
-                        style: MyFonts.customTextStyle(
-                          16,
-                          FontWeight.bold,
-                          MyColor.colorLightBlue,
+                      Expanded(
+                        child: Text(
+                          historyWpda.kitabBacaan,
+                          style: MyFonts.customTextStyle(
+                            16,
+                            FontWeight.bold,
+                            MyColor.colorLightBlue,
+                          ),
                         ),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          (currentDateFormat == formatDate)
-                              ? Text(
-                                  'Hari ini',
-                                  style: MyFonts.customTextStyle(
-                                    12,
-                                    FontWeight.bold,
-                                    MyColor.colorLightBlue,
-                                  ),
-                                )
-                              : Text(
-                                  formatDate,
-                                  style: MyFonts.customTextStyle(
-                                    12,
-                                    FontWeight.bold,
-                                    MyColor.whiteColor,
-                                  ),
-                                ),
-                          SizedBox(width: 4),
-                          Text(
-                            '| ' + timeOnly,
-                            style: MyFonts.customTextStyle(
-                              12,
-                              FontWeight.bold,
-                              MyColor.colorLightBlue,
-                            ),
+                      Expanded(
+                        child: Container(
+                          height: 30,
+                          // width: MediaQuery.of(context).size.width * 0.3,
+                          decoration: BoxDecoration(
+                            // color: MyColor.whiteColor,
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                        ],
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              (currentDateFormat == formatDate)
+                                  ? Text(
+                                      'Hari ini',
+                                      style: MyFonts.customTextStyle(
+                                        12,
+                                        FontWeight.bold,
+                                        MyColor.colorLightBlue,
+                                      ),
+                                    )
+                                  : Text(
+                                      dateResult,
+                                      style: MyFonts.customTextStyle(
+                                        12,
+                                        FontWeight.bold,
+                                        MyColor.whiteColor,
+                                      ),
+                                    ),
+                              SizedBox(width: 4),
+                              Text(
+                                '| ' + timeOnly,
+                                style: MyFonts.customTextStyle(
+                                  12,
+                                  FontWeight.bold,
+                                  MyColor.colorLightBlue,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),

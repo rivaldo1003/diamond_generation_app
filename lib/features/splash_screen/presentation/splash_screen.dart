@@ -1,7 +1,4 @@
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
-import 'package:diamond_generation_app/features/user_login/presentation/user_screen.dart';
-import 'package:diamond_generation_app/shared/utils/color.dart';
-import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';

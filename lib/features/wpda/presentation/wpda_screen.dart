@@ -1,5 +1,6 @@
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
+import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/presentation/add_wpda.dart';
@@ -8,12 +9,14 @@ import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/card_wpda.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class WPDAScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final wpda = Provider.of<GetUserUsecase>(context);
+    final getWpdaUsecase = Provider.of<GetWpdaUsecase>(context);
     final wpdaProvider = Provider.of<WpdaProvider>(context);
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -82,7 +85,7 @@ class WPDAScreen extends StatelessWidget {
           ),
           Expanded(
             child: FutureBuilder<List<WPDA>>(
-              future: wpda.getAllWpda(),
+              future: getWpdaUsecase.getAllWpda(),
               builder: (context, snapshot) {
                 var data = snapshot.data;
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -93,8 +96,7 @@ class WPDAScreen extends StatelessWidget {
                   if (snapshot.hasData) {
                     if (snapshot.data!.isEmpty) {
                       return Center(
-                        child: Text('WPDA data is empty'),
-                      );
+                          child: Image.asset('assets/images/emoji.png'));
                     } else {
                       return Consumer<LoginProvider>(
                           builder: (context, value, _) {
@@ -102,13 +104,24 @@ class WPDAScreen extends StatelessWidget {
                           value.loadUserId();
                           return CircularProgressIndicator();
                         } else {
+                          var currentDate = DateTime.now();
+                          var formatDate =
+                              DateFormat('yy MMM dd').format(currentDate);
+
                           data = data!.reversed.toList();
                           data!.sort((a, b) {
+                            var dateA = DateFormat('yy MMM dd')
+                                .format(DateTime.parse(a.createdAt));
+                            var dateB = DateFormat('yy MMM dd')
+                                .format(DateTime.parse(b.createdAt));
+
                             if (a.userId == value.userId &&
-                                b.userId != value.userId) {
+                                b.userId != value.userId &&
+                                dateA == formatDate) {
                               return -1;
                             } else if (a.userId != value.userId &&
-                                b.userId == value.userId) {
+                                b.userId == value.userId &&
+                                dateB == formatDate) {
                               return 1;
                             } else {
                               return 0;
@@ -132,15 +145,25 @@ class WPDAScreen extends StatelessWidget {
                       });
                     }
                   } else {
-                    return Center(
-                      child: Text(
-                        'WPDA Data is empty',
-                        style: MyFonts.customTextStyle(
-                          14,
-                          FontWeight.w500,
-                          MyColor.whiteColor,
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/images/emoji.png',
+                          height: MediaQuery.of(context).size.height * 0.15,
                         ),
-                      ),
+                        SizedBox(height: 8),
+                        Center(
+                          child: Text(
+                            'WPDA data not found!',
+                            style: MyFonts.customTextStyle(
+                              14,
+                              FontWeight.w500,
+                              MyColor.whiteColor,
+                            ),
+                          ),
+                        ),
+                      ],
                     );
                   }
                 }

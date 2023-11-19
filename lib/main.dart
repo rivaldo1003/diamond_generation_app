@@ -1,6 +1,8 @@
+import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/core/repositories/user_repository.dart';
 import 'package:diamond_generation_app/core/repositories/wpda_repository.dart';
-import 'package:diamond_generation_app/core/services/api_services.dart';
+import 'package:diamond_generation_app/core/services/users/user_api.dart';
+import 'package:diamond_generation_app/core/services/wpda/wpda_api.dart';
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/data/providers/bottom_nav_bar_provider.dart';
@@ -12,6 +14,7 @@ import 'package:diamond_generation_app/features/register/data/providers/register
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
 import 'package:diamond_generation_app/features/splash_screen/presentation/splash_screen.dart';
 import 'package:diamond_generation_app/features/view_all_data_users/data/providers/view_all_data_user_provider.dart';
+import 'package:diamond_generation_app/features/wpda/data/providers/edit_wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/theme.dart';
@@ -39,7 +42,7 @@ class MyApp extends StatelessWidget {
           create: (context) => SearchUserProvider(
             getUserUsecase: GetUserUsecase(
               userRepository: UserRepositoryImpl(
-                apiService: ApiService(
+                userApi: UserApi(
                   urlApi: ApiConstants.getAllUser,
                 ),
               ),
@@ -47,17 +50,26 @@ class MyApp extends StatelessWidget {
           ),
         ),
         ChangeNotifierProvider(
+          create: (context) => EditWpdaProvider(
+            getWpdaUsecase: GetWpdaUsecase(
+              wpdaRepository: WpdaRepositoryImpl(
+                wpdaApi: WpdaApi(urlApi: ApiConstants.editWpdaUrl),
+              ),
+            ),
+          ),
+        ),
+        ChangeNotifierProvider(
             create: (context) => WpdaProvider(
-                    getUserUsecase: GetUserUsecase(
-                        userRepository: UserRepositoryImpl(
-                            apiService: ApiService(
+                    getWpdaUsecase: GetWpdaUsecase(
+                        wpdaRepository: WpdaRepositoryImpl(
+                            wpdaApi: WpdaApi(
                   urlApi: ApiConstants.createWpdaUrl,
                 ))))),
         ChangeNotifierProvider(
           create: (context) => RegisterFormProvider(
               getUserUsecase: GetUserUsecase(
                   userRepository: UserRepositoryImpl(
-                      apiService: ApiService(
+                      userApi: UserApi(
             urlApi: ApiConstants.submitDataUserUrl,
           )))),
         ),
@@ -65,7 +77,7 @@ class MyApp extends StatelessWidget {
           create: (context) => RegisterProvider(
             getUserUsecase: GetUserUsecase(
               userRepository: UserRepositoryImpl(
-                apiService: ApiService(urlApi: ApiConstants.registerUrl),
+                userApi: UserApi(urlApi: ApiConstants.registerUrl),
               ),
             ),
           ),
@@ -74,7 +86,7 @@ class MyApp extends StatelessWidget {
           create: (context) => LoginProvider(
             getUserUsecase: GetUserUsecase(
               userRepository: UserRepositoryImpl(
-                apiService: ApiService(
+                userApi: UserApi(
                   urlApi: ApiConstants.loginUrl,
                 ),
               ),
@@ -84,7 +96,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => HomeProvider(
             userRepository: UserRepositoryImpl(
-              apiService: ApiService(
+              userApi: UserApi(
                 urlApi: ApiConstants.newCreation1Url,
               ),
             ),
@@ -93,9 +105,15 @@ class MyApp extends StatelessWidget {
         Provider(
             create: (context) => GetUserUsecase(
                     userRepository: UserRepositoryImpl(
-                        apiService: ApiService(
+                        userApi: UserApi(
                   urlApi: ApiConstants.newCreation1Url,
-                ))))
+                )))),
+        Provider(
+            create: (context) => GetWpdaUsecase(
+                    wpdaRepository: WpdaRepositoryImpl(
+                        wpdaApi: WpdaApi(
+                  urlApi: ApiConstants.getAllWpdaUrl,
+                )))),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

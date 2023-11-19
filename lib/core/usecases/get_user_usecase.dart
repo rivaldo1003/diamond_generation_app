@@ -39,16 +39,7 @@ class GetUserUsecase {
     return await userRepository.getAllUser();
   }
 
-  Future<void> createWpda(
-      Map<String, dynamic> body, BuildContext context) async {
-    await userRepository.createWpda(body, context);
-  }
-
-  Future<List<WPDA>> getAllWpda() async {
-    return await userRepository.getAllWpda();
-  }
-
-  Future<List<HistoryWpda>> getAllWpdaByUserID(String userId) async {
+  Future<History> getAllWpdaByUserID(String userId) async {
     return await userRepository.getAllWpdaByUserId(userId);
   }
 

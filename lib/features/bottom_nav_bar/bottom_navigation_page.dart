@@ -47,10 +47,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
   void initState() {
     goToHome();
     if (widget.index != null) {
-      if (role == 'admin') {
-        selected = widget.index!;
-      }
-      selected = widget.index! - 1;
+      selected = widget.index!;
     }
     super.initState();
   }

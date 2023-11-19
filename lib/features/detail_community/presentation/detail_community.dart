@@ -199,12 +199,30 @@ class _DetailCommunityState extends State<DetailCommunity> {
                   );
                 } else {
                   return Center(
-                    child: Text('Data is empty'),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Result not found',
+                          style: MyFonts.customTextStyle(
+                            14,
+                            FontWeight.w500,
+                            MyColor.whiteColor,
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 }
               } else {
                 return Center(
-                  child: Text('Has no data'),
+                  child: Text(
+                    'Data not found',
+                    style: MyFonts.customTextStyle(
+                      14,
+                      FontWeight.w500,
+                      MyColor.whiteColor,
+                    ),
+                  ),
                 );
               }
             }

@@ -1,6 +1,7 @@
-import 'dart:ffi';
+// ignore_for_file: unnecessary_null_comparison
 
 import 'package:diamond_generation_app/core/models/all_users.dart';
+import 'package:diamond_generation_app/features/history_wpda/presentation/history_screen.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
@@ -25,39 +26,38 @@ class WpdaUserScreen extends StatelessWidget {
       appBar: AppBarWidget(title: 'WPDA User'),
       body: Column(
         children: [
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 20),
-            height: 60,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              color: MyColor.colorGreen,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Total WPDA ${allUsers.fullName}',
-                    style: MyFonts.customTextStyle(
-                      14,
-                      FontWeight.w500,
-                      MyColor.whiteColor,
-                    ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: CardHeaderHistoryWpda(
+                    totalWpda: totalWpda,
+                    title: 'TOTAL WPDA',
+                    color: MyColor.colorGreen,
                   ),
-                  Text(
-                    allUsers.dataWpda.length.toString() + ' WPDA',
-                    style: MyFonts.customTextStyle(
-                      18,
-                      FontWeight.w700,
-                      MyColor.whiteColor,
-                    ),
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: CardHeaderHistoryWpda(
+                    totalWpda: (allUsers.grade == null) ? '0' : allUsers.grade,
+                    title: 'GRADE',
+                    color: MyColor.colorLightBlue,
                   ),
-                ],
-              ),
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: CardHeaderHistoryWpda(
+                    totalWpda: (allUsers.missedDaysTotal == null)
+                        ? '-'
+                        : allUsers.missedDaysTotal,
+                    title: 'MISSED DAY',
+                    color: MyColor.colorRed,
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 8),
           Expanded(
             child: (allUsers.dataWpda.isNotEmpty)
                 ? ListView.builder(
@@ -482,13 +482,25 @@ class WpdaUserScreen extends StatelessWidget {
                     },
                   )
                 : Center(
-                    child: Text(
-                      'Anda belum pernah wpda, semangat WPDA🙌',
-                      style: MyFonts.customTextStyle(
-                        14,
-                        FontWeight.w500,
-                        MyColor.whiteColor,
-                      ),
+                    child: Consumer<LoginProvider>(
+                      builder: (context, value, _) {
+                        if (value.userId == null) {
+                          value.userId;
+                          return CircularProgressIndicator();
+                        } else {
+                          return Text(
+                            (value.userId == allUsers.id)
+                                ? 'Anda belum pernah wpda'
+                                : '${allUsers.fullName} belum pernah wpda',
+                            textAlign: TextAlign.center,
+                            style: MyFonts.customTextStyle(
+                              14,
+                              FontWeight.w500,
+                              MyColor.whiteColor,
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ),
           ),

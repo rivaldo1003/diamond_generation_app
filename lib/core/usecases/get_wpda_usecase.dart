@@ -16,4 +16,13 @@ class GetWpdaUsecase {
   Future<List<WPDA>> getAllWpda() async {
     return await wpdaRepository.getAllWpda();
   }
+
+  Future<void> editWpda(Map<String, dynamic> body, BuildContext context) async {
+    await wpdaRepository.editWpda(body, context);
+  }
+
+  Future<void> deleteWpda(
+      Map<String, dynamic> body, BuildContext context) async {
+    await wpdaRepository.deleteWpda(body, context);
+  }
 }

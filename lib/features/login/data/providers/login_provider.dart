@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 
 class LoginProvider with ChangeNotifier {
   final GetUserUsecase _getUserUsecase;
-  LoginProvider({required GetUserUsecase getUserUsecase})
-      : _getUserUsecase = getUserUsecase;
+
+  LoginProvider({
+    required GetUserUsecase getUserUsecase,
+  }) : _getUserUsecase = getUserUsecase;
 
 //FULL NAME GET SHARED PREFERENCES
   String? _fullName;

@@ -37,7 +37,24 @@ class _ViewAllDataState extends State<ViewAllData> {
             );
           } else if (snapshot.hasError) {
             return Center(
-              child: Text(snapshot.hasError.toString()),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/images/emoji.png',
+                    height: MediaQuery.of(context).size.height * 0.15,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Data not found!',
+                    style: MyFonts.customTextStyle(
+                      14,
+                      FontWeight.w500,
+                      MyColor.whiteColor,
+                    ),
+                  ),
+                ],
+              ),
             );
           } else {
             List<AllUsers> usersData = searchUserProvider.filteredUserData;
@@ -45,20 +62,7 @@ class _ViewAllDataState extends State<ViewAllData> {
               return e.profile_completed;
             });
 
-            var resultWaitingApprove = usersData.map((e) {
-              e.statusPersetujuan.contains("pending_approval").toString();
-              return e.statusPersetujuan;
-            });
-
-            int countUnapprovedUsers(List<AllUsers> users) {
-              int count = 0;
-              for (var user in users) {
-                if (user.statusPersetujuan != "approved") {
-                  count++;
-                }
-              }
-              return count;
-            }
+            var dataLength = result.where((element) => element == "0").length;
 
             int countUserApprove =
                 searchUserProvider.countUnapprovedUsers(usersData).toInt();
@@ -67,6 +71,35 @@ class _ViewAllDataState extends State<ViewAllData> {
               if (value.userId == null) value.loadUserId();
               return Column(
                 children: [
+                  Container(
+                    padding: EdgeInsets.all(20),
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                      color: MyColor.colorBlackBg,
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.person,
+                              color: MyColor.colorGreen,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Total users (${usersData.length} user).',
+                              style: MyFonts.customTextStyle(
+                                15,
+                                FontWeight.w500,
+                                MyColor.whiteColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 4),
                   (result.contains("0"))
                       ? Container(
                           padding: EdgeInsets.all(20),
@@ -84,7 +117,7 @@ class _ViewAllDataState extends State<ViewAllData> {
                                   ),
                                   SizedBox(width: 8),
                                   Text(
-                                    'Incomplete user profile data.',
+                                    'Incomplete user profile data (${dataLength}).',
                                     style: MyFonts.customTextStyle(
                                       15,
                                       FontWeight.w500,
@@ -369,7 +402,7 @@ class _ViewAllDataState extends State<ViewAllData> {
                               )
                             : Center(
                                 child: Text(
-                                  'User no found',
+                                  'No users found',
                                   style: MyFonts.customTextStyle(
                                     14,
                                     FontWeight.w500,
