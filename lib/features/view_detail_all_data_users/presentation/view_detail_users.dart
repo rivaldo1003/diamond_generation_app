@@ -21,7 +21,7 @@ class ViewAllDataUsers extends StatelessWidget {
     String formatDate = DateFormat('dd MMMM yyyy', 'id')
         .format(DateTime.parse(userData.registration_date));
     return Scaffold(
-      appBar: AppBarWidget(title: 'Detail User'),
+      appBar: AppBarWidget(title: 'Detail Pengguna'),
       body: Column(
         children: [
           Expanded(
@@ -67,9 +67,6 @@ class ViewAllDataUsers extends StatelessWidget {
                       width: 70,
                       decoration: BoxDecoration(
                         color: MyColor.colorLightBlue,
-                        // border: Border.all(
-                        //   color: MyColor.primaryColor,
-                        // ),
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: Center(
@@ -90,7 +87,7 @@ class ViewAllDataUsers extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Active since - ${formatDate}',
+                  'Aktif sejak - ${formatDate}',
                   style: MyFonts.customTextStyle(
                     14,
                     FontWeight.w500,
@@ -104,7 +101,7 @@ class ViewAllDataUsers extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Text(
-                        'Personal Information',
+                        'Informasi Pribadi',
                         style: MyFonts.customTextStyle(
                           14,
                           FontWeight.w500,
@@ -115,8 +112,14 @@ class ViewAllDataUsers extends StatelessWidget {
                     SizedBox(height: 8),
                     CardDetailProfile(
                       iconData: Icons.numbers,
-                      title: 'Account Number',
+                      title: 'Nomor Akun',
                       value: userData.account_number,
+                    ),
+                    SizedBox(height: 4),
+                    CardDetailProfile(
+                      iconData: Icons.campaign,
+                      title: 'Umur',
+                      value: userData.age + ' Tahun',
                     ),
                     SizedBox(height: 4),
                     CardDetailProfile(
@@ -127,25 +130,25 @@ class ViewAllDataUsers extends StatelessWidget {
                     SizedBox(height: 4),
                     CardDetailProfile(
                       iconData: Icons.home_rounded,
-                      title: 'Address',
+                      title: 'Alamat',
                       value: userData.address,
                     ),
                     SizedBox(height: 4),
                     CardDetailProfile(
                       iconData: Icons.phone,
-                      title: 'Phone',
+                      title: 'No Telepon',
                       value: userData.phoneNumber,
                     ),
                     SizedBox(height: 4),
                     CardDetailProfile(
                       iconData: Icons.person,
-                      title: 'Gender',
+                      title: 'Jenis Kelamin',
                       value: userData.gender,
                     ),
                     SizedBox(height: 4),
                     CardDetailProfile(
                       iconData: Icons.add_location_alt,
-                      title: 'Place and Date of Birth',
+                      title: 'Tempat/Tanggal Lahir',
                       value: '${userData.birthPlace}' +
                           ', ' +
                           '${userData.birthDate}',

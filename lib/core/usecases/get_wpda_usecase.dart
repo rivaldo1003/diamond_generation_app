@@ -1,3 +1,4 @@
+import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/repositories/wpda_repository.dart';
 import 'package:flutter/material.dart';
@@ -24,5 +25,9 @@ class GetWpdaUsecase {
   Future<void> deleteWpda(
       Map<String, dynamic> body, BuildContext context) async {
     await wpdaRepository.deleteWpda(body, context);
+  }
+
+  Future<History> getAllWpdaByUserID(String userId) async {
+    return await wpdaRepository.getAllWpdaByUserId(userId);
   }
 }

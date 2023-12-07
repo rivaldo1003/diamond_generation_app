@@ -1,4 +1,3 @@
-import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/core/repositories/user_repository.dart';
 import 'package:diamond_generation_app/core/repositories/wpda_repository.dart';
 import 'package:diamond_generation_app/core/services/users/user_api.dart';
@@ -14,6 +13,7 @@ import 'package:diamond_generation_app/features/register/data/providers/register
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
 import 'package:diamond_generation_app/features/splash_screen/presentation/splash_screen.dart';
 import 'package:diamond_generation_app/features/view_all_data_users/data/providers/view_all_data_user_provider.dart';
+import 'package:diamond_generation_app/features/wpda/data/providers/add_wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/edit_wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
@@ -36,7 +36,13 @@ class MyApp extends StatelessWidget {
           create: (context) => BottomNaviBarProvider(),
         ),
         ChangeNotifierProvider(
+          create: (context) => ViewAllDataProvider(),
+        ),
+        ChangeNotifierProvider(
           create: (context) => ProfileProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => AddWpdaWProvider(),
         ),
         ChangeNotifierProvider(
           create: (context) => SearchUserProvider(

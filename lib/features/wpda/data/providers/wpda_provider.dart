@@ -1,6 +1,9 @@
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
+import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
+import 'package:diamond_generation_app/shared/utils/color.dart';
+import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:flutter/material.dart';
 
 class WpdaProvider with ChangeNotifier {
@@ -27,11 +30,47 @@ class WpdaProvider with ChangeNotifier {
     super.dispose();
   }
 
+  Future refreshApp(BuildContext context) async {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        });
+    Future.delayed(Duration(seconds: 2), () {
+      Navigator.pop(context);
+      notifyListeners();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: MyColor.colorGreen,
+          content: Text(
+            'Berhasil diperbarui',
+            style: MyFonts.customTextStyle(
+              14,
+              FontWeight.w500,
+              MyColor.whiteColor,
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
   List<WPDA> wpdas = [];
+  var history;
   List<HistoryWpda> historyWpda = [];
 
   Future refreshAllUsers() async {
     wpdas = await _getWpdaUsecase.getAllWpda();
+    Future.delayed(Duration(seconds: 2), () {
+      notifyListeners();
+    });
+  }
+
+  Future refreshWpdaHistory(String userId) async {
+    await _getWpdaUsecase.getAllWpdaByUserID(userId);
     notifyListeners();
   }
 

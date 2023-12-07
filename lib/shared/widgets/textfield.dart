@@ -9,6 +9,7 @@ class TextFieldWidget extends StatelessWidget {
   final TextEditingController controller;
   String? Function(String?)? validator;
   String? Function(String?)? onChanged;
+  void Function(String)? onFieldSubmitted;
   Icon? suffixIcon;
   FocusNode? focusNode;
   void Function()? onTap;
@@ -32,6 +33,7 @@ class TextFieldWidget extends StatelessWidget {
     this.textColor,
     this.maxLines,
     this.keyboardType,
+    this.onFieldSubmitted,
   });
 
   @override
@@ -39,6 +41,7 @@ class TextFieldWidget extends StatelessWidget {
     return TextFormField(
       keyboardType: keyboardType,
       onTap: onTap,
+      onFieldSubmitted: onFieldSubmitted,
       enableSuggestions: false,
       autocorrect: false,
       readOnly: (readOnly == null) ? false : readOnly!,

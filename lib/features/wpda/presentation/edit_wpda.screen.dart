@@ -1,7 +1,9 @@
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
+import 'package:diamond_generation_app/features/wpda/data/providers/add_wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/edit_wpda_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
+import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/button.dart';
 import 'package:diamond_generation_app/shared/widgets/textfield.dart';
@@ -17,11 +19,16 @@ class EditWpdaScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final editWpdaProvider =
         Provider.of<EditWpdaProvider>(context, listen: false);
+    final addWpdaProvider =
+        Provider.of<AddWpdaWProvider>(context, listen: false);
 
     editWpdaProvider.kitabBacaanController.text = wpda.kitabBacaan;
     editWpdaProvider.isiKitabController.text = wpda.isiKitab;
     editWpdaProvider.pesanTuhanController.text = wpda.pesanTuhan;
     editWpdaProvider.aplikasiKehidupanController.text = wpda.aplikasiKehidupan;
+
+    editWpdaProvider.newSelectedItems = addWpdaProvider.selectedItems;
+    print(editWpdaProvider.newSelectedItems);
 
     return Scaffold(
       appBar: AppBarWidget(title: 'Edit WPDA'),
@@ -104,6 +111,149 @@ class EditWpdaScreen extends StatelessWidget {
                       ),
                       maxLines: 4,
                     ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Doa Tabernakel',
+                      style: MyFonts.customTextStyle(
+                        15,
+                        FontWeight.bold,
+                        MyColor.whiteColor,
+                      ),
+                    ),
+                    Consumer<AddWpdaWProvider>(
+                      builder: (context, checkBoxState, _) {
+                        return Container(
+                          height: 200,
+                          // color: Colors.white,
+                          child: ListView(
+                            padding: EdgeInsets.only(
+                              top: 0,
+                              bottom: 20,
+                            ),
+                            shrinkWrap: true,
+                            children: [
+                              CheckboxListTile(
+                                dense: true,
+                                title: Text('Mesbah Bakaran',
+                                    style: MyFonts.customTextStyle(
+                                      15,
+                                      FontWeight.w500,
+                                      MyColor.whiteColor,
+                                    )),
+                                value: !checkBoxState.selectedItems
+                                        .contains('Tidak Berdoa') &&
+                                    checkBoxState.selectedItems
+                                        .contains('Mesbah Bakaran'),
+                                onChanged: checkBoxState.selectedItems
+                                        .contains('Tidak Berdoa')
+                                    ? null
+                                    : (value) {
+                                        checkBoxState.editSelectedItems(
+                                            value!, 'Mesbah Bakaran');
+                                      },
+                              ),
+                              CheckboxListTile(
+                                  dense: true,
+                                  title: Text('Bejana Pembasuhan',
+                                      style: MyFonts.customTextStyle(
+                                        15,
+                                        FontWeight.w500,
+                                        MyColor.whiteColor,
+                                      )),
+                                  value: !checkBoxState.selectedItems
+                                          .contains('Tidak Berdoa') &&
+                                      checkBoxState.selectedItems
+                                          .contains('Bejana Pembasuhan'),
+                                  onChanged: checkBoxState.selectedItems
+                                          .contains('Tidak Berdoa')
+                                      ? null
+                                      : (value) {
+                                          checkBoxState.editSelectedItems(
+                                              value!, 'Bejana Pembasuhan');
+                                        }),
+                              CheckboxListTile(
+                                  dense: true,
+                                  title: Text('Ruang Kudus',
+                                      style: MyFonts.customTextStyle(
+                                        15,
+                                        FontWeight.w500,
+                                        MyColor.whiteColor,
+                                      )),
+                                  value: !checkBoxState.selectedItems
+                                          .contains('Tidak Berdoa') &&
+                                      checkBoxState.selectedItems
+                                          .contains('Ruang Kudus'),
+                                  onChanged: checkBoxState.selectedItems
+                                          .contains('Tidak Berdoa')
+                                      ? null
+                                      : (value) {
+                                          checkBoxState.editSelectedItems(
+                                              value!, 'Ruang Kudus');
+                                        }),
+                              CheckboxListTile(
+                                  dense: true,
+                                  title: Text('Ruang Maha Kudus',
+                                      style: MyFonts.customTextStyle(
+                                        15,
+                                        FontWeight.w500,
+                                        MyColor.whiteColor,
+                                      )),
+                                  value: !checkBoxState.selectedItems
+                                          .contains('Tidak Berdoa') &&
+                                      checkBoxState.selectedItems
+                                          .contains('Ruang Maha Kudus'),
+                                  onChanged: checkBoxState.selectedItems
+                                          .contains('Tidak Berdoa')
+                                      ? null
+                                      : (value) {
+                                          checkBoxState.editSelectedItems(
+                                              value!, 'Ruang Maha Kudus');
+                                        }),
+                              CheckboxListTile(
+                                  dense: true,
+                                  title: Text('Nila-Nilai GSJA SK',
+                                      style: MyFonts.customTextStyle(
+                                        15,
+                                        FontWeight.w500,
+                                        MyColor.whiteColor,
+                                      )),
+                                  value: !checkBoxState.selectedItems
+                                          .contains('Tidak Berdoa') &&
+                                      checkBoxState.selectedItems
+                                          .contains('Nilai-Nilai GSJA SK'),
+                                  onChanged: checkBoxState.selectedItems
+                                          .contains('Tidak Berdoa')
+                                      ? null
+                                      : (value) {
+                                          checkBoxState.editSelectedItems(
+                                              value!, 'Nilai-Nilai GSJA SK');
+                                        }),
+                              CheckboxListTile(
+                                  dense: true,
+                                  title: Text('Tidak Berdoa',
+                                      style: MyFonts.customTextStyle(
+                                        15,
+                                        FontWeight.w500,
+                                        MyColor.whiteColor,
+                                      )),
+                                  value: checkBoxState.selectedItems
+                                      .contains('Tidak Berdoa'),
+                                  onChanged: (value) {
+                                    if (value!) {
+                                      checkBoxState.selectedItems.clear();
+                                      checkBoxState.selectedItems
+                                          .add('Tidak Berdoa');
+                                    } else {
+                                      checkBoxState.selectedItems
+                                          .remove('Tidak Berdoa');
+                                    }
+                                    checkBoxState.notifyListeners();
+                                  }),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -126,6 +276,8 @@ class EditWpdaScreen extends StatelessWidget {
                       'pesan_tuhan': editWpdaProvider.pesanTuhanController.text,
                       'aplikasi_kehidupan':
                           editWpdaProvider.aplikasiKehidupanController.text,
+                      'selected_prayers':
+                          editWpdaProvider.newSelectedItems.join(','),
                     }, context);
                   },
                 );

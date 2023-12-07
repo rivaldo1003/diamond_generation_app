@@ -12,43 +12,42 @@ class RegisterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final registerProvider = Provider.of<RegisterProvider>(context);
     return Scaffold(
+      appBar: AppBar(),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 40,
-            bottom: MediaQuery.of(context).viewPadding.bottom,
-          ),
-          child: Form(
-            key: registerProvider.keyRegister,
+        child: Form(
+          key: registerProvider.keyRegister,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
                   child: Container(
-                    height: 150,
-                    width: 300,
-                    child: Image.asset('assets/images/title.png'),
+                    child: Image.asset(
+                      'assets/icons/logo_new.png',
+                      height: 150,
+                    ),
                   ),
                 ),
-                Divider(),
-                SizedBox(height: 24),
+                SizedBox(height: 32),
                 Text.rich(
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: 'Hello Dgers, Register\n',
+                        text: 'Silahkan daftar untuk\n',
                         style: MyFonts.customTextStyle(
-                          24,
+                          18,
                           FontWeight.bold,
                           MyColor.whiteColor,
                         ),
                       ),
                       TextSpan(
-                        text: 'here to get started',
+                        text: 'memulai aplikasi.',
                         style: MyFonts.customTextStyle(
-                          24,
+                          18,
                           FontWeight.bold,
                           MyColor.whiteColor,
                         ),
@@ -58,12 +57,12 @@ class RegisterScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 24),
                 TextFieldWidget(
-                  hintText: 'Full Name',
+                  hintText: 'Nama Lengkap',
                   obscureText: false,
                   controller: TextFieldControllerRegister.fullNameController,
                   validator: (value) {
                     if (value!.isEmpty || value.length == 0) {
-                      return 'Full Name Required';
+                      return 'Nama lengkap tidak boleh kosong';
                     } else {
                       return null;
                     }
@@ -71,17 +70,17 @@ class RegisterScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 12),
                 TextFieldWidget(
-                  hintText: 'Email Address',
+                  hintText: 'Email',
                   obscureText: false,
                   controller: TextFieldControllerRegister.emailController,
                   validator: (value) {
                     if (value!.isEmpty || value == '') {
-                      return 'Email Required';
+                      return 'Email tidak boleh kosong';
                     } else {
                       if (value.contains('@gmail.com')) {
                         return null;
                       } else {
-                        return 'Please use a valid email address';
+                        return 'Silahkan masukkan email yang valid';
                       }
                     }
                   },
@@ -90,13 +89,13 @@ class RegisterScreen extends StatelessWidget {
                 Stack(
                   children: [
                     TextFieldWidget(
-                      hintText: 'Password',
+                      hintText: 'Kata Sandi',
                       obscureText: (registerProvider.obscure) ? false : true,
                       controller:
                           TextFieldControllerRegister.passwordController,
                       validator: (value) {
                         if (value!.isEmpty || value.length == 0) {
-                          return 'Password Required';
+                          return 'Kata sandi tidak boleh kosong';
                         } else {
                           return null;
                         }
@@ -124,7 +123,7 @@ class RegisterScreen extends StatelessWidget {
                     TextButton(
                       onPressed: () {},
                       child: Text(
-                        'Forgot Password?',
+                        'Lupa kata sandi?',
                         style: MyFonts.customTextStyle(
                           14,
                           FontWeight.w500,
@@ -146,6 +145,7 @@ class RegisterScreen extends StatelessWidget {
                       backgroundColor: MyColor.primaryColor,
                     ),
                     onPressed: () {
+                      print(DateTime.now().toString());
                       if (registerProvider.keyRegister.currentState!
                           .validate()) {
                         registerProvider.registerUser(
@@ -163,7 +163,7 @@ class RegisterScreen extends StatelessWidget {
                       }
                     },
                     child: Text(
-                      'Register',
+                      'Daftar',
                       style: MyFonts.customTextStyle(
                         16,
                         FontWeight.bold,
@@ -172,26 +172,27 @@ class RegisterScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Already have an account? ',
+                      'Sudah punya akun? ',
                       style: MyFonts.customTextStyle(
                         12,
                         FontWeight.w500,
                         MyColor.whiteColor,
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {
+                    GestureDetector(
+                      onTap: () {
                         Navigator.pushReplacement(context,
                             MaterialPageRoute(builder: (context) {
                           return LoginScreen();
                         }));
                       },
                       child: Text(
-                        'Login',
+                        'Masuk',
                         style: MyFonts.customTextStyle(
                           14,
                           FontWeight.bold,

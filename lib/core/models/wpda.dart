@@ -5,6 +5,7 @@ class WPDA {
   final String isiKitab;
   final String pesanTuhan;
   final String aplikasiKehidupan;
+  final String selectedPrayers;
   final String createdAt;
   final String fullName;
   final String email;
@@ -16,6 +17,7 @@ class WPDA {
     required this.isiKitab,
     required this.pesanTuhan,
     required this.aplikasiKehidupan,
+    required this.selectedPrayers,
     required this.createdAt,
     required this.fullName,
     required this.email,
@@ -29,6 +31,7 @@ class WPDA {
       isiKitab: json['isi_kitab'],
       pesanTuhan: json['pesan_tuhan'],
       aplikasiKehidupan: json['aplikasi_kehidupan'],
+      selectedPrayers: json['selected_prayers'].toString(),
       createdAt: json['created_at'].toString(),
       fullName: json['full_name'],
       email: json['email'],

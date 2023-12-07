@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:diamond_generation_app/core/models/all_users.dart';
-import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
-import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
 import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
@@ -14,7 +12,6 @@ import 'package:diamond_generation_app/features/register_form/presentation/regis
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
-import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/utils/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -115,7 +112,7 @@ class UserApi {
               );
               SnackBarWidget.showSnackBar(
                 context: context,
-                message: 'Your profile is incomplete. Complete your profile.',
+                message: 'Profil Anda tidak lengkap. Lengkapi profil Anda.',
                 textColor: MyColor.whiteColor,
                 bgColor: MyColor.colorLightBlue,
               );
@@ -129,7 +126,7 @@ class UserApi {
               );
               SnackBarWidget.showSnackBar(
                 context: context,
-                message: 'You have successfully signed into your account.',
+                message: 'Anda telah berhasil masuk ke akun Anda.',
                 textColor: MyColor.whiteColor,
                 bgColor: MyColor.colorGreen,
               );
@@ -166,7 +163,7 @@ class UserApi {
         });
       }
     } else {
-      throw Exception('Login Failed');
+      throw Exception('Gagal masuk');
     }
   }
 
@@ -201,7 +198,7 @@ class UserApi {
             SnackBar(
               backgroundColor: MyColor.colorGreen,
               content: Text(
-                '${data['message'] + ' Login now'}',
+                '${data['message']}',
                 style: MyFonts.customTextStyle(
                   14,
                   FontWeight.w500,
@@ -238,7 +235,7 @@ class UserApi {
         });
       }
     } else {
-      throw Exception('Register user failed!');
+      throw Exception('Gagal mendaftarkan pengguna!');
     }
   }
 
@@ -258,7 +255,6 @@ class UserApi {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       if (data['success']) {
-        print('PROFILE COMPLETED REGISTER FORM ${data['profile_completed']}');
         loginProvider.saveProfileCompleted(data['profile_completed']);
         showDialog(
             barrierDismissible: false,
@@ -352,33 +348,6 @@ class UserApi {
       return result;
     }
     throw Exception('Failed to load all users');
-  }
-
-  // Future<List<HistoryWpda>> getAllWpdaByUserId(String userId) async {
-  //   final headers = {"Content-Type": "application/json"};
-  //   final url = Uri.parse(ApiConstants.historyWpdaUrl + '?user_id=${userId}');
-  //   final response = await http.get(url);
-  //   if (response.statusCode == 200) {
-  //     final List<dynamic> jsonResponse = json.decode(response.body)['history'];
-  //     return jsonResponse.map((json) {
-  //       return HistoryWpda.fromJson(json);
-  //     }).toList();
-  //   } else {
-  //     throw Exception('Failed to load data WPDA');
-  //   }
-  // }
-
-  Future<History> getAllWpdaByUserId(String userId) async {
-    final url = Uri.parse(ApiConstants.historyWpdaUrl + '?user_id=${userId}');
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> jsonResponse = json.decode(response.body);
-
-      return History.fromJson(jsonResponse);
-    } else {
-      throw Exception('Failed to load history data');
-    }
   }
 
   Future<void> approveUser(

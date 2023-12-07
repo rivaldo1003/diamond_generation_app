@@ -12,7 +12,6 @@ abstract class UserRepository {
   Future<void> submitDataUser(Map<String, dynamic> body, BuildContext context);
   Future<Map<String, dynamic>> getUserProfile(int userId);
   Future<List<AllUsers>> getAllUser();
-  Future<History> getAllWpdaByUserId(String userId);
   Future<void> approveUser(Map<String, dynamic> body, BuildContext context);
   Future<void> deleteUser(String userId, BuildContext context);
 }
@@ -53,11 +52,6 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<List<AllUsers>> getAllUser() async {
     return await userApi.getAllUsers();
-  }
-
-  @override
-  Future<History> getAllWpdaByUserId(String userId) async {
-    return await userApi.getAllWpdaByUserId(userId);
   }
 
   @override

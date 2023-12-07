@@ -15,7 +15,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarWidget(title: 'Home'),
+      appBar: AppBarWidget(title: 'Beranda'),
       body: Column(
         children: [
           Padding(
@@ -71,7 +71,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 10),
                 TextFieldWidget(
-                  hintText: 'Find your community...',
+                  hintText: 'Temukan komunitas anda...',
                   obscureText: false,
                   controller:
                       TextFieldControllerLogin.searchCommunityController,
@@ -82,13 +82,13 @@ class HomeScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 24),
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  // crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      height: 70,
+                      width: MediaQuery.of(context).size.width / 2.5,
                       child: Image.asset('assets/images/title.png'),
                     ),
-                    Spacer(),
                     GestureDetector(
                       onTap: () {
                         Navigator.push(context,
@@ -97,9 +97,9 @@ class HomeScreen extends StatelessWidget {
                         }));
                       },
                       child: Text(
-                        'View all data',
+                        'Lihat semua\n pengguna',
                         style: MyFonts.customTextStyle(
-                          14,
+                          12,
                           FontWeight.bold,
                           MyColor.colorLightBlue,
                         ),

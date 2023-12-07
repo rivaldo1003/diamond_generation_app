@@ -6,6 +6,7 @@ import 'package:diamond_generation_app/features/login/data/providers/login_provi
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
+import 'package:diamond_generation_app/shared/widgets/prayer_abbreviation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -40,7 +41,8 @@ class WpdaUserScreen extends StatelessWidget {
                 SizedBox(width: 8),
                 Expanded(
                   child: CardHeaderHistoryWpda(
-                    totalWpda: (allUsers.grade == null) ? '0' : allUsers.grade,
+                    totalWpda:
+                        (allUsers.dataWpda.isEmpty) ? 'C' : allUsers.grade,
                     title: 'GRADE',
                     color: MyColor.colorLightBlue,
                   ),
@@ -48,8 +50,8 @@ class WpdaUserScreen extends StatelessWidget {
                 SizedBox(width: 8),
                 Expanded(
                   child: CardHeaderHistoryWpda(
-                    totalWpda: (allUsers.missedDaysTotal == null)
-                        ? '-'
+                    totalWpda: (allUsers.missedDaysTotal == "-1")
+                        ? '0'
                         : allUsers.missedDaysTotal,
                     title: 'MISSED DAY',
                     color: MyColor.colorRed,
@@ -74,6 +76,21 @@ class WpdaUserScreen extends StatelessWidget {
 
                       String dateResult = DateFormat('dd MMM yy')
                           .format(DateTime.parse(history.createdAt));
+
+                      String selectedPrayers = history.selectedPrayers;
+
+                      List<String> abbreviations = [];
+                      if (selectedPrayers.isEmpty) {
+                        abbreviations.add('Tidak Berdoa');
+                      } else {
+                        List<String> prayersList = selectedPrayers.split(',');
+                        abbreviations = prayersList
+                            .map((prayer) => getAbbreviation(prayer))
+                            .toList();
+                      }
+
+                      String selectedItemString = abbreviations.join(',');
+
                       return Column(
                         children: [
                           GestureDetector(
@@ -444,6 +461,33 @@ class WpdaUserScreen extends StatelessWidget {
                                                     ),
                                                   ),
                                                 ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              'Doa Tabernakel',
+                                              style: MyFonts.customTextStyle(
+                                                12,
+                                                FontWeight.w500,
+                                                MyColor.greyText,
+                                              ),
+                                            ),
+                                          ),
+                                          Flexible(
+                                            child: Text(
+                                              selectedItemString,
+                                              textAlign: TextAlign.right,
+                                              style: MyFonts.customTextStyle(
+                                                12,
+                                                FontWeight.bold,
+                                                MyColor.whiteColor,
                                               ),
                                             ),
                                           ),

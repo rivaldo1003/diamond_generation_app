@@ -1,7 +1,6 @@
 import 'package:diamond_generation_app/core/models/all_users.dart';
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
-import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/repositories/user_repository.dart';
 import 'package:flutter/material.dart';
 
@@ -37,10 +36,6 @@ class GetUserUsecase {
 
   Future<List<AllUsers>> getAllUsers() async {
     return await userRepository.getAllUser();
-  }
-
-  Future<History> getAllWpdaByUserID(String userId) async {
-    return await userRepository.getAllWpdaByUserId(userId);
   }
 
   Future<void> approveUser(

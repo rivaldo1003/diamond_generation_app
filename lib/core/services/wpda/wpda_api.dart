@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
+import 'package:diamond_generation_app/features/wpda/data/providers/add_wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/edit_wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
@@ -22,6 +24,7 @@ class WpdaApi {
   Future<void> createWpda(
       Map<String, dynamic> body, BuildContext context) async {
     final wpdaProvider = Provider.of<WpdaProvider>(context, listen: false);
+    final checkBoxState = Provider.of<AddWpdaWProvider>(context, listen: false);
     final headers = {
       "Content-Type": "application/json",
     };
@@ -58,6 +61,7 @@ class WpdaApi {
           wpdaProvider.isiKitabController.text = '';
           wpdaProvider.kitabBacaanController.text = '';
           wpdaProvider.pesanTuhanController.text = '';
+          // checkBoxState.selectedItems.clear();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: MyColor.colorGreen,
@@ -256,22 +260,54 @@ class WpdaApi {
           );
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: MyColor.colorGreen,
-            content: Text(
-              '${data['message']}',
-              style: MyFonts.customTextStyle(
-                14,
-                FontWeight.w500,
-                MyColor.whiteColor,
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            });
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) {
+              return BottomNavigationPage(
+                index: (role == "admin") ? 1 : 0,
+              );
+            }),
+            (route) => false,
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorRed,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
               ),
             ),
-          ),
-        );
+          );
+        });
       }
     } else {
       throw Exception('Failed to delete data');
+    }
+  }
+
+  Future<History> getAllWpdaByUserId(String userId) async {
+    final url = Uri.parse(ApiConstants.historyWpdaUrl + '?user_id=${userId}');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonResponse = json.decode(response.body);
+
+      return History.fromJson(jsonResponse);
+    } else {
+      throw Exception('Failed to load history data');
     }
   }
 }

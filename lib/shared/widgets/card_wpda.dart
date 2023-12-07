@@ -5,6 +5,7 @@ import 'package:diamond_generation_app/features/wpda/presentation/edit_wpda.scre
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/widgets/custom_dialog.dart';
+import 'package:diamond_generation_app/shared/widgets/prayer_abbreviation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +13,7 @@ import 'package:provider/provider.dart';
 class CardWpda extends StatelessWidget {
   final WPDA wpda;
 
-  const CardWpda({
+  CardWpda({
     super.key,
     required this.wpda,
   });
@@ -47,6 +48,20 @@ class CardWpda extends StatelessWidget {
     String dateResult =
         DateFormat('dd MMM yy').format(DateTime.parse(wpda.createdAt));
     final wpdaProvider = Provider.of<WpdaProvider>(context);
+
+    String selectedPrayers = wpda.selectedPrayers;
+
+    List<String> abbreviations = [];
+
+    if (selectedPrayers.isEmpty || selectedPrayers == null) {
+      abbreviations.add('Tidak Berdoa');
+    } else {
+      List<String> prayersList = selectedPrayers.split(',');
+      abbreviations =
+          prayersList.map((prayer) => getAbbreviation(prayer)).toList();
+    }
+
+    String selectedItemsString = abbreviations.join(', ');
 
     return Column(
       children: [
@@ -138,68 +153,70 @@ class CardWpda extends StatelessWidget {
                   ),
                   content: Container(
                     width: MediaQuery.of(context).size.width,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          wpda.isiKitab,
-                          style: MyFonts.customTextStyle(
-                            14,
-                            FontWeight.w500,
-                            MyColor.whiteColor,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            wpda.isiKitab,
+                            style: MyFonts.customTextStyle(
+                              14,
+                              FontWeight.w500,
+                              MyColor.whiteColor,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Divider(),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'PT : ',
-                              style: MyFonts.customTextStyle(
-                                14,
-                                FontWeight.bold,
-                                MyColor.colorLightBlue,
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                '${wpda.pesanTuhan}',
+                          SizedBox(height: 8),
+                          Divider(),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'PT : ',
                                 style: MyFonts.customTextStyle(
                                   14,
-                                  FontWeight.w500,
-                                  MyColor.whiteColor,
+                                  FontWeight.bold,
+                                  MyColor.colorLightBlue,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'AP : ',
-                              style: MyFonts.customTextStyle(
-                                14,
-                                FontWeight.bold,
-                                MyColor.colorLightBlue,
+                              Expanded(
+                                child: Text(
+                                  '${wpda.pesanTuhan}',
+                                  style: MyFonts.customTextStyle(
+                                    14,
+                                    FontWeight.w500,
+                                    MyColor.whiteColor,
+                                  ),
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                '${wpda.aplikasiKehidupan}',
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'AP : ',
                                 style: MyFonts.customTextStyle(
                                   14,
-                                  FontWeight.w500,
-                                  MyColor.whiteColor,
+                                  FontWeight.bold,
+                                  MyColor.colorLightBlue,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                              Expanded(
+                                child: Text(
+                                  '${wpda.aplikasiKehidupan}',
+                                  style: MyFonts.customTextStyle(
+                                    14,
+                                    FontWeight.w500,
+                                    MyColor.whiteColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   actions: [
@@ -344,7 +361,7 @@ class CardWpda extends StatelessWidget {
                                                     ),
                                                     child: Center(
                                                       child: Text(
-                                                        'You',
+                                                        'Anda',
                                                         style: MyFonts
                                                             .customTextStyle(
                                                           14,
@@ -425,6 +442,32 @@ class CardWpda extends StatelessWidget {
                                       ),
                                     ),
                                   ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                'Doa Tabernakel',
+                                style: MyFonts.customTextStyle(
+                                  12,
+                                  FontWeight.w500,
+                                  MyColor.greyText,
+                                ),
+                              ),
+                            ),
+                            Flexible(
+                              child: Text(
+                                '${selectedItemsString}',
+                                textAlign: TextAlign.right,
+                                style: MyFonts.customTextStyle(
+                                  12,
+                                  FontWeight.bold,
+                                  MyColor.whiteColor,
                                 ),
                               ),
                             ),

@@ -9,6 +9,13 @@ class SearchUserProvider with ChangeNotifier {
 
   bool _isApproved = false;
   bool _isSortedByName = false;
+  bool _isKeyboardVisible = false;
+
+  bool get isKeyboardVisible => _isKeyboardVisible;
+  void showKeyboard(bool value) {
+    _isKeyboardVisible = value;
+    notifyListeners();
+  }
 
   bool get isApproved => _isApproved;
   List<AllUsers> userData = [];

@@ -45,10 +45,20 @@ dependencies:
   package_info: ^2.0.2
   image_picker: ^1.0.4
   permission_handler: ^11.0.1
+  flutter_launcher_icons: ^0.13.1
+  device_preview: ^1.1.0
+  flutter_keyboard_visibility: ^5.4.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icons/logo_new.png"
+  adaptive_icon_background: "#3d85c6"
+  min_sdk_android: 21 # android min sdk min:16, default 21
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

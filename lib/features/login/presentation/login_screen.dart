@@ -12,43 +12,42 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final loginProvider = Provider.of<LoginProvider>(context);
     return Scaffold(
+      appBar: AppBar(),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 40,
-            bottom: MediaQuery.of(context).viewPadding.bottom,
-          ),
-          child: Form(
-            key: loginProvider.keyLogin,
+        child: Form(
+          key: loginProvider.keyLogin,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
                   child: Container(
-                    height: 150,
-                    width: 300,
-                    child: Image.asset('assets/images/title.png'),
+                    child: Image.asset(
+                      'assets/icons/logo_new.png',
+                      height: 150,
+                    ),
                   ),
                 ),
-                Divider(),
-                SizedBox(height: 24),
+                SizedBox(height: 32),
                 Text.rich(
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: 'Welcome back!\n',
+                        text: 'Selamat Datang,\n',
                         style: MyFonts.customTextStyle(
-                          24,
+                          18,
                           FontWeight.bold,
                           MyColor.whiteColor,
                         ),
                       ),
                       TextSpan(
-                        text: 'Glad to see you, Again!',
+                        text: 'Senang Bertemu Denganmu.',
                         style: MyFonts.customTextStyle(
-                          24,
+                          18,
                           FontWeight.bold,
                           MyColor.whiteColor,
                         ),
@@ -58,17 +57,17 @@ class LoginScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 24),
                 TextFieldWidget(
-                  hintText: 'Email Address',
+                  hintText: 'Email',
                   controller: TextFieldControllerLogin.emailController,
                   obscureText: false,
                   validator: (value) {
                     if (value!.isEmpty || value == '') {
-                      return 'Email Required';
+                      return 'Email tidak boleh kosong';
                     } else {
                       if (value.contains('@gmail.com')) {
                         return null;
                       } else {
-                        return 'Please use a valid email address';
+                        return 'Silahkan masukkan email yang valid';
                       }
                     }
                   },
@@ -77,12 +76,12 @@ class LoginScreen extends StatelessWidget {
                 Stack(
                   children: [
                     TextFieldWidget(
-                      hintText: 'Password',
+                      hintText: 'Kata Sandi',
                       controller: TextFieldControllerLogin.passwordController,
                       obscureText: loginProvider.obscure ? false : true,
                       validator: (value) {
                         if (value!.isEmpty || value.length == 0) {
-                          return 'Password Required';
+                          return 'Kata sandi tidak boleh kosong';
                         } else {
                           return null;
                         }
@@ -110,7 +109,7 @@ class LoginScreen extends StatelessWidget {
                     TextButton(
                       onPressed: () {},
                       child: Text(
-                        'Forgot Password?',
+                        'Lupa kata sandi?',
                         style: MyFonts.customTextStyle(
                           14,
                           FontWeight.w500,
@@ -145,7 +144,7 @@ class LoginScreen extends StatelessWidget {
                       }
                     },
                     child: Text(
-                      'Login',
+                      'Masuk',
                       style: MyFonts.customTextStyle(
                         16,
                         FontWeight.bold,
@@ -154,26 +153,27 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Do you not have an account yet? ',
+                      'Anda belum memiliki akun? ',
                       style: MyFonts.customTextStyle(
                         12,
                         FontWeight.w500,
                         MyColor.whiteColor,
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {
+                    GestureDetector(
+                      onTap: () {
                         Navigator.pushReplacement(context,
                             MaterialPageRoute(builder: (context) {
                           return RegisterScreen();
                         }));
                       },
                       child: Text(
-                        'Register',
+                        'Daftar',
                         style: MyFonts.customTextStyle(
                           14,
                           FontWeight.bold,

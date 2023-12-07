@@ -2,6 +2,7 @@ import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/widgets/prayer_abbreviation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -41,6 +42,20 @@ class CardHistoryWpda extends StatelessWidget {
         DateFormat('dd MMMM yyyy', 'id').format(DateTime.parse(currentDate));
     String dateResult =
         DateFormat('dd MMM yy').format(DateTime.parse(historyWpda.createdAt));
+
+    String selectedPrayers = historyWpda.selectedPrayers;
+
+    List<String> abbreviations = [];
+
+    if (selectedPrayers.isEmpty || selectedPrayers == null) {
+      abbreviations.add('Tidak Berdoa');
+    } else {
+      List<String> prayersList = selectedPrayers.split(',');
+      abbreviations =
+          prayersList.map((prayer) => getAbbreviation(prayer)).toList();
+    }
+
+    String selectedItemsString = abbreviations.join(', ');
 
     return GestureDetector(
       onTap: () {
@@ -238,6 +253,7 @@ class CardHistoryWpda extends StatelessWidget {
           Card(
             color: MyColor.colorBlackBg,
             child: Container(
+              width: MediaQuery.of(context).size.width,
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
@@ -249,42 +265,40 @@ class CardHistoryWpda extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CircleAvatar(),
-                          SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Consumer<LoginProvider>(
-                                builder: (context, value, _) {
-                                  if (value.fullName == null) {
-                                    value.loadFullName();
-                                    return CircularProgressIndicator();
-                                  } else {
-                                    return Text(
-                                      historyWpda.fullName,
-                                      style: MyFonts.customTextStyle(
-                                        16,
-                                        FontWeight.bold,
-                                        MyColor.whiteColor,
-                                      ),
-                                    );
-                                  }
-                                },
+                      CircleAvatar(),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Consumer<LoginProvider>(
+                              builder: (context, value, _) {
+                                if (value.fullName == null) {
+                                  value.loadFullName();
+                                  return CircularProgressIndicator();
+                                } else {
+                                  return Text(
+                                    historyWpda.fullName,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: MyFonts.customTextStyle(
+                                      14,
+                                      FontWeight.bold,
+                                      MyColor.whiteColor,
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            Text(
+                              historyWpda.email,
+                              style: MyFonts.customTextStyle(
+                                14,
+                                FontWeight.w500,
+                                MyColor.greyText,
                               ),
-                              Text(
-                                historyWpda.email,
-                                style: MyFonts.customTextStyle(
-                                  14,
-                                  FontWeight.w500,
-                                  MyColor.greyText,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
                       Container(
                         height: 20,
@@ -295,7 +309,7 @@ class CardHistoryWpda extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            'You',
+                            'Anda',
                             style: MyFonts.customTextStyle(
                               14,
                               FontWeight.bold,
@@ -358,6 +372,32 @@ class CardHistoryWpda extends StatelessWidget {
                                 ),
                               ),
                             ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Doa Tabernakel',
+                          style: MyFonts.customTextStyle(
+                            12,
+                            FontWeight.w500,
+                            MyColor.greyText,
+                          ),
+                        ),
+                      ),
+                      Flexible(
+                        child: Text(
+                          '${selectedItemsString}',
+                          textAlign: TextAlign.right,
+                          style: MyFonts.customTextStyle(
+                            12,
+                            FontWeight.bold,
+                            MyColor.whiteColor,
                           ),
                         ),
                       ),

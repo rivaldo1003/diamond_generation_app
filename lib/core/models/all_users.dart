@@ -8,6 +8,7 @@ class AllUsers {
   final String address;
   final String phoneNumber;
   final String gender;
+  final String age;
   final String birthPlace;
   final String birthDate;
   final String profile_completed;
@@ -26,6 +27,7 @@ class AllUsers {
     required this.address,
     required this.phoneNumber,
     required this.gender,
+    required this.age,
     required this.birthPlace,
     required this.birthDate,
     required this.profile_completed,
@@ -49,6 +51,7 @@ class AllUsers {
       address: json['address'].toString(),
       phoneNumber: json['phone_number'].toString(),
       gender: json['gender'].toString(),
+      age: json['age'].toString(),
       birthPlace: json['birth_place'].toString(),
       birthDate: json['birth_date'].toString(),
       profile_completed: json['profile_completed'].toString(),
@@ -66,6 +69,7 @@ class DataWpda {
   final String isiKitab;
   final String aplikasiKehidupan;
   final String pesanTuhan;
+  final String selectedPrayers;
   final String createdAt;
 
   DataWpda({
@@ -74,6 +78,7 @@ class DataWpda {
     required this.isiKitab,
     required this.aplikasiKehidupan,
     required this.pesanTuhan,
+    required this.selectedPrayers,
     required this.createdAt,
   });
 
@@ -85,6 +90,7 @@ class DataWpda {
       aplikasiKehidupan: json['aplikasi_kehidupan'].toString(),
       createdAt: json['created_at'].toString(),
       pesanTuhan: json['pesan_tuhan'].toString(),
+      selectedPrayers: json['selected_prayers'].toString(),
     );
   }
 }

@@ -5,7 +5,6 @@ import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/profile/data/providers/profile_provider.dart';
-import 'package:diamond_generation_app/features/profile/models/image.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
@@ -16,7 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info/package_info.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -130,7 +128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Server connection error. Please try again later',
+                        'Koneksi server sedang error. Coba lagi nanti',
                         style: MyFonts.customTextStyle(
                           14,
                           FontWeight.w500,
@@ -148,6 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   var resultDate = date.split(' ').first;
                   String formatDate = DateFormat('dd MMMM yyyy', 'id')
                       .format(DateTime.parse(date));
+                  print(profileData);
                   return Column(
                     children: [
                       Expanded(
@@ -260,7 +259,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               SizedBox(height: 8),
                               Text(
-                                'Active since - ${formatDate}',
+                                'Aktif sejak - ${formatDate}',
                                 style: MyFonts.customTextStyle(
                                   14,
                                   FontWeight.w500,
@@ -275,7 +274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 20),
                                     child: Text(
-                                      'Personal Information',
+                                      'Informasi Pribadi',
                                       style: MyFonts.customTextStyle(
                                         14,
                                         FontWeight.w500,
@@ -286,8 +285,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   SizedBox(height: 8),
                                   CardDetailProfile(
                                     iconData: Icons.numbers,
-                                    title: 'Account Number',
+                                    title: 'Nomor Akun',
                                     value: profileData['account_number'],
+                                  ),
+                                  SizedBox(height: 4),
+                                  CardDetailProfile(
+                                    iconData: Icons.campaign,
+                                    title: 'Umur',
+                                    value: profileData['age'] + ' Tahun',
                                   ),
                                   SizedBox(height: 4),
                                   CardDetailProfile(
@@ -298,25 +303,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   SizedBox(height: 4),
                                   CardDetailProfile(
                                     iconData: Icons.home_rounded,
-                                    title: 'Address',
+                                    title: 'Alamat',
                                     value: profileData['address'],
                                   ),
                                   SizedBox(height: 4),
                                   CardDetailProfile(
                                     iconData: Icons.phone,
-                                    title: 'Phone',
+                                    title: 'No Telepon',
                                     value: profileData['phone_number'],
                                   ),
                                   SizedBox(height: 4),
                                   CardDetailProfile(
                                     iconData: Icons.person,
-                                    title: 'Gender',
-                                    value: profileData['gender'],
+                                    title: 'Jenis Kelamin',
+                                    value: (profileData['gender'] == 'Male')
+                                        ? 'Laki-Laki'
+                                        : 'Perempuan',
                                   ),
                                   SizedBox(height: 4),
                                   CardDetailProfile(
                                     iconData: Icons.add_location_alt,
-                                    title: 'Place and Date of Birth',
+                                    title: 'Tempat/Tanggal Lahir',
                                     value: profileData['birth_place'] +
                                         ', ' +
                                         profileData['birth_date'],
@@ -344,7 +351,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         padding: const EdgeInsets.all(20),
                         child: ButtonWidget(
                           profileProvider: profileProvider,
-                          title: 'Logout',
+                          title: 'Keluar',
                           icon: Icons.logout,
                           color: MyColor.colorLogOut,
                           onPressed: () {
@@ -354,7 +361,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 builder: (context) {
                                   return AlertDialog(
                                     title: Text(
-                                      'Logout confirmation',
+                                      'Konfirmasi keluar akun',
                                       style: MyFonts.customTextStyle(
                                         16,
                                         FontWeight.bold,
@@ -362,7 +369,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                     ),
                                     content: Text(
-                                      'Are you sure you want to logout?',
+                                      'Apakah anda yakin ingin keluar dari akun anda?',
                                       style: MyFonts.customTextStyle(
                                         14,
                                         FontWeight.w500,
@@ -375,7 +382,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           Navigator.of(context).pop();
                                         },
                                         child: Text(
-                                          'Cancel',
+                                          'Batal',
                                           style: MyFonts.customTextStyle(
                                             15,
                                             FontWeight.bold,
@@ -411,7 +418,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 backgroundColor:
                                                     MyColor.colorGreen,
                                                 content: Text(
-                                                  'You have successfully logged out.',
+                                                  'Anda telah berhasil keluar.',
                                                   style:
                                                       MyFonts.customTextStyle(
                                                     15,
@@ -424,7 +431,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           });
                                         },
                                         child: Text(
-                                          'Logout',
+                                          'Keluar',
                                           style: MyFonts.customTextStyle(
                                             15,
                                             FontWeight.bold,

@@ -78,7 +78,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
         items: (role == 'admin')
             ? [
                 BottomNavigationBarItem(
-                  label: 'Home',
+                  label: 'Beranda',
                   icon: (selected == 0)
                       ? SvgPicture.asset('assets/icons/home_active.svg')
                       : SvgPicture.asset('assets/icons/home_nonactive.svg'),
@@ -88,7 +88,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
                   icon: (selected == 1) ? Icon(Icons.book) : Icon(Icons.book),
                 ),
                 BottomNavigationBarItem(
-                  label: 'History',
+                  label: 'Riwayat',
                   icon: (selected == 2)
                       ? Icon(Icons.history)
                       : Icon(Icons.history),
@@ -97,7 +97,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
                   icon: (selected == 3)
                       ? SvgPicture.asset('assets/icons/profil_active.svg')
                       : SvgPicture.asset('assets/icons/profil_nonactive.svg'),
-                  label: 'Account',
+                  label: 'Akun',
                 ),
               ]
             : [
@@ -106,7 +106,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
                   icon: (selected == 0) ? Icon(Icons.book) : Icon(Icons.book),
                 ),
                 BottomNavigationBarItem(
-                  label: 'History',
+                  label: 'Riwayat',
                   icon: (selected == 1)
                       ? Icon(Icons.history)
                       : Icon(Icons.history),
@@ -115,7 +115,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
                   icon: (selected == 2)
                       ? SvgPicture.asset('assets/icons/profil_active.svg')
                       : SvgPicture.asset('assets/icons/profil_nonactive.svg'),
-                  label: 'Account',
+                  label: 'Akun',
                 ),
               ],
       ),

@@ -1,5 +1,4 @@
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
-import 'package:diamond_generation_app/features/register/data/providers/register_provider.dart';
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
@@ -20,8 +19,7 @@ class RegisterForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final registerFormProvider = Provider.of<RegisterFormProvider>(context);
-    final registerProvider = Provider.of<RegisterProvider>(context);
-    final loginProvider = Provider.of<LoginProvider>(context);
+
     print('DARI REGISTER FORM :${token}');
     return Scaffold(
       appBar: AppBarWidget(title: 'Enter Personal Information'),
@@ -316,6 +314,8 @@ class RegisterForm extends StatelessWidget {
                       "phone_number":
                           registerFormProvider.phoneNumberController.text,
                       "gender": dataGender,
+                      "age": registerFormProvider.calculateAge(
+                          registerFormProvider.selectedDateOfBirth),
                       "birth_place":
                           registerFormProvider.placeOfBirthController.text,
                       "birth_date":

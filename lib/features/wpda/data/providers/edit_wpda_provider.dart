@@ -63,4 +63,6 @@ class EditWpdaProvider with ChangeNotifier {
       );
     }
   }
+
+  List<String> newSelectedItems = [];
 }

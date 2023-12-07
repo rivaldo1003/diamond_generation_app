@@ -2,6 +2,7 @@ import 'package:diamond_generation_app/core/models/all_users.dart';
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
+import 'package:diamond_generation_app/features/view_all_data_users/data/providers/view_all_data_user_provider.dart';
 import 'package:diamond_generation_app/features/view_detail_all_data_users/presentation/view_detail_users.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
@@ -10,6 +11,7 @@ import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/custom_dialog.dart';
 import 'package:diamond_generation_app/shared/widgets/textfield.dart';
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
 
 class ViewAllData extends StatefulWidget {
@@ -17,17 +19,34 @@ class ViewAllData extends StatefulWidget {
   State<ViewAllData> createState() => _ViewAllDataState();
 }
 
-class _ViewAllDataState extends State<ViewAllData> {
+class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
   TextEditingController _findUserController = TextEditingController();
+
+  bool isKeyboardVisible = false;
 
   @override
   Widget build(BuildContext context) {
-    final getUserUsecase = Provider.of<GetUserUsecase>(context);
+    final getUserUsecase = Provider.of<GetUserUsecase>(context, listen: false);
     final searchUserProvider =
         Provider.of<SearchUserProvider>(context, listen: false);
-
     return Scaffold(
-      appBar: AppBarWidget(title: 'All User'),
+      appBar: AppBarWidget(
+        title: 'Semua Pengguna',
+        action: [
+          Consumer<ViewAllDataProvider>(builder: (context, value, _) {
+            if (value.isKeyboardVisible) {
+              return IconButton(
+                onPressed: () {
+                  value.setKeyboardVisibility(false);
+                },
+                icon: Icon(Icons.visibility),
+              );
+            } else {
+              return SizedBox();
+            }
+          }),
+        ],
+      ),
       body: FutureBuilder(
         future: searchUserProvider.fetchData(context, ApiConstants.getAllUser),
         builder: (context, snapshot) {
@@ -46,7 +65,7 @@ class _ViewAllDataState extends State<ViewAllData> {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Data not found!',
+                    'Data tidak ditemukan!',
                     style: MyFonts.customTextStyle(
                       14,
                       FontWeight.w500,
@@ -71,115 +90,165 @@ class _ViewAllDataState extends State<ViewAllData> {
               if (value.userId == null) value.loadUserId();
               return Column(
                 children: [
-                  Container(
-                    padding: EdgeInsets.all(20),
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      color: MyColor.colorBlackBg,
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.person,
-                              color: MyColor.colorGreen,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Total users (${usersData.length} user).',
-                              style: MyFonts.customTextStyle(
-                                15,
-                                FontWeight.w500,
-                                MyColor.whiteColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  (result.contains("0"))
-                      ? Container(
-                          padding: EdgeInsets.all(20),
-                          width: MediaQuery.of(context).size.width,
-                          decoration: BoxDecoration(
-                            color: MyColor.colorBlackBg,
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
+                  Consumer<ViewAllDataProvider>(
+                    builder: (context, viewData, _) {
+                      return LayoutBuilder(
+                        builder: (context, constraints) {
+                          if (viewData.isKeyboardVisible) {
+                            // Keyboard is visible, hide data
+                            return SizedBox();
+                          } else {
+                            // Keyboard is not visible, show data
+                            return Container(
+                              child: Column(
                                 children: [
-                                  Icon(
-                                    Icons.dangerous,
-                                    color: MyColor.greyText,
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Incomplete user profile data (${dataLength}).',
-                                    style: MyFonts.customTextStyle(
-                                      15,
-                                      FontWeight.w500,
-                                      MyColor.whiteColor,
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 12, horizontal: 20),
+                                    width: MediaQuery.of(context).size.width,
+                                    decoration: BoxDecoration(
+                                      color: MyColor.colorBlackBg,
                                     ),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.person,
+                                              color: MyColor.colorGreen,
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              'Total pengguna (${usersData.length} pengguna).',
+                                              style: MyFonts.customTextStyle(
+                                                14,
+                                                FontWeight.w500,
+                                                MyColor.whiteColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  (result.contains("0"))
+                                      ? Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 12, horizontal: 20),
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          decoration: BoxDecoration(
+                                            color: MyColor.colorBlackBg,
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.dangerous,
+                                                    color: MyColor.greyText,
+                                                  ),
+                                                  SizedBox(width: 8),
+                                                  Text(
+                                                    'Incomplete user profile data (${dataLength}).',
+                                                    style:
+                                                        MyFonts.customTextStyle(
+                                                      14,
+                                                      FontWeight.w500,
+                                                      MyColor.whiteColor,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      : Container(),
+                                  SizedBox(height: 4),
+                                  Consumer<SearchUserProvider>(
+                                    builder: (context, valueSearchUser, _) {
+                                      if (!valueSearchUser.isApproved) {
+                                        return Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 12, horizontal: 20),
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          decoration: BoxDecoration(
+                                            color: MyColor.colorBlackBg,
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.approval,
+                                                    color:
+                                                        MyColor.colorLightBlue,
+                                                  ),
+                                                  SizedBox(width: 8),
+                                                  Text(
+                                                    searchUserProvider
+                                                            .countUnapprovedUsers(
+                                                                usersData)
+                                                            .toString() +
+                                                        '${countUserApprove > 1 ? ' menunggu persetujuan' : ' menunggu persetujuan'}',
+                                                    style:
+                                                        MyFonts.customTextStyle(
+                                                      14,
+                                                      FontWeight.w500,
+                                                      MyColor.whiteColor,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      } else {
+                                        return Container();
+                                      }
+                                    },
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        )
-                      : Container(),
-                  SizedBox(height: 4),
-                  Consumer<SearchUserProvider>(
-                      builder: (context, valueSearchUser, _) {
-                    if (!valueSearchUser.isApproved) {
-                      return Container(
-                        padding: EdgeInsets.all(20),
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          color: MyColor.colorBlackBg,
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.approval,
-                                  color: MyColor.colorLightBlue,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  searchUserProvider
-                                          .countUnapprovedUsers(usersData)
-                                          .toString() +
-                                      '${countUserApprove > 1 ? ' users waiting for approval' : ' user waiting for approval'}',
-                                  style: MyFonts.customTextStyle(
-                                    15,
-                                    FontWeight.w500,
-                                    MyColor.whiteColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                            );
+                          }
+                        },
                       );
-                    } else {
-                      return Container();
-                    }
-                  }),
+                    },
+                  ),
+                  if (isKeyboardVisible) ...[
+                    Text(
+                      'Keyboard is visible!',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ],
                   Padding(
                     padding: const EdgeInsets.all(20),
                     child: Consumer<SearchUserProvider>(
-                      builder: (context, valueSearchProv, _) => TextFieldWidget(
-                        hintText: 'Find user',
-                        obscureText: false,
-                        controller: _findUserController,
-                        suffixIcon: Icon(Icons.search),
-                        onChanged: (query) {
-                          valueSearchProv.searchUser(query!);
-                        },
+                      builder: (context, valueSearchProv, _) =>
+                          Consumer<ViewAllDataProvider>(
+                        builder: (context, valueViewAllDataProvider, _) =>
+                            TextFieldWidget(
+                          hintText: 'Temukan user',
+                          obscureText: false,
+                          controller: _findUserController,
+                          suffixIcon: Icon(Icons.search),
+                          onTap: () {
+                            print(valueViewAllDataProvider.isKeyboardVisible);
+
+                            valueViewAllDataProvider
+                                .setKeyboardVisibility(true);
+                          },
+                          onChanged: (query) {
+                            valueSearchProv.searchUser(query!);
+                          },
+                          onFieldSubmitted: (value) {
+                            valueViewAllDataProvider
+                                .setKeyboardVisibility(false);
+                          },
+                        ),
                       ),
                     ),
                   ),

@@ -33,6 +33,7 @@ class HistoryWpda {
   final String kitabBacaan;
   final String isiKitab;
   final String pesanTuhan;
+  final String selectedPrayers;
   final String aplikasiKehidupan;
   final String createdAt;
 
@@ -44,6 +45,7 @@ class HistoryWpda {
     required this.kitabBacaan,
     required this.isiKitab,
     required this.pesanTuhan,
+    required this.selectedPrayers,
     required this.aplikasiKehidupan,
     required this.createdAt,
   });
@@ -57,6 +59,7 @@ class HistoryWpda {
       kitabBacaan: json['kitab_bacaan'] ?? '',
       isiKitab: json['isi_kitab'] ?? '',
       pesanTuhan: json['pesan_tuhan'] ?? '',
+      selectedPrayers: json['selected_prayers'] ?? '',
       aplikasiKehidupan: json['aplikasi_kehidupan'] ?? '',
       createdAt: json['created_at'] ?? '',
     );
