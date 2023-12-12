@@ -231,7 +231,10 @@ class CardWpda extends StatelessWidget {
                             children: [
                               IconButton(
                                 onPressed: () {},
-                                icon: Icon(Icons.favorite_border_outlined),
+                                icon: Icon(
+                                  Icons.favorite_border_outlined,
+                                  color: Colors.red,
+                                ),
                               ),
                               IconButton(
                                 onPressed: () {
