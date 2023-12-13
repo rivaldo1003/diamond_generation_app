@@ -5,8 +5,8 @@ class SharedPreferencesManager {
   static final String keyToken = 'token';
   static final String keyRole = 'role';
   static final String keyAccountNumber = 'account_number';
-  static final String keyUserId = 'user_id';
-  static final String keyProfileCompleted = 'key_profile_completed';
+  static final String keyUserId = 'id';
+  static final String keyProfileCompleted = 'profile_completed';
 
 //PROFILE_COMPLETED
   static Future<void> saveProfileCompleted(String profileCompleted) async {
@@ -56,6 +56,11 @@ class SharedPreferencesManager {
   static Future<void> saveToken(String token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(keyToken, token);
+  }
+
+  static Future<String?> loadToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(keyToken) ?? '';
   }
 
 //FULL NAME

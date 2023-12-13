@@ -1,5 +1,4 @@
 import 'package:diamond_generation_app/core/models/all_users.dart';
-import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/core/repositories/user_repository.dart';
 import 'package:flutter/material.dart';
@@ -30,8 +29,8 @@ class GetUserUsecase {
     await userRepository.submitDataUser(body, context);
   }
 
-  Future<Map<String, dynamic>> getUserProfile(int userId) async {
-    return await userRepository.getUserProfile(userId);
+  Future<Map<String, dynamic>> getUserProfile(int userId, String token) async {
+    return await userRepository.getUserProfile(userId, token);
   }
 
   Future<List<AllUsers>> getAllUsers() async {

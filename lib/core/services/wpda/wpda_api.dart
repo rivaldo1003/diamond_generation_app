@@ -22,11 +22,12 @@ class WpdaApi {
   });
 
   Future<void> createWpda(
-      Map<String, dynamic> body, BuildContext context) async {
+      Map<String, dynamic> body, BuildContext context, String token) async {
     final wpdaProvider = Provider.of<WpdaProvider>(context, listen: false);
     final checkBoxState = Provider.of<AddWpdaWProvider>(context, listen: false);
     final headers = {
       "Content-Type": "application/json",
+      'Authorization': 'Bearer $token',
     };
     final response = await http.post(
       Uri.parse(ApiConstants.createWpdaUrl),
@@ -57,10 +58,10 @@ class WpdaApi {
             }),
             (route) => false,
           );
-          wpdaProvider.aplikasiKehidupanController.text = '';
-          wpdaProvider.isiKitabController.text = '';
-          wpdaProvider.kitabBacaanController.text = '';
-          wpdaProvider.pesanTuhanController.text = '';
+          wpdaProvider.readingBookController.text = '';
+          wpdaProvider.verseContentController.text = '';
+          wpdaProvider.messageOfGodController.text = '';
+          wpdaProvider.applicationInLifeController.text = '';
           // checkBoxState.selectedItems.clear();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -76,45 +77,64 @@ class WpdaApi {
             ),
           );
         });
-      } else {
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            });
-        Future.delayed(Duration(seconds: 2), () {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: MyColor.colorRed,
-              content: Text(
-                '${data['message']}',
-                style: MyFonts.customTextStyle(
-                  14,
-                  FontWeight.w500,
-                  MyColor.whiteColor,
-                ),
+      }
+    } else if (response.statusCode == 400) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? role = prefs.getString(SharedPreferencesManager.keyRole);
+      final data = json.decode(response.body);
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          });
+      Future.delayed(Duration(seconds: 2), () {
+        Navigator.pop(context);
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) {
+            return BottomNavigationPage(
+              index: (role == "admin") ? 1 : 0,
+            );
+          }),
+          (route) => false,
+        );
+        wpdaProvider.readingBookController.text = '';
+        wpdaProvider.verseContentController.text = '';
+        wpdaProvider.messageOfGodController.text = '';
+        wpdaProvider.applicationInLifeController.text = '';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: MyColor.colorRed,
+            content: Text(
+              '${data['message']}',
+              style: MyFonts.customTextStyle(
+                14,
+                FontWeight.w500,
+                MyColor.whiteColor,
               ),
             ),
-          );
-        });
-      }
+          ),
+        );
+      });
     } else {
       throw Exception('Failed to create WPDA');
     }
   }
 
-  Future<List<WPDA>> getAllWpda() async {
-    final headers = {"Content-Type": "application/json"};
+  Future<List<WPDA>> getAllWpda(String token) async {
+    final headers = {
+      "Content-Type": "application/json",
+      'Authorization': 'Bearer ${token}',
+    };
     final response = await http.get(
       Uri.parse(ApiConstants.getAllWpdaUrl),
       headers: headers,
     );
     if (response.statusCode == 200) {
-      List<dynamic> jsonResponse = json.decode(response.body)['wpda'];
+      List<dynamic> jsonResponse = json.decode(response.body)['data'];
       return jsonResponse.map((json) {
         return WPDA.fromJson(json);
       }).toList();
@@ -123,12 +143,16 @@ class WpdaApi {
     }
   }
 
-  Future<void> editWpda(Map<String, dynamic> body, BuildContext context) async {
+  Future<void> editWpda(Map<String, dynamic> body, BuildContext context,
+      String token, String id) async {
     final editWpdaProvider =
         Provider.of<EditWpdaProvider>(context, listen: false);
-    final headers = {"Content-Type": "application/json"};
-    final response = await http.post(
-      Uri.parse(ApiConstants.editWpdaUrl),
+    final headers = {
+      "Content-Type": "application/json",
+      'Authorization': 'Bearer $token',
+    };
+    final response = await http.put(
+      Uri.parse(ApiConstants.editWpdaUrl + '/$id'),
       headers: headers,
       body: json.encode(body),
     );
@@ -169,10 +193,10 @@ class WpdaApi {
             ),
           );
         });
-        editWpdaProvider.aplikasiKehidupanController.text = '';
-        editWpdaProvider.isiKitabController.text = '';
-        editWpdaProvider.kitabBacaanController.text = '';
-        editWpdaProvider.pesanTuhanController.text = '';
+        editWpdaProvider.readingBookController.text = '';
+        editWpdaProvider.verseContentController.text = '';
+        editWpdaProvider.messageOfGodController.text = '';
+        editWpdaProvider.applicationInLifeController.text = '';
       } else {
         showDialog(
             barrierDismissible: false,
@@ -197,7 +221,7 @@ class WpdaApi {
             SnackBar(
               backgroundColor: MyColor.colorRed,
               content: Text(
-                '${data['message']}',
+                'gagal',
                 style: MyFonts.customTextStyle(
                   14,
                   FontWeight.w500,
@@ -214,93 +238,83 @@ class WpdaApi {
   }
 
   Future<void> deleteWpda(
-      Map<String, dynamic> body, BuildContext context) async {
-    final headers = {"Content-Type": "application/jon"};
-    final response = await http.post(
-      Uri.parse(ApiConstants.deleteWpdaUrl),
-      headers: headers,
-      body: json.encode(body),
-    );
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? role = prefs.getString(SharedPreferencesManager.keyRole);
-      if (data['success']) {
-        print(role);
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            });
-        Future.delayed(Duration(seconds: 2), () {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) {
-              return BottomNavigationPage(
-                index: (role == "admin") ? 1 : 0,
-              );
-            }),
-            (route) => false,
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: MyColor.colorGreen,
-              content: Text(
-                '${data['message']}',
-                style: MyFonts.customTextStyle(
-                  14,
-                  FontWeight.w500,
-                  MyColor.whiteColor,
+    BuildContext context,
+    String id,
+    String token,
+  ) async {
+    var url = Uri.parse(
+        'http://192.168.110.85/diamond-generation-service/public/api/wpda/delete/$id'); // Sesuaikan URL dengan endpoint backend Anda
+
+    try {
+      var response = await http.delete(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization':
+              'Bearer $token', // Sesuaikan token dengan token autentikasi Anda
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? role = prefs.getString(SharedPreferencesManager.keyRole);
+        if (data['success']) {
+          print(role);
+          showDialog(
+              barrierDismissible: false,
+              context: context,
+              builder: (context) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              });
+          Future.delayed(Duration(seconds: 2), () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) {
+                return BottomNavigationPage(
+                  index: (role == "admin") ? 1 : 0,
+                );
+              }),
+              (route) => false,
+            );
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: MyColor.colorGreen,
+                content: Text(
+                  '${data['message']}',
+                  style: MyFonts.customTextStyle(
+                    14,
+                    FontWeight.w500,
+                    MyColor.whiteColor,
+                  ),
                 ),
               ),
-            ),
-          );
-        });
+            );
+          });
+        }
+      } else if (response.statusCode == 404) {
+        print('WPDA data not found');
+      } else if (response.statusCode == 403) {
+        print('You are not authorized to delete this WPDA!');
       } else {
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            });
-        Future.delayed(Duration(seconds: 2), () {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) {
-              return BottomNavigationPage(
-                index: (role == "admin") ? 1 : 0,
-              );
-            }),
-            (route) => false,
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: MyColor.colorRed,
-              content: Text(
-                '${data['message']}',
-                style: MyFonts.customTextStyle(
-                  14,
-                  FontWeight.w500,
-                  MyColor.whiteColor,
-                ),
-              ),
-            ),
-          );
-        });
+        print('Failed to delete WPDA. Error: ${response.statusCode}');
       }
-    } else {
-      throw Exception('Failed to delete data');
+    } catch (error) {
+      print('Exception occured while deleting WPDA: $error');
     }
   }
 
-  Future<History> getAllWpdaByUserId(String userId) async {
-    final url = Uri.parse(ApiConstants.historyWpdaUrl + '?user_id=${userId}');
-    final response = await http.get(url);
+  Future<History> getAllWpdaByUserId(String userId, String token) async {
+    final url = Uri.parse(ApiConstants.historyWpdaUrl + '/${userId}');
+    final response = await http.get(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      },
+    );
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonResponse = json.decode(response.body);

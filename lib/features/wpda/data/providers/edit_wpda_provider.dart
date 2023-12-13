@@ -7,59 +7,60 @@ class EditWpdaProvider with ChangeNotifier {
   EditWpdaProvider({required GetWpdaUsecase getWpdaUsecase})
       : _getWpdaUsecase = getWpdaUsecase;
 
-  bool showRequiredMessageKitabBacaan = false;
-  bool showRequiredMessageIsiKitab = false;
-  bool showRequiredMessagePesanTuhan = false;
-  bool showRequiredMessageAplikasiKehidupan = false;
+  bool showRequiredMessageReadingBook = false;
+  bool showRequiredMessageVerseContent = false;
+  bool showRequiredMessageMessageOfGod = false;
+  bool showRequiredMessageApplicationInLife = false;
 
-  TextEditingController kitabBacaanController = TextEditingController();
-  TextEditingController isiKitabController = TextEditingController();
-  TextEditingController pesanTuhanController = TextEditingController();
-  TextEditingController aplikasiKehidupanController = TextEditingController();
+  TextEditingController readingBookController = TextEditingController();
+  TextEditingController verseContentController = TextEditingController();
+  TextEditingController messageOfGodController = TextEditingController();
+  TextEditingController applicationInLifeController = TextEditingController();
 
-  FocusNode kitabBacaanFocusNode = FocusNode();
-  FocusNode isiKitabFocusNode = FocusNode();
-  FocusNode pesanTuhanFocusNode = FocusNode();
-  FocusNode aplikasiKehidupanFocusNode = FocusNode();
+  FocusNode readingBookFocusNode = FocusNode();
+  FocusNode verseContentFocusNode = FocusNode();
+  FocusNode messageOfGodFocusNode = FocusNode();
+  FocusNode applicationInLifeFocusNode = FocusNode();
 
   validateInput() {
-    showRequiredMessageKitabBacaan = kitabBacaanController.text.isEmpty;
-    showRequiredMessageIsiKitab = isiKitabController.text.isEmpty;
-    showRequiredMessagePesanTuhan = pesanTuhanController.text.isEmpty;
-    showRequiredMessageAplikasiKehidupan =
-        aplikasiKehidupanController.text.isEmpty;
+    showRequiredMessageReadingBook = readingBookController.text.isEmpty;
+    showRequiredMessageVerseContent = verseContentController.text.isEmpty;
+    showRequiredMessageMessageOfGod = messageOfGodController.text.isEmpty;
+    showRequiredMessageApplicationInLife =
+        applicationInLifeController.text.isEmpty;
     notifyListeners();
   }
 
   // Fungsi untuk mengupdate nilai TextEditingController dari luar
   void updateControllerValues({
-    required String kitabBacaan,
-    required String isiKitab,
-    required String pesanTuhan,
-    required String aplikasiKehidupan,
+    required String ReadingBook,
+    required String VerseContent,
+    required String MessageOfGod,
+    required String ApplicationInLife,
   }) {
-    kitabBacaanController.text = kitabBacaan;
-    isiKitabController.text = isiKitab;
-    pesanTuhanController.text = pesanTuhan;
-    aplikasiKehidupanController.text = aplikasiKehidupan;
+    readingBookController.text = ReadingBook;
+    verseContentController.text = VerseContent;
+    messageOfGodController.text = MessageOfGod;
+    applicationInLifeController.text = ApplicationInLife;
     notifyListeners();
   }
 
-  void onSubmit(Map<String, dynamic> body, BuildContext context) async {
+  void onSubmit(Map<String, dynamic> body, BuildContext context, String token,
+      String id) async {
     validateInput();
-    if (!showRequiredMessageKitabBacaan &&
-        !showRequiredMessageIsiKitab &&
-        !showRequiredMessagePesanTuhan &&
-        !showRequiredMessageAplikasiKehidupan) {
+    if (!showRequiredMessageReadingBook &&
+        !showRequiredMessageVerseContent &&
+        !showRequiredMessageMessageOfGod &&
+        !showRequiredMessageApplicationInLife) {
       // Eksekusi fungsi editWpda
-      await _getWpdaUsecase.editWpda(body, context);
+      await _getWpdaUsecase.editWpda(body, context, token, id);
 
       // Setelah fungsi selesai dieksekusi, perbarui nilai TextEditingController
       updateControllerValues(
-        kitabBacaan: body['kitab_bacaan'],
-        isiKitab: body['isi_kitab'],
-        pesanTuhan: body['pesan_tuhan'],
-        aplikasiKehidupan: body['aplikasi_kehidupan'],
+        ReadingBook: body['reading_book'],
+        VerseContent: body['verse_content'],
+        MessageOfGod: body['message_of_god'],
+        ApplicationInLife: body['application_in_life'],
       );
     }
   }

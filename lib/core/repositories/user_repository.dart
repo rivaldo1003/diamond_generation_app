@@ -1,7 +1,5 @@
 import 'package:diamond_generation_app/core/models/all_users.dart';
-import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
-import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/services/users/user_api.dart';
 import 'package:flutter/material.dart';
 
@@ -10,7 +8,7 @@ abstract class UserRepository {
   Future<void> loginUser(Map<String, dynamic> body, BuildContext context);
   Future<void> registerUser(Map<String, dynamic> body, BuildContext context);
   Future<void> submitDataUser(Map<String, dynamic> body, BuildContext context);
-  Future<Map<String, dynamic>> getUserProfile(int userId);
+  Future<Map<String, dynamic>> getUserProfile(int userId, String token);
   Future<List<AllUsers>> getAllUser();
   Future<void> approveUser(Map<String, dynamic> body, BuildContext context);
   Future<void> deleteUser(String userId, BuildContext context);
@@ -45,8 +43,8 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<Map<String, dynamic>> getUserProfile(int userId) async {
-    return await userApi.getUserProfile(userId);
+  Future<Map<String, dynamic>> getUserProfile(int userId, String token) async {
+    return await userApi.getUserProfile(userId, token);
   }
 
   @override

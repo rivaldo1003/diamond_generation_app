@@ -4,16 +4,39 @@ import 'package:diamond_generation_app/features/wpda/data/providers/add_wpda_pro
 import 'package:diamond_generation_app/features/wpda/data/providers/edit_wpda_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/button.dart';
 import 'package:diamond_generation_app/shared/widgets/textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class EditWpdaScreen extends StatelessWidget {
+class EditWpdaScreen extends StatefulWidget {
   final WPDA wpda;
 
   EditWpdaScreen({super.key, required this.wpda});
+
+  @override
+  State<EditWpdaScreen> createState() => _EditWpdaScreenState();
+}
+
+class _EditWpdaScreenState extends State<EditWpdaScreen> {
+  String? token;
+
+  Future getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      token = prefs.getString(SharedPreferencesManager.keyToken);
+      print(token);
+    });
+  }
+
+  @override
+  void initState() {
+    getToken();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +45,11 @@ class EditWpdaScreen extends StatelessWidget {
     final addWpdaProvider =
         Provider.of<AddWpdaWProvider>(context, listen: false);
 
-    editWpdaProvider.kitabBacaanController.text = wpda.kitabBacaan;
-    editWpdaProvider.isiKitabController.text = wpda.isiKitab;
-    editWpdaProvider.pesanTuhanController.text = wpda.pesanTuhan;
-    editWpdaProvider.aplikasiKehidupanController.text = wpda.aplikasiKehidupan;
+    editWpdaProvider.readingBookController.text = widget.wpda.reading_book;
+    editWpdaProvider.verseContentController.text = widget.wpda.verse_content;
+    editWpdaProvider.messageOfGodController.text = widget.wpda.message_of_god;
+    editWpdaProvider.applicationInLifeController.text =
+        widget.wpda.application_in_life;
 
     editWpdaProvider.newSelectedItems = addWpdaProvider.selectedItems;
     print(editWpdaProvider.newSelectedItems);
@@ -43,13 +67,13 @@ class EditWpdaScreen extends StatelessWidget {
                     TextFieldWidget(
                       hintText: 'Kitab bacaan',
                       obscureText: false,
-                      controller: editWpdaProvider.kitabBacaanController,
-                      focusNode: editWpdaProvider.kitabBacaanFocusNode,
-                      errorText: editWpdaProvider.showRequiredMessageKitabBacaan
+                      controller: editWpdaProvider.readingBookController,
+                      focusNode: editWpdaProvider.readingBookFocusNode,
+                      errorText: editWpdaProvider.showRequiredMessageReadingBook
                           ? 'Data Required'
                           : null,
                       onChanged: (value) {
-                        editWpdaProvider.showRequiredMessageKitabBacaan = false;
+                        editWpdaProvider.showRequiredMessageReadingBook = false;
                       },
                       suffixIcon: Icon(
                         Icons.book,
@@ -57,16 +81,18 @@ class EditWpdaScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 12),
                     TextFieldWidget(
-                      hintText: 'Isi kitab',
+                      hintText: 'Isi Ayat',
                       obscureText: false,
-                      controller: editWpdaProvider.isiKitabController,
+                      controller: editWpdaProvider.verseContentController,
                       textColor: MyColor.greyText,
-                      focusNode: editWpdaProvider.isiKitabFocusNode,
-                      errorText: editWpdaProvider.showRequiredMessageIsiKitab
-                          ? 'Data Required'
-                          : null,
+                      focusNode: editWpdaProvider.verseContentFocusNode,
+                      errorText:
+                          editWpdaProvider.showRequiredMessageVerseContent
+                              ? 'Data Required'
+                              : null,
                       onChanged: (value) {
-                        editWpdaProvider.showRequiredMessageIsiKitab = false;
+                        editWpdaProvider.showRequiredMessageVerseContent =
+                            false;
                       },
                       suffixIcon: Icon(
                         Icons.book,
@@ -77,14 +103,16 @@ class EditWpdaScreen extends StatelessWidget {
                     TextFieldWidget(
                       hintText: 'Pesan Tuhan',
                       obscureText: false,
-                      controller: editWpdaProvider.pesanTuhanController,
+                      controller: editWpdaProvider.messageOfGodController,
                       textColor: MyColor.greyText,
-                      focusNode: editWpdaProvider.pesanTuhanFocusNode,
-                      errorText: editWpdaProvider.showRequiredMessagePesanTuhan
-                          ? 'Data Required'
-                          : null,
+                      focusNode: editWpdaProvider.messageOfGodFocusNode,
+                      errorText:
+                          editWpdaProvider.showRequiredMessageMessageOfGod
+                              ? 'Data Required'
+                              : null,
                       onChanged: (value) {
-                        editWpdaProvider.showRequiredMessagePesanTuhan = false;
+                        editWpdaProvider.showRequiredMessageMessageOfGod =
+                            false;
                       },
                       suffixIcon: Icon(
                         Icons.book,
@@ -95,15 +123,15 @@ class EditWpdaScreen extends StatelessWidget {
                     TextFieldWidget(
                       hintText: 'Aplikasi dalam kehidupan',
                       obscureText: false,
-                      controller: editWpdaProvider.aplikasiKehidupanController,
+                      controller: editWpdaProvider.applicationInLifeController,
                       textColor: MyColor.greyText,
-                      focusNode: editWpdaProvider.aplikasiKehidupanFocusNode,
+                      focusNode: editWpdaProvider.applicationInLifeFocusNode,
                       errorText:
-                          editWpdaProvider.showRequiredMessageAplikasiKehidupan
+                          editWpdaProvider.showRequiredMessageApplicationInLife
                               ? 'Data Required'
                               : null,
                       onChanged: (value) {
-                        editWpdaProvider.showRequiredMessageAplikasiKehidupan =
+                        editWpdaProvider.showRequiredMessageApplicationInLife =
                             false;
                       },
                       suffixIcon: Icon(
@@ -268,17 +296,18 @@ class EditWpdaScreen extends StatelessWidget {
                   color: MyColor.primaryColor,
                   onPressed: () {
                     editWpdaProvider.onSubmit({
-                      'user_id': value.userId,
-                      'wpda_id': wpda.id,
-                      'kitab_bacaan':
-                          editWpdaProvider.kitabBacaanController.text,
-                      'isi_kitab': editWpdaProvider.isiKitabController.text,
-                      'pesan_tuhan': editWpdaProvider.pesanTuhanController.text,
-                      'aplikasi_kehidupan':
-                          editWpdaProvider.aplikasiKehidupanController.text,
-                      'selected_prayers':
-                          editWpdaProvider.newSelectedItems.join(','),
-                    }, context);
+                      // 'user_id': value.userId,
+                      'reading_book':
+                          editWpdaProvider.readingBookController.text,
+                      'verse_content':
+                          editWpdaProvider.verseContentController.text,
+                      'message_of_god':
+                          editWpdaProvider.messageOfGodController.text,
+                      'application_in_life':
+                          editWpdaProvider.applicationInLifeController.text,
+                      // 'selected_prayers':
+                      //     editWpdaProvider.newSelectedItems.join(','),
+                    }, context, (token == null) ? '' : token!, widget.wpda.id);
                   },
                 );
               }

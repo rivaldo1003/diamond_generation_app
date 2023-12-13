@@ -12,6 +12,7 @@ import 'package:diamond_generation_app/features/register_form/presentation/regis
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/utils/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -45,17 +46,25 @@ class UserApi {
     final response = await http.post(
       url,
       body: json.encode(body),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     );
+
     if (response.statusCode == 200) {
-      var data = json.decode(response.body);
+      Map<String, dynamic> data = json.decode(response.body);
+      Map<String, dynamic> userData = json.decode(response.body)['user'];
+      print('DATA :$data');
+
       if (data['success'] == true) {
-        loginProvider.saveFullName(data['full_name']);
+        print(userData);
+        loginProvider.saveFullName(userData['full_name']);
         loginProvider.saveToken(data['token']);
-        loginProvider.saveRole(data['role']);
-        loginProvider.saveAccountNumber(data['account_number']);
-        loginProvider.saveUserId(data['user_id']);
-        loginProvider.saveProfileCompleted(data['profile_completed']);
-        print(data);
+        loginProvider.saveRole(userData['role']);
+        loginProvider.saveUserId(userData['id'].toString());
+        loginProvider
+            .saveProfileCompleted(userData['profile_completed'].toString());
+
         if (data['role'] == 'admin') {
           showDialog(
               barrierDismissible: false,
@@ -319,17 +328,27 @@ class UserApi {
     }
   }
 
-  Future<Map<String, dynamic>> getUserProfile(int userId) async {
-    final headers = {"Content-Type": "application/json"};
-    final response = await http.get(
-      Uri.parse(ApiConstants.readUserProfileByIdUrl + '?user_id=${userId}'),
-      headers: headers,
-    );
-    if (response.statusCode == 200) {
-      final result = json.decode(response.body);
-      return result;
-    } else {
-      throw Exception('Failed to load data user profile');
+  Future<Map<String, dynamic>> getUserProfile(int userId, String token) async {
+    final headers = {
+      "Content-Type": "application/json",
+      'Authorization': 'Bearer $token',
+    };
+    try {
+      final response = await http.get(
+        Uri.parse(
+            "http://192.168.110.85/diamond-generation-service/public/api/users/$userId"),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        return result;
+      } else {
+        throw Exception(
+            'Failed to load data user profile. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to connect to the server: $e');
     }
   }
 

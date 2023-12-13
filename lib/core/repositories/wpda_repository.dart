@@ -4,11 +4,13 @@ import 'package:diamond_generation_app/core/services/wpda/wpda_api.dart';
 import 'package:flutter/material.dart';
 
 abstract class WpdaRepository {
-  Future<void> createWpda(Map<String, dynamic> body, BuildContext context);
-  Future<List<WPDA>> getAllWpda();
-  Future<void> editWpda(Map<String, dynamic> body, BuildContext context);
-  Future<void> deleteWpda(Map<String, dynamic> body, BuildContext context);
-  Future<History> getAllWpdaByUserId(String userId);
+  Future<void> createWpda(
+      Map<String, dynamic> body, BuildContext context, String token);
+  Future<List<WPDA>> getAllWpda(String token);
+  Future<void> editWpda(
+      Map<String, dynamic> body, BuildContext context, String token, String id);
+  Future<void> deleteWpda(BuildContext context, String token, String id);
+  Future<History> getAllWpdaByUserId(String userId, String token);
 }
 
 class WpdaRepositoryImpl implements WpdaRepository {
@@ -20,28 +22,28 @@ class WpdaRepositoryImpl implements WpdaRepository {
 
   @override
   Future<void> createWpda(
-      Map<String, dynamic> body, BuildContext context) async {
-    await wpdaApi.createWpda(body, context);
+      Map<String, dynamic> body, BuildContext context, String token) async {
+    await wpdaApi.createWpda(body, context, token);
   }
 
   @override
-  Future<List<WPDA>> getAllWpda() async {
-    return await wpdaApi.getAllWpda();
+  Future<List<WPDA>> getAllWpda(String token) async {
+    return await wpdaApi.getAllWpda(token);
   }
 
   @override
-  Future<void> editWpda(Map<String, dynamic> body, BuildContext context) async {
-    await wpdaApi.editWpda(body, context);
+  Future<void> editWpda(Map<String, dynamic> body, BuildContext context,
+      String token, String id) async {
+    await wpdaApi.editWpda(body, context, token, id);
   }
 
   @override
-  Future<void> deleteWpda(
-      Map<String, dynamic> body, BuildContext context) async {
-    await wpdaApi.deleteWpda(body, context);
+  Future<void> deleteWpda(BuildContext context, String token, String id) async {
+    await wpdaApi.deleteWpda(context, token, id);
   }
 
   @override
-  Future<History> getAllWpdaByUserId(String userId) async {
-    return await wpdaApi.getAllWpdaByUserId(userId);
+  Future<History> getAllWpdaByUserId(String userId, String token) async {
+    return await wpdaApi.getAllWpdaByUserId(userId, token);
   }
 }

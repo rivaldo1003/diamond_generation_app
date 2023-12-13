@@ -23,6 +23,10 @@ class LoginProvider with ChangeNotifier {
 
 //USER ID GET SHARED PREFERENCES
 
+//Token GET SHARED PREFERENCES
+  String? _token;
+  String? get token => _token;
+
   String? _userId;
   String? get userId => _userId;
 
@@ -78,6 +82,11 @@ class LoginProvider with ChangeNotifier {
 // TOKEN
   void saveToken(String token) async {
     await SharedPreferencesManager.saveToken(token);
+    notifyListeners();
+  }
+
+  Future<String?> loadToken() async {
+    _token = await SharedPreferencesManager.loadToken();
     notifyListeners();
   }
 

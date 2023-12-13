@@ -10,24 +10,24 @@ class GetWpdaUsecase {
     required this.wpdaRepository,
   });
   Future<void> createWpda(
-      Map<String, dynamic> body, BuildContext context) async {
-    await wpdaRepository.createWpda(body, context);
+      Map<String, dynamic> body, BuildContext context, String token) async {
+    await wpdaRepository.createWpda(body, context, token);
   }
 
-  Future<List<WPDA>> getAllWpda() async {
-    return await wpdaRepository.getAllWpda();
+  Future<List<WPDA>> getAllWpda(String token) async {
+    return await wpdaRepository.getAllWpda(token);
   }
 
-  Future<void> editWpda(Map<String, dynamic> body, BuildContext context) async {
-    await wpdaRepository.editWpda(body, context);
+  Future<void> editWpda(Map<String, dynamic> body, BuildContext context,
+      String token, String id) async {
+    await wpdaRepository.editWpda(body, context, token, id);
   }
 
-  Future<void> deleteWpda(
-      Map<String, dynamic> body, BuildContext context) async {
-    await wpdaRepository.deleteWpda(body, context);
+  Future<void> deleteWpda(BuildContext context, String token, String id) async {
+    await wpdaRepository.deleteWpda(context, token, id);
   }
 
-  Future<History> getAllWpdaByUserID(String userId) async {
-    return await wpdaRepository.getAllWpdaByUserId(userId);
+  Future<History> getAllWpdaByUserID(String userId, String token) async {
+    return await wpdaRepository.getAllWpdaByUserId(userId, token);
   }
 }

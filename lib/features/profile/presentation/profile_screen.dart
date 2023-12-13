@@ -1,22 +1,21 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/profile/data/providers/profile_provider.dart';
-import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/button.dart';
 import 'package:diamond_generation_app/shared/widgets/card_detail_profile.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -33,68 +32,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
+  String? token;
+
+  Future getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      token = prefs.getString(SharedPreferencesManager.keyToken);
+    });
+  }
+
   @override
   void initState() {
+    getToken();
     getVersion();
     super.initState();
-  }
-
-  File? _imageFile;
-  File? resultImage;
-  String? imageUrlCheck;
-
-  Future<void> _uploadImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      File imageFile = File(pickedFile.path);
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse(ApiConstants.uploadImageUrl),
-      );
-      request.fields['user_id'] = '203'; // Ganti dengan ID pengguna
-
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'profile_picture',
-          imageFile.path,
-        ),
-      );
-
-      try {
-        final streamedResponse = await request.send();
-        if (streamedResponse.statusCode == 200) {
-          final response = await http.Response.fromStream(streamedResponse);
-          final Map<String, dynamic> responseData = json.decode(response.body);
-          print(responseData);
-
-          // Jika gambar berhasil diunggah, atur gambar yang dipilih pada tampilan profil
-          setState(() {
-            _imageFile = imageFile;
-          });
-          fetchImage("203");
-        } else {
-          print('Upload failed');
-        }
-      } catch (e) {
-        print('Error during upload: $e');
-      }
-    }
-  }
-
-  Future<void> fetchImage(String userId) async {
-    final response = await http
-        .get(Uri.parse(ApiConstants.readImageUrl + '?user_id=${userId}'));
-    if (response.statusCode == 200) {
-      final List<dynamic> dataImage = json.decode(response.body)['data'];
-      for (var item in dataImage) {
-        imageUrlCheck = item['image_path'];
-        resultImage = File(imageUrlCheck!);
-      }
-    } else {
-      throw Exception('Failed to load images');
-    }
   }
 
   @override
@@ -110,9 +61,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return CircularProgressIndicator();
         } else {
           return FutureBuilder<Map<String, dynamic>>(
-            future: getUserUsecase
-                .getUserProfile(int.parse(value.userId.toString())),
+            future: getUserUsecase.getUserProfile(
+                int.parse(value.userId.toString()),
+                (token == null) ? '' : token!),
             builder: (context, snapshot) {
+              print('SNAPSHOT : ${snapshot.data}');
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(
                   child: CircularProgressIndicator(),
@@ -141,12 +94,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               } else {
                 Map<String, dynamic> dataUser = snapshot.data!;
                 if (dataUser['success']) {
-                  Map<String, dynamic> profileData = dataUser['profile_data'];
-                  String date = profileData['registration_date'];
+                  Map<String, dynamic> user = dataUser['data'];
+                  Map<String, dynamic> user_profile = user['user_profile'];
+                  String date = user_profile['created_at'];
                   var resultDate = date.split(' ').first;
                   String formatDate = DateFormat('dd MMMM yyyy', 'id')
                       .format(DateTime.parse(date));
-                  print(profileData);
+                  print(user_profile);
                   return Column(
                     children: [
                       Expanded(
@@ -156,52 +110,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Stack(
                                 clipBehavior: Clip.none,
                                 children: [
-                                  (_imageFile == null)
-                                      ? Container(
-                                          margin: EdgeInsets.only(
-                                            top: 16,
-                                            bottom: 18,
-                                          ),
-                                          height: 120,
-                                          width: 120,
-                                          child: CircleAvatar(
-                                            backgroundImage: AssetImage(
-                                                'assets/images/profile_empty.jpg'),
-                                          ),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Colors.white,
-                                              width: 5.0,
-                                            ),
-                                          ),
-                                        )
-                                      : Container(
-                                          margin: EdgeInsets.only(
-                                            top: 16,
-                                            bottom: 18,
-                                          ),
-                                          height: 120,
-                                          width: 120,
-                                          child: CircleAvatar(
-                                            backgroundImage:
-                                                FileImage(resultImage!),
-                                          ),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Colors.white,
-                                              width: 5.0,
-                                            ),
-                                          ),
-                                        ),
+                                  Container(
+                                    margin: EdgeInsets.only(
+                                      top: 16,
+                                      bottom: 18,
+                                    ),
+                                    height: 120,
+                                    width: 120,
+                                    child: CircleAvatar(
+                                      backgroundImage: AssetImage(
+                                          'assets/images/profile_empty.jpg'),
+                                    ),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 5.0,
+                                      ),
+                                    ),
+                                  ),
                                   Positioned(
                                     bottom: 20,
                                     right: 0,
                                     child: GestureDetector(
-                                      onTap: () {
-                                        _uploadImage();
-                                      },
+                                      onTap: () {},
                                       child: Container(
                                         height: 40,
                                         width: 40,
@@ -216,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               ),
                               Text(
-                                '${profileData['full_name']}',
+                                '${user['full_name']}',
                                 style: MyFonts.customTextStyle(
                                   18,
                                   FontWeight.bold,
@@ -243,7 +175,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        '${profileData['role']}',
+                                        '${user['role']}',
                                         style: MyFonts.customTextStyle(
                                           14,
                                           FontWeight.bold,
@@ -286,37 +218,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   CardDetailProfile(
                                     iconData: Icons.numbers,
                                     title: 'Nomor Akun',
-                                    value: profileData['account_number'],
+                                    value: (user['account_number'] == null)
+                                        ? 'Null'
+                                        : user['account_number'],
                                   ),
                                   SizedBox(height: 4),
                                   CardDetailProfile(
                                     iconData: Icons.campaign,
                                     title: 'Umur',
-                                    value: profileData['age'] + ' Tahun',
+                                    value: user_profile['age'] + ' Tahun',
                                   ),
                                   SizedBox(height: 4),
                                   CardDetailProfile(
                                     iconData: Icons.email,
                                     title: 'Email',
-                                    value: profileData['email'],
+                                    value: user['email'],
                                   ),
                                   SizedBox(height: 4),
                                   CardDetailProfile(
                                     iconData: Icons.home_rounded,
                                     title: 'Alamat',
-                                    value: profileData['address'],
+                                    value: user_profile['address'],
                                   ),
                                   SizedBox(height: 4),
                                   CardDetailProfile(
                                     iconData: Icons.phone,
                                     title: 'No Telepon',
-                                    value: profileData['phone_number'],
+                                    value: user_profile['phone_number'],
                                   ),
                                   SizedBox(height: 4),
                                   CardDetailProfile(
                                     iconData: Icons.person,
                                     title: 'Jenis Kelamin',
-                                    value: (profileData['gender'] == 'Male')
+                                    value: (user_profile['gender'] == 'Male')
                                         ? 'Laki-Laki'
                                         : 'Perempuan',
                                   ),
@@ -324,9 +258,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   CardDetailProfile(
                                     iconData: Icons.add_location_alt,
                                     title: 'Tempat/Tanggal Lahir',
-                                    value: profileData['birth_place'] +
+                                    value: user_profile['birth_place'] +
                                         ', ' +
-                                        profileData['birth_date'],
+                                        user_profile['birth_date'],
                                   ),
                                   SizedBox(height: 32),
                                   (appVersion != null)
