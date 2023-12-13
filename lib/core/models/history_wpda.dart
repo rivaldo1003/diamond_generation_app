@@ -1,67 +1,84 @@
 class History {
   final bool success;
-  final List<HistoryWpda> history;
-  final String missed_days_total;
+  final int missedDaysTotal;
   final String grade;
+  final int totalWPDA;
+  final List<HistoryWpda> data;
 
   History({
     required this.success,
-    required this.history,
-    required this.missed_days_total,
+    required this.missedDaysTotal,
     required this.grade,
+    required this.totalWPDA,
+    required this.data,
   });
 
   factory History.fromJson(Map<String, dynamic> json) {
-    List<dynamic> historyData = json['history'] ?? [];
-    List<HistoryWpda> historyList =
-        historyData.map((e) => HistoryWpda.fromJson(e)).toList();
+    var dataList = json['data'] as List;
+    List<HistoryWpda> wpdaList =
+        dataList.map((item) => HistoryWpda.fromJson(item)).toList();
 
     return History(
-      success: json['success'] ?? false,
-      history: historyList,
-      missed_days_total: json['missed_days_total'] ?? '',
-      grade: json['grade'] ?? '',
+      success: json['success'],
+      missedDaysTotal: json['missed_days_total'],
+      grade: json['grade'],
+      totalWPDA: json['total_wpda'],
+      data: wpdaList,
     );
   }
 }
 
 class HistoryWpda {
-  final String id;
-  final String userId;
-  final String fullName;
-  final String email;
-  final String kitabBacaan;
-  final String isiKitab;
-  final String pesanTuhan;
-  final String selectedPrayers;
-  final String aplikasiKehidupan;
+  final int id;
+  final String readingBook;
+  final String verseContent;
+  final String messageOfGod;
+  final String applicationInLife;
   final String createdAt;
+  final int userId;
+  final Writer writer;
 
   HistoryWpda({
     required this.id,
-    required this.userId,
-    required this.fullName,
-    required this.email,
-    required this.kitabBacaan,
-    required this.isiKitab,
-    required this.pesanTuhan,
-    required this.selectedPrayers,
-    required this.aplikasiKehidupan,
+    required this.readingBook,
+    required this.verseContent,
+    required this.messageOfGod,
+    required this.applicationInLife,
     required this.createdAt,
+    required this.userId,
+    required this.writer,
   });
 
   factory HistoryWpda.fromJson(Map<String, dynamic> json) {
     return HistoryWpda(
-      id: json['id'] ?? '',
-      userId: json['user_id'] ?? '',
-      fullName: json['full_name'] ?? '',
-      email: json['email'] ?? '',
-      kitabBacaan: json['kitab_bacaan'] ?? '',
-      isiKitab: json['isi_kitab'] ?? '',
-      pesanTuhan: json['pesan_tuhan'] ?? '',
-      selectedPrayers: json['selected_prayers'] ?? '',
-      aplikasiKehidupan: json['aplikasi_kehidupan'] ?? '',
-      createdAt: json['created_at'] ?? '',
+      id: json['id'],
+      readingBook: json['reading_book'],
+      verseContent: json['verse_content'],
+      messageOfGod: json['message_of_god'],
+      applicationInLife: json['application_in_life'],
+      createdAt: json['created_at'],
+      userId: json['user_id'],
+      writer: Writer.fromJson(json['writer']),
+    );
+  }
+}
+
+class Writer {
+  final int id;
+  final String fullName;
+  final String email;
+
+  Writer({
+    required this.id,
+    required this.fullName,
+    required this.email,
+  });
+
+  factory Writer.fromJson(Map<String, dynamic> json) {
+    return Writer(
+      id: json['id'],
+      fullName: json['full_name'],
+      email: json['email'],
     );
   }
 }

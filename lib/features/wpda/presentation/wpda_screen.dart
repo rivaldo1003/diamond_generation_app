@@ -5,28 +5,54 @@ import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provide
 import 'package:diamond_generation_app/features/wpda/presentation/add_wpda.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/card_wpda.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class WPDAScreen extends StatelessWidget {
+class WPDAScreen extends StatefulWidget {
+  @override
+  State<WPDAScreen> createState() => _WPDAScreenState();
+}
+
+class _WPDAScreenState extends State<WPDAScreen> {
   Future<bool> checkIfWPDAUploadedTodayForUser(
       String userId, List<WPDA>? data) async {
     var currentDate = DateTime.now();
     var formatDate = DateFormat('yy MMM dd').format(currentDate);
 
-    for (var wpda in data!) {
-      if (wpda.userId == userId) {
-        var dateUploaded =
-            DateFormat('yy MMM dd').format(DateTime.parse(wpda.createdAt));
-        if (dateUploaded == formatDate) {
-          return true;
+    if (data != null) {
+      for (var wpda in data) {
+        if (wpda.user_id == userId) {
+          var dateUploaded = DateFormat('yy MMM dd').format(DateTime.parse(wpda
+              .created_at)); // Sesuaikan format tanggal dengan yang ada di WPDA
+          if (dateUploaded == formatDate) {
+            return true;
+          }
         }
       }
     }
     return false;
+  }
+
+  String? token;
+
+  Future getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      token = prefs.getString(SharedPreferencesManager.keyToken);
+      print(token);
+    });
+  }
+
+  @override
+  void initState() {
+    getToken();
+    super.initState();
   }
 
   @override
@@ -50,14 +76,12 @@ class WPDAScreen extends StatelessWidget {
       ),
       appBar: AppBarWidget(
         title: 'WPDA',
-        // action: [
-        //   IconButton(
-        //     onPressed: () {
-        //       wpdaProvider.refreshApp(context);
-        //     },
-        //     icon: Icon(Icons.refresh),
-        //   ),
-        // ],
+        action: [
+          IconButton(
+            onPressed: () {},
+            icon: Icon(FontAwesomeIcons.trophy),
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -94,7 +118,7 @@ class WPDAScreen extends StatelessWidget {
                           }
                         }),
                         Text(
-                          'Ayo, jadikan semua bangsa muridmu.',
+                          'Ayo, jadikan semua bangsa murid-Mu.',
                           style: MyFonts.brownText(
                             14,
                             FontWeight.w500,
@@ -117,7 +141,7 @@ class WPDAScreen extends StatelessWidget {
             SizedBox(height: 12),
             Expanded(
               child: FutureBuilder<List<WPDA>>(
-                future: getWpdaUsecase.getAllWpda(),
+                future: getWpdaUsecase.getAllWpda("${token}"),
                 builder: (context, snapshot) {
                   var data = snapshot.data;
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -143,16 +167,16 @@ class WPDAScreen extends StatelessWidget {
                             data = data!.reversed.toList();
                             data!.sort((a, b) {
                               var dateA = DateFormat('yy MMM dd')
-                                  .format(DateTime.parse(a.createdAt));
+                                  .format(DateTime.parse(a.created_at));
                               var dateB = DateFormat('yy MMM dd')
-                                  .format(DateTime.parse(b.createdAt));
+                                  .format(DateTime.parse(b.created_at));
 
-                              if (a.userId == value.userId &&
-                                  b.userId != value.userId &&
+                              if (a.user_id == value.userId &&
+                                  b.user_id != value.userId &&
                                   dateA == formatDate) {
                                 return -1;
-                              } else if (a.userId != value.userId &&
-                                  b.userId == value.userId &&
+                              } else if (a.user_id != value.userId &&
+                                  b.user_id == value.userId &&
                                   dateB == formatDate) {
                                 return 1;
                               } else {

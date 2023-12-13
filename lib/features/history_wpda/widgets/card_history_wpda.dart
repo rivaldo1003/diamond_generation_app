@@ -43,19 +43,19 @@ class CardHistoryWpda extends StatelessWidget {
     String dateResult =
         DateFormat('dd MMM yy').format(DateTime.parse(historyWpda.createdAt));
 
-    String selectedPrayers = historyWpda.selectedPrayers;
+    // String selectedPrayers = historyWpda.selectedPrayers;
 
-    List<String> abbreviations = [];
+    // List<String> abbreviations = [];
 
-    if (selectedPrayers.isEmpty || selectedPrayers == null) {
-      abbreviations.add('Tidak Berdoa');
-    } else {
-      List<String> prayersList = selectedPrayers.split(',');
-      abbreviations =
-          prayersList.map((prayer) => getAbbreviation(prayer)).toList();
-    }
+    // if (selectedPrayers.isEmpty || selectedPrayers == null) {
+    //   abbreviations.add('Tidak Berdoa');
+    // } else {
+    //   List<String> prayersList = selectedPrayers.split(',');
+    //   abbreviations =
+    //       prayersList.map((prayer) => getAbbreviation(prayer)).toList();
+    // }
 
-    String selectedItemsString = abbreviations.join(', ');
+    // String selectedItemsString = abbreviations.join(', ');
 
     return GestureDetector(
       onTap: () {
@@ -84,7 +84,7 @@ class CardHistoryWpda extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                historyWpda.fullName,
+                                historyWpda.writer.fullName,
                                 textAlign: TextAlign.end,
                                 style: MyFonts.customTextStyle(
                                   14,
@@ -149,7 +149,7 @@ class CardHistoryWpda extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      historyWpda.isiKitab,
+                      historyWpda.readingBook,
                       style: MyFonts.customTextStyle(
                         14,
                         FontWeight.w500,
@@ -171,7 +171,7 @@ class CardHistoryWpda extends StatelessWidget {
                         ),
                         Expanded(
                           child: Text(
-                            historyWpda.pesanTuhan,
+                            historyWpda.messageOfGod,
                             style: MyFonts.customTextStyle(
                               14,
                               FontWeight.w500,
@@ -195,7 +195,7 @@ class CardHistoryWpda extends StatelessWidget {
                         ),
                         Expanded(
                           child: Text(
-                            historyWpda.aplikasiKehidupan,
+                            historyWpda.applicationInLife,
                             style: MyFonts.customTextStyle(
                               14,
                               FontWeight.w500,
@@ -278,7 +278,7 @@ class CardHistoryWpda extends StatelessWidget {
                                   return CircularProgressIndicator();
                                 } else {
                                   return Text(
-                                    historyWpda.fullName,
+                                    historyWpda.writer.fullName,
                                     overflow: TextOverflow.ellipsis,
                                     style: MyFonts.customTextStyle(
                                       14,
@@ -290,7 +290,7 @@ class CardHistoryWpda extends StatelessWidget {
                               },
                             ),
                             Text(
-                              historyWpda.email,
+                              historyWpda.writer.email,
                               style: MyFonts.customTextStyle(
                                 14,
                                 FontWeight.w500,
@@ -326,7 +326,7 @@ class CardHistoryWpda extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          historyWpda.kitabBacaan,
+                          historyWpda.readingBook,
                           style: MyFonts.customTextStyle(
                             16,
                             FontWeight.bold,
@@ -392,7 +392,7 @@ class CardHistoryWpda extends StatelessWidget {
                       ),
                       Flexible(
                         child: Text(
-                          '${selectedItemsString}',
+                          '{selectedItemsString}',
                           textAlign: TextAlign.right,
                           style: MyFonts.customTextStyle(
                             12,
@@ -405,7 +405,7 @@ class CardHistoryWpda extends StatelessWidget {
                   ),
                   SizedBox(height: 12),
                   Text(
-                    historyWpda.isiKitab,
+                    historyWpda.verseContent,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 4,
                     style: MyFonts.customTextStyle(

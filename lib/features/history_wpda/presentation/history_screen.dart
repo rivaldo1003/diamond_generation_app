@@ -6,11 +6,34 @@ import 'package:diamond_generation_app/features/login/data/providers/login_provi
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HistoryScreen extends StatelessWidget {
+class HistoryScreen extends StatefulWidget {
+  @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  String? token;
+
+  Future getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      token = prefs.getString(SharedPreferencesManager.keyToken);
+      print('Ini token saya : $token');
+    });
+  }
+
+  @override
+  void initState() {
+    getToken();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final getWpdaUsecase = Provider.of<GetWpdaUsecase>(context);
@@ -21,11 +44,14 @@ class HistoryScreen extends StatelessWidget {
         builder: (context, value, _) {
           if (value.userId == null) {
             value.loadUserId();
+            print('INI VALUE DARI SF : ${value.userId}');
             return Center(child: CircularProgressIndicator());
           } else {
             return FutureBuilder<History>(
-              future: getWpdaUsecase.getAllWpdaByUserID(value.userId!),
+              future: getWpdaUsecase.getAllWpdaByUserID(
+                  value.userId!, (token == null) ? '' : token!),
               builder: (context, snapshot) {
+                print('SNAPSHOT HISTORY ${snapshot.data}');
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
                     child: CircularProgressIndicator(),
@@ -35,10 +61,12 @@ class HistoryScreen extends StatelessWidget {
                   if (snapshot.hasError) {
                     return Center(
                       child: Text(
-                          'Server sedang dalam masalah! Riwayat WPDA tidak ditemukan'),
+                        'Server sedang dalam masalah! Riwayat WPDA tidak ditemukan',
+                        textAlign: TextAlign.center,
+                      ),
                     );
                   } else {
-                    if (history!.history.isEmpty) {
+                    if (history!.data.isEmpty) {
                       return Column(
                         children: [
                           _buildHeaderWidget(context, history),
@@ -82,9 +110,9 @@ class HistoryScreen extends StatelessWidget {
                                   horizontal: 12,
                                   vertical: 4,
                                 ),
-                                itemCount: history.history.length,
+                                itemCount: history.data.length,
                                 itemBuilder: (context, index) {
-                                  final historyWpda = history.history[index];
+                                  final historyWpda = history.data[index];
                                   return CardHistoryWpda(
                                     historyWpda: historyWpda,
                                   );
@@ -156,7 +184,7 @@ class HistoryScreen extends StatelessWidget {
                   Expanded(
                     child: CardHeaderHistoryWpda(
                       title: 'NILAI',
-                      totalWpda: history!.grade,
+                      totalWpda: 'C',
                       color: MyColor.colorLightBlue,
                     ),
                   ),
@@ -164,8 +192,7 @@ class HistoryScreen extends StatelessWidget {
                   Expanded(
                     child: CardHeaderHistoryWpda(
                       title: 'HARI TERLEWAT',
-                      totalWpda:
-                          (history == null) ? '0' : history.missed_days_total,
+                      totalWpda: '0',
                       color: MyColor.colorRed,
                     ),
                   ),
@@ -245,7 +272,7 @@ class HistoryScreen extends StatelessWidget {
                     Expanded(
                       child: CardHeaderHistoryWpda(
                         title: 'TOTAL WPDA',
-                        totalWpda: history!.history.length.toString(),
+                        totalWpda: history!.totalWPDA.toString(),
                         color: MyColor.colorGreen,
                         onTap: () {},
                       ),
@@ -254,8 +281,7 @@ class HistoryScreen extends StatelessWidget {
                     Expanded(
                       child: CardHeaderHistoryWpda(
                         title: 'NILAI',
-                        totalWpda:
-                            (history.history.isEmpty) ? 'C' : history.grade,
+                        totalWpda: (history.data.isEmpty) ? 'C' : history.grade,
                         color: MyColor.colorLightBlue,
                         onTap: () {
                           Navigator.push(context,
@@ -269,10 +295,10 @@ class HistoryScreen extends StatelessWidget {
                     Expanded(
                       child: CardHeaderHistoryWpda(
                         title: 'HARI TERLEWAT',
-                        totalWpda: (history.missed_days_total == "-1")
+                        totalWpda: (history.missedDaysTotal == -1)
                             ? '0'
-                            : history
-                                .missed_days_total, // Replace with the actual missed day value
+                            : history.missedDaysTotal
+                                .toString(), // Replace with the actual missed day value
                         color: MyColor.colorRed,
                         onTap: () {},
                       ),

@@ -4,13 +4,14 @@ import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provide
 import 'package:diamond_generation_app/features/wpda/presentation/edit_wpda.screen.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/custom_dialog.dart';
-import 'package:diamond_generation_app/shared/widgets/prayer_abbreviation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class CardWpda extends StatelessWidget {
+class CardWpda extends StatefulWidget {
   final WPDA wpda;
 
   CardWpda({
@@ -18,6 +19,11 @@ class CardWpda extends StatelessWidget {
     required this.wpda,
   });
 
+  @override
+  State<CardWpda> createState() => _CardWpdaState();
+}
+
+class _CardWpdaState extends State<CardWpda> {
   String convertTimeFormat(String originalTime) {
     // Membuat formatter untuk waktu dengan format HH.mm.ss
     DateFormat originalFormat = DateFormat('HH:mm:ss');
@@ -32,34 +38,50 @@ class CardWpda extends StatelessWidget {
     return newFormat.format(dateTime);
   }
 
+  String? token;
+
+  Future getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      token = prefs.getString(SharedPreferencesManager.keyToken);
+      print(token);
+    });
+  }
+
+  @override
+  void initState() {
+    getToken();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    String time = wpda.createdAt.split(' ').last;
+    String time = widget.wpda.created_at.split(' ').last;
 
     String timeOnly = convertTimeFormat(time);
 
-    String formatDate =
-        DateFormat('dd MMMM yyyy', 'id').format(DateTime.parse(wpda.createdAt));
+    String formatDate = DateFormat('dd MMMM yyyy', 'id')
+        .format(DateTime.parse(widget.wpda.created_at));
 
     String currentDate = DateTime.now().toString();
     var currentDateFormat =
         DateFormat('dd MMMM yyyy', 'id').format(DateTime.parse(currentDate));
 
     String dateResult =
-        DateFormat('dd MMM yy').format(DateTime.parse(wpda.createdAt));
+        DateFormat('dd MMM yy').format(DateTime.parse(widget.wpda.created_at));
     final wpdaProvider = Provider.of<WpdaProvider>(context);
 
-    String selectedPrayers = wpda.selectedPrayers;
+    // String selectedPrayers = wpda.selectedPrayers;
 
     List<String> abbreviations = [];
 
-    if (selectedPrayers.isEmpty || selectedPrayers == null) {
-      abbreviations.add('Tidak Berdoa');
-    } else {
-      List<String> prayersList = selectedPrayers.split(',');
-      abbreviations =
-          prayersList.map((prayer) => getAbbreviation(prayer)).toList();
-    }
+    // if (selectedPrayers.isEmpty || selectedPrayers == null) {
+    //   abbreviations.add('Tidak Berdoa');
+    // } else {
+    //   List<String> prayersList = selectedPrayers.split(',');
+    //   abbreviations =
+    //       prayersList.map((prayer) => getAbbreviation(prayer)).toList();
+    // }
 
     String selectedItemsString = abbreviations.join(', ');
 
@@ -92,7 +114,7 @@ class CardWpda extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                    wpda.fullName,
+                                    widget.wpda.writer.full_name,
                                     textAlign: TextAlign.end,
                                     style: MyFonts.customTextStyle(
                                       14,
@@ -126,7 +148,7 @@ class CardWpda extends StatelessWidget {
                                           ],
                                         )
                                       : Text(
-                                          wpda.createdAt,
+                                          widget.wpda.created_at,
                                           textAlign: TextAlign.end,
                                           style: MyFonts.customTextStyle(
                                             12,
@@ -159,7 +181,7 @@ class CardWpda extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            wpda.isiKitab,
+                            widget.wpda.verse_content,
                             style: MyFonts.customTextStyle(
                               14,
                               FontWeight.w500,
@@ -181,7 +203,7 @@ class CardWpda extends StatelessWidget {
                               ),
                               Expanded(
                                 child: Text(
-                                  '${wpda.pesanTuhan}',
+                                  '${widget.wpda.message_of_god}',
                                   style: MyFonts.customTextStyle(
                                     14,
                                     FontWeight.w500,
@@ -205,7 +227,7 @@ class CardWpda extends StatelessWidget {
                               ),
                               Expanded(
                                 child: Text(
-                                  '${wpda.aplikasiKehidupan}',
+                                  '${widget.wpda.application_in_life}',
                                   style: MyFonts.customTextStyle(
                                     14,
                                     FontWeight.w500,
@@ -225,7 +247,7 @@ class CardWpda extends StatelessWidget {
                         value.loadFullName();
                         return CircularProgressIndicator();
                       } else {
-                        if (value.userId == wpda.userId) {
+                        if (value.userId == widget.wpda.user_id) {
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -238,7 +260,7 @@ class CardWpda extends StatelessWidget {
                                   Navigator.push(context,
                                       MaterialPageRoute(builder: (context) {
                                     return EditWpdaScreen(
-                                      wpda: wpda,
+                                      wpda: widget.wpda,
                                     );
                                   }));
                                 },
@@ -255,15 +277,20 @@ class CardWpda extends StatelessWidget {
                                   } else {
                                     return IconButton(
                                       onPressed: () {
+                                        print(
+                                            'INI TOKEN UNTUK DELETE : ${token}');
                                         showDialog(
                                             context: context,
                                             builder: (context) {
                                               return CustomDialog(
                                                 onApprovePressed: (context) {
-                                                  wpdaProvider.deleteWpda({
-                                                    "user_id": value.userId,
-                                                    "wpda_id": wpda.id,
-                                                  }, context);
+                                                  wpdaProvider.deleteWpda(
+                                                    context,
+                                                    (token == null)
+                                                        ? ''
+                                                        : token!,
+                                                    widget.wpda.id,
+                                                  );
                                                 },
                                                 title:
                                                     'Delete WPDA confirmation',
@@ -307,7 +334,7 @@ class CardWpda extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: (value.userId == wpda.userId &&
+                        color: (value.userId == widget.wpda.user_id &&
                                 currentDateFormat == formatDate)
                             ? MyColor.greyText
                             : MyColor.colorBlackBg,
@@ -339,7 +366,7 @@ class CardWpda extends StatelessWidget {
                                           children: [
                                             Expanded(
                                               child: Text(
-                                                wpda.fullName,
+                                                widget.wpda.writer.full_name,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: MyFonts.customTextStyle(
                                                   14,
@@ -349,7 +376,8 @@ class CardWpda extends StatelessWidget {
                                               ),
                                             ),
                                             SizedBox(width: 12),
-                                            (wpda.userId == value.userId)
+                                            (widget.wpda.user_id ==
+                                                    value.userId)
                                                 ? Container(
                                                     height: 20,
                                                     width: 60,
@@ -378,7 +406,7 @@ class CardWpda extends StatelessWidget {
                                     },
                                   ),
                                   Text(
-                                    wpda.email,
+                                    widget.wpda.writer.email,
                                     style: MyFonts.customTextStyle(
                                       14,
                                       FontWeight.w500,
@@ -396,7 +424,7 @@ class CardWpda extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                wpda.kitabBacaan,
+                                widget.wpda.reading_book,
                                 style: MyFonts.customTextStyle(
                                   16,
                                   FontWeight.bold,
@@ -480,7 +508,7 @@ class CardWpda extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            wpda.isiKitab,
+                            widget.wpda.verse_content,
                             maxLines: 4,
                             overflow: TextOverflow.ellipsis,
                             style: MyFonts.customTextStyle(
