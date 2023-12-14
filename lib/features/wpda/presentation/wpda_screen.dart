@@ -76,12 +76,13 @@ class _WPDAScreenState extends State<WPDAScreen> {
       ),
       appBar: AppBarWidget(
         title: 'WPDA',
-        action: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(FontAwesomeIcons.trophy),
+        leading: IconButton(
+          onPressed: () {},
+          icon: Icon(
+            FontAwesomeIcons.trophy,
+            color: MyColor.primaryColor,
           ),
-        ],
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: () async {

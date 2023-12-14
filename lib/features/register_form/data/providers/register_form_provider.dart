@@ -46,14 +46,24 @@ class RegisterFormProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void onSubmit(Map<String, dynamic> body, BuildContext context) {
+  void onSubmit(
+    Map<String, dynamic> body,
+    BuildContext context,
+    String token,
+    String id,
+  ) {
     validateInput();
 
     if (!showRequiredMessageAddress &&
         !showRequiredMessagePhoneNumber &&
         !showRequiredMessagePlaceOfBirth) {
       //SUCCESS
-      _getUserUsecase.submitDataUser(body, context);
+      _getUserUsecase.submitDataUser(
+        body,
+        context,
+        token,
+        id,
+      );
     }
     notifyListeners();
   }

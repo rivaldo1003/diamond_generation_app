@@ -19,7 +19,7 @@ class ViewAllDataUsers extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String formatDate = DateFormat('dd MMMM yyyy', 'id')
-        .format(DateTime.parse(userData.registration_date));
+        .format(DateTime.parse(userData.createdAt));
     return Scaffold(
       appBar: AppBarWidget(title: 'Detail Pengguna'),
       body: Column(
@@ -113,7 +113,7 @@ class ViewAllDataUsers extends StatelessWidget {
                     CardDetailProfile(
                       iconData: Icons.numbers,
                       title: 'Nomor Akun',
-                      value: userData.account_number,
+                      value: userData.accountNumber,
                     ),
                     SizedBox(height: 4),
                     CardDetailProfile(

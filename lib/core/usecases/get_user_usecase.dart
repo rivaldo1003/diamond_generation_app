@@ -24,22 +24,22 @@ class GetUserUsecase {
     await userRepository.registerUser(body, context);
   }
 
-  Future<void> submitDataUser(
-      Map<String, dynamic> body, BuildContext context) async {
-    await userRepository.submitDataUser(body, context);
+  Future<void> submitDataUser(Map<String, dynamic> body, BuildContext context,
+      String token, String id) async {
+    await userRepository.submitDataUser(body, context, token, id);
   }
 
   Future<Map<String, dynamic>> getUserProfile(int userId, String token) async {
     return await userRepository.getUserProfile(userId, token);
   }
 
-  Future<List<AllUsers>> getAllUsers() async {
-    return await userRepository.getAllUser();
+  Future<List<AllUsers>> getAllUsers(String token) async {
+    return await userRepository.getAllUser(token);
   }
 
   Future<void> approveUser(
-      Map<String, dynamic> body, BuildContext context) async {
-    await userRepository.approveUser(body, context);
+      BuildContext context, String token, String id) async {
+    await userRepository.approveUser(context, token, id);
   }
 
   Future<void> deleteUser(String userId, BuildContext context) async {

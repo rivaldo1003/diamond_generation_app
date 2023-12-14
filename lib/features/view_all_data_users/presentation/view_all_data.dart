@@ -7,12 +7,14 @@ import 'package:diamond_generation_app/features/view_detail_all_data_users/prese
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/custom_dialog.dart';
 import 'package:diamond_generation_app/shared/widgets/textfield.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ViewAllData extends StatefulWidget {
   @override
@@ -23,6 +25,22 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
   TextEditingController _findUserController = TextEditingController();
 
   bool isKeyboardVisible = false;
+
+  String? token;
+
+  Future getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      token = prefs.getString(SharedPreferencesManager.keyToken);
+      print(token);
+    });
+  }
+
+  @override
+  void initState() {
+    getToken();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +66,8 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
         ],
       ),
       body: FutureBuilder(
-        future: searchUserProvider.fetchData(context, ApiConstants.getAllUser),
+        future: searchUserProvider.fetchData(
+            context, ApiConstants.getAllUser, (token == null) ? '' : token!),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -78,7 +97,7 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
           } else {
             List<AllUsers> usersData = searchUserProvider.filteredUserData;
             var result = usersData.map((e) {
-              return e.profile_completed;
+              return e.profileCompleted;
             });
 
             var dataLength = result.where((element) => element == "0").length;
@@ -255,7 +274,9 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                   Expanded(
                     child: RefreshIndicator(
                       onRefresh: () async {
-                        await getUserUsecase.getAllUsers().then((value) {
+                        await getUserUsecase
+                            .getAllUsers((token == null) ? '' : token!)
+                            .then((value) {
                           setState(() {});
                         });
                       },
@@ -267,12 +288,11 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                     valueSearchPro.filteredUserData.length,
                                 itemBuilder: (context, index) {
                                   usersData.sort((a, b) {
-                                    if (a.statusPersetujuan == "approved" &&
-                                        b.statusPersetujuan != "approved") {
+                                    if (a.approvalStatus == "approved" &&
+                                        b.approvalStatus != "approved") {
                                       return 1;
-                                    } else if (a.statusPersetujuan !=
-                                            "approved" &&
-                                        b.statusPersetujuan == "approved") {
+                                    } else if (a.approvalStatus != "approved" &&
+                                        b.approvalStatus == "approved") {
                                       return -1;
                                     } else {
                                       return 0;
@@ -316,7 +336,7 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                               left: -5,
                                               top: -5,
                                               child: (userData
-                                                          .profile_completed ==
+                                                          .profileCompleted ==
                                                       "0")
                                                   ? Icon(
                                                       Icons.dangerous,
@@ -361,7 +381,7 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                                   (value.userId != userData.id)
                                                       ? Row(
                                                           children: [
-                                                            (userData.statusPersetujuan ==
+                                                            (userData.approvalStatus ==
                                                                         "pending_approval" &&
                                                                     !viewValue
                                                                         .isApproved)
@@ -379,16 +399,11 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                                                           return CustomDialog(
                                                                             onApprovePressed:
                                                                                 (context) {
-                                                                              viewValue.approveUser({
-                                                                                "user_id": userData.id,
-                                                                                "new_status": "approved",
-                                                                              }, context).then((value) {
+                                                                              viewValue.approveUser(context, (token == null) ? '' : token!, userData.id).then((value) {
                                                                                 Future.delayed(Duration(seconds: 2), () {
                                                                                   setState(() {});
                                                                                 });
                                                                               });
-                                                                              // viewValue
-                                                                              //     .approvedUserButton();
                                                                             },
                                                                             title:
                                                                                 'Approve confirmation',

@@ -201,7 +201,7 @@ class WpdaUserScreen extends StatelessWidget {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          history.isiKitab,
+                                          history.verseContent,
                                           style: MyFonts.customTextStyle(
                                             14,
                                             FontWeight.w500,
@@ -224,7 +224,7 @@ class WpdaUserScreen extends StatelessWidget {
                                             ),
                                             Expanded(
                                               child: Text(
-                                                history.pesanTuhan,
+                                                history.messageOfGod,
                                                 style: MyFonts.customTextStyle(
                                                   14,
                                                   FontWeight.w500,
@@ -249,7 +249,7 @@ class WpdaUserScreen extends StatelessWidget {
                                             ),
                                             Expanded(
                                               child: Text(
-                                                history.aplikasiKehidupan,
+                                                history.applicationInLife,
                                                 style: MyFonts.customTextStyle(
                                                   14,
                                                   FontWeight.w500,
@@ -408,7 +408,7 @@ class WpdaUserScreen extends StatelessWidget {
                                         children: [
                                           Expanded(
                                             child: Text(
-                                              history.kitabBacaan,
+                                              history.readingBook,
                                               style: MyFonts.customTextStyle(
                                                 16,
                                                 FontWeight.bold,
@@ -502,7 +502,7 @@ class WpdaUserScreen extends StatelessWidget {
                                               BorderRadius.circular(12),
                                         ),
                                         child: Text(
-                                          history.isiKitab,
+                                          history.verseContent,
                                           maxLines: 4,
                                           overflow: TextOverflow.ellipsis,
                                           style: MyFonts.customTextStyle(

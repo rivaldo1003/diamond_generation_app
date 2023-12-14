@@ -4,6 +4,7 @@ import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/profile/data/providers/profile_provider.dart';
+import 'package:diamond_generation_app/features/profile/presentation/edit_profile_screen.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
@@ -54,7 +55,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final getUserUsecase = Provider.of<GetUserUsecase>(context);
 
     return Scaffold(
-      appBar: AppBarWidget(title: 'Account'),
+      appBar: AppBarWidget(title: 'Akun'),
       body: Consumer<LoginProvider>(builder: (context, value, _) {
         if (value.userId == null) {
           value.loadUserId();
@@ -198,23 +199,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   MyColor.greyText,
                                 ),
                               ),
-                              SizedBox(height: 32),
+                              SizedBox(height: 12),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 20),
-                                    child: Text(
-                                      'Informasi Pribadi',
-                                      style: MyFonts.customTextStyle(
-                                        14,
-                                        FontWeight.w500,
-                                        MyColor.whiteColor,
-                                      ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Informasi Pribadi',
+                                          style: MyFonts.customTextStyle(
+                                            14,
+                                            FontWeight.w500,
+                                            MyColor.whiteColor,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) {
+                                              return EditProfileScreen();
+                                            }));
+                                          },
+                                          icon: Icon(Icons.edit),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  SizedBox(height: 8),
                                   CardDetailProfile(
                                     iconData: Icons.numbers,
                                     title: 'Nomor Akun',

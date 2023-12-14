@@ -2,25 +2,40 @@ import 'package:diamond_generation_app/features/login/data/providers/login_provi
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/button.dart';
 import 'package:diamond_generation_app/shared/widgets/textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class RegisterForm extends StatelessWidget {
-  final String token;
+class RegisterForm extends StatefulWidget {
+  @override
+  State<RegisterForm> createState() => _RegisterFormState();
+}
 
-  RegisterForm({
-    super.key,
-    required this.token,
-  });
+class _RegisterFormState extends State<RegisterForm> {
+  String? token;
+
+  Future getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      token = prefs.getString(SharedPreferencesManager.keyToken);
+      print(token);
+    });
+  }
+
+  @override
+  void initState() {
+    getToken();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     final registerFormProvider = Provider.of<RegisterFormProvider>(context);
 
-    print('DARI REGISTER FORM :${token}');
     return Scaffold(
       appBar: AppBarWidget(title: 'Enter Personal Information'),
       body: Column(
@@ -308,19 +323,23 @@ class RegisterForm extends StatelessWidget {
                   onPressed: () {
                     var data = registerFormProvider.selectedGender;
                     var dataGender = data.toString().split('.').last;
-                    registerFormProvider.onSubmit({
-                      "user_id": value.userId,
-                      "address": registerFormProvider.addressController.text,
-                      "phone_number":
-                          registerFormProvider.phoneNumberController.text,
-                      "gender": dataGender,
-                      "age": registerFormProvider.calculateAge(
-                          registerFormProvider.selectedDateOfBirth),
-                      "birth_place":
-                          registerFormProvider.placeOfBirthController.text,
-                      "birth_date":
-                          registerFormProvider.selectedDateOfBirth.toString(),
-                    }, context);
+                    registerFormProvider.onSubmit(
+                      {
+                        "address": registerFormProvider.addressController.text,
+                        "phone_number":
+                            registerFormProvider.phoneNumberController.text,
+                        "gender": dataGender,
+                        "age": registerFormProvider.calculateAge(
+                            registerFormProvider.selectedDateOfBirth),
+                        "birth_place":
+                            registerFormProvider.placeOfBirthController.text,
+                        "birth_date":
+                            registerFormProvider.selectedDateOfBirth.toString(),
+                      },
+                      context,
+                      (token == null) ? '' : token!,
+                      value.userId!,
+                    );
                   },
                 ),
               );

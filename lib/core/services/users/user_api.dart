@@ -54,9 +54,8 @@ class UserApi {
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
       Map<String, dynamic> userData = json.decode(response.body)['user'];
-      print('DATA :$data');
 
-      if (data['success'] == true) {
+      if (data['success']) {
         print(userData);
         loginProvider.saveFullName(userData['full_name']);
         loginProvider.saveToken(data['token']);
@@ -64,6 +63,8 @@ class UserApi {
         loginProvider.saveUserId(userData['id'].toString());
         loginProvider
             .saveProfileCompleted(userData['profile_completed'].toString());
+
+        print('DATA PROFILE COMPLETED :${userData['profile_completed']}');
 
         if (data['role'] == 'admin') {
           showDialog(
@@ -109,13 +110,11 @@ class UserApi {
                 );
               });
           Future.delayed(Duration(seconds: 2), () {
-            if (data['profile_completed'] == "0") {
+            if (userData['profile_completed'] == 0) {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) {
-                  return RegisterForm(
-                    token: data['token'],
-                  );
+                  return RegisterForm();
                 }),
                 (route) => false,
               );
@@ -171,14 +170,40 @@ class UserApi {
           );
         });
       }
-    } else {
-      throw Exception('Gagal masuk');
+    } else if (response.statusCode == 401) {
+      final data = json.decode(response.body);
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          });
+      Future.delayed(Duration(seconds: 2), () {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: MyColor.colorRed,
+            content: Text(
+              '${data['message']}',
+              style: MyFonts.customTextStyle(
+                14,
+                FontWeight.w500,
+                MyColor.whiteColor,
+              ),
+            ),
+          ),
+        );
+      });
     }
   }
 
   Future<void> registerUser(
       Map<String, dynamic> body, BuildContext context) async {
-    final headers = {"Content-Type": "application/json"};
+    final headers = {
+      "Content-Type": "application/json",
+    };
     final response = await http.post(
       Uri.parse(ApiConstants.registerUrl),
       headers: headers,
@@ -186,7 +211,8 @@ class UserApi {
     );
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      if (data['status'] == 'success') {
+      print('DATA REGISTER :${data}');
+      if (data['success']) {
         showDialog(
             barrierDismissible: false,
             context: context,
@@ -243,28 +269,32 @@ class UserApi {
           );
         });
       }
-    } else {
-      throw Exception('Gagal mendaftarkan pengguna!');
     }
   }
 
   Future<void> submitDataUser(
-      Map<String, dynamic> body, BuildContext context) async {
+    Map<String, dynamic> body,
+    BuildContext context,
+    String token,
+    String id,
+  ) async {
     final registerFormProvider =
         Provider.of<RegisterFormProvider>(context, listen: false);
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
     final headers = {
       "Content-Type": "application/json",
+      'Authorization': "Bearer $token",
     };
     final response = await http.post(
-      Uri.parse(ApiConstants.submitDataUserUrl),
+      Uri.parse(ApiConstants.submitDataUserUrl + '/$id'),
       body: json.encode(body),
       headers: headers,
     );
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       if (data['success']) {
-        loginProvider.saveProfileCompleted(data['profile_completed']);
+        loginProvider
+            .saveProfileCompleted(data['profile_completed'].toString());
         showDialog(
             barrierDismissible: false,
             context: context,
@@ -335,8 +365,7 @@ class UserApi {
     };
     try {
       final response = await http.get(
-        Uri.parse(
-            "http://192.168.110.85/diamond-generation-service/public/api/users/$userId"),
+        Uri.parse(ApiConstants.baseUrl + '/users/$userId'),
         headers: headers,
       );
 
@@ -352,34 +381,38 @@ class UserApi {
     }
   }
 
-  Future<List<AllUsers>> getAllUsers() async {
-    final headers = {"Content-Type": "application/json"};
+  Future<List<AllUsers>> getAllUsers(String token) async {
+    final headers = {
+      "Content-Type": "application/json",
+      'Authorization': 'Bearer $token'
+    };
     final response = await http.get(
       Uri.parse(ApiConstants.getAllUser),
       headers: headers,
     );
     if (response.statusCode == 200) {
-      Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> jsonResponse = data['users_data'];
-      var result = jsonResponse.map((json) {
-        return AllUsers.fromJson(json);
-      }).toList();
-      return result;
+      List<dynamic> jsonData = json.decode(response.body)['users_data'];
+      List<AllUsers> usersList =
+          jsonData.map((data) => AllUsers.fromJson(data)).toList();
+      return usersList;
+    } else {
+      throw Exception('Failed to load users data');
     }
-    throw Exception('Failed to load all users');
   }
 
   Future<void> approveUser(
-      Map<String, dynamic> body, BuildContext context) async {
+      BuildContext context, String token, String id) async {
     try {
       final viewAllDataUserProvider =
           Provider.of<SearchUserProvider>(context, listen: false);
 
-      final headers = {"Content-Type": "application/json"};
-      final response = await http.post(
-        Uri.parse(ApiConstants.approveUserUrl),
+      final headers = {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token'
+      };
+      final response = await http.put(
+        Uri.parse(ApiConstants.approveUserUrl + '/$id'),
         headers: headers,
-        body: json.encode(body),
       );
 
       if (response.statusCode == 200) {

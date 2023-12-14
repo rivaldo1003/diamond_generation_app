@@ -7,10 +7,11 @@ abstract class UserRepository {
   Future<List<User>> getUsers(String urlApi);
   Future<void> loginUser(Map<String, dynamic> body, BuildContext context);
   Future<void> registerUser(Map<String, dynamic> body, BuildContext context);
-  Future<void> submitDataUser(Map<String, dynamic> body, BuildContext context);
+  Future<void> submitDataUser(
+      Map<String, dynamic> body, BuildContext context, String token, String id);
   Future<Map<String, dynamic>> getUserProfile(int userId, String token);
-  Future<List<AllUsers>> getAllUser();
-  Future<void> approveUser(Map<String, dynamic> body, BuildContext context);
+  Future<List<AllUsers>> getAllUser(String token);
+  Future<void> approveUser(BuildContext context, String token, String id);
   Future<void> deleteUser(String userId, BuildContext context);
 }
 
@@ -38,8 +39,12 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<void> submitDataUser(
-      Map<String, dynamic> body, BuildContext context) async {
-    await userApi.submitDataUser(body, context);
+    Map<String, dynamic> body,
+    BuildContext context,
+    String token,
+    String id,
+  ) async {
+    await userApi.submitDataUser(body, context, token, id);
   }
 
   @override
@@ -48,14 +53,14 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<List<AllUsers>> getAllUser() async {
-    return await userApi.getAllUsers();
+  Future<List<AllUsers>> getAllUser(String token) async {
+    return await userApi.getAllUsers(token);
   }
 
   @override
   Future<void> approveUser(
-      Map<String, dynamic> body, BuildContext context) async {
-    await userApi.approveUser(body, context);
+      BuildContext context, String token, String id) async {
+    await userApi.approveUser(context, token, id);
   }
 
   @override

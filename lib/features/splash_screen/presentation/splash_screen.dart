@@ -26,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
         if (token != null && role == 'admin') {
           return BottomNavigationPage();
-        } else if (token != null && role == 'user' && profileCompleted == "1") {
+        } else if (token != null && role == 'user' && profileCompleted == '1') {
           return BottomNavigationPage();
         } else {
           return LoginScreen();
