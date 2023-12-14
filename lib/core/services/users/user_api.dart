@@ -4,7 +4,6 @@ import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
 import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
-import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_register.dart';
 import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
@@ -12,7 +11,6 @@ import 'package:diamond_generation_app/features/register_form/presentation/regis
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
-import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/utils/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -51,20 +49,19 @@ class UserApi {
       },
     );
 
+    print(response.body);
+
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-      Map<String, dynamic> userData = json.decode(response.body)['user'];
 
       if (data['success']) {
-        print(userData);
+        Map<String, dynamic> userData = json.decode(response.body)['user'];
         loginProvider.saveFullName(userData['full_name']);
         loginProvider.saveToken(data['token']);
         loginProvider.saveRole(userData['role']);
         loginProvider.saveUserId(userData['id'].toString());
         loginProvider
             .saveProfileCompleted(userData['profile_completed'].toString());
-
-        print('DATA PROFILE COMPLETED :${userData['profile_completed']}');
 
         if (data['role'] == 'admin') {
           showDialog(
@@ -97,9 +94,9 @@ class UserApi {
                 ),
               ),
             );
-            TextFieldControllerLogin.emailController.text = '';
-            TextFieldControllerLogin.passwordController.text = '';
           });
+          // TextFieldControllerLogin.emailController.text = '';
+          // TextFieldControllerLogin.passwordController.text = '';
         } else {
           showDialog(
               barrierDismissible: false,
@@ -140,9 +137,6 @@ class UserApi {
               );
             }
           });
-
-          TextFieldControllerLogin.emailController.text = '';
-          TextFieldControllerLogin.passwordController.text = '';
         }
       } else {
         showDialog(
@@ -170,7 +164,7 @@ class UserApi {
           );
         });
       }
-    } else if (response.statusCode == 401) {
+    } else {
       final data = json.decode(response.body);
       showDialog(
           barrierDismissible: false,
@@ -455,9 +449,18 @@ class UserApi {
     }
   }
 
-  Future<void> deleteUser(String userId, BuildContext context) async {
-    final response = await http
-        .delete(Uri.parse(ApiConstants.deleteUserUrl + '?id=${userId}'));
+  Future<void> deleteUser(
+    String userId,
+    BuildContext context,
+    String token,
+  ) async {
+    final response = await http.delete(
+      Uri.parse(ApiConstants.deleteUserUrl + '/$userId'),
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      },
+    );
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       if (data['success']) {
@@ -488,10 +491,113 @@ class UserApi {
           Navigator.pop(context);
         });
       } else {
-        throw Exception(data['message']);
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorGreen,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          Navigator.pop(context);
+        });
       }
     } else {
-      throw Exception('Failed to approve user');
+      throw Exception('Failed to delete user');
+    }
+  }
+
+  Future<void> updateProfile(
+    BuildContext context,
+    String userId,
+    String token,
+    Map<String, dynamic> body,
+  ) async {
+    final response = await http.put(
+      Uri.parse(ApiConstants.updateProfile + '/$userId'),
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      },
+      body: json.encode(body),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['success']) {
+        print(response.body);
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorGreen,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          Navigator.pop(context);
+        });
+      } else {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorGreen,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          Navigator.pop(context);
+        });
+      }
+    } else {
+      throw Exception('Gagal update user profile');
     }
   }
 }

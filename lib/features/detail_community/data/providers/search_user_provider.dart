@@ -81,8 +81,9 @@ class SearchUserProvider with ChangeNotifier {
     });
   }
 
-  Future<void> deleteData(String userId, BuildContext context) async {
-    await _getUserUsecase.deleteUser(userId, context);
+  Future<void> deleteData(
+      String userId, BuildContext context, String token) async {
+    await _getUserUsecase.deleteUser(userId, context, token);
     Future.delayed(Duration(seconds: 2), () {
       notifyListeners();
     });

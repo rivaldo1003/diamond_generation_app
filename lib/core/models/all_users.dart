@@ -1,3 +1,5 @@
+import 'package:diamond_generation_app/core/models/user_profile.dart';
+
 class AllUsers {
   final String id;
   final String fullName;
@@ -16,6 +18,7 @@ class AllUsers {
   final String grade;
   final String missedDaysTotal;
   final List<DataWpda> dataWpda;
+  final UserProfile? profile;
 
   AllUsers({
     required this.id,
@@ -35,12 +38,20 @@ class AllUsers {
     required this.grade,
     required this.missedDaysTotal,
     required this.dataWpda,
+    required this.profile,
   });
 
   factory AllUsers.fromJson(Map<String, dynamic> json) {
     var wpdaHistoryList = json['wpda_history'] as List<dynamic>;
     List<DataWpda> parsedWpdaHistoryList =
         wpdaHistoryList.map((data) => DataWpda.fromJson(data)).toList();
+
+    var userProfile = json['profile'];
+    UserProfile? profile;
+    if (userProfile != null) {
+      profile = UserProfile.fromJson(userProfile);
+    }
+
     return AllUsers(
       id: json['id'].toString(),
       fullName: json['full_name'].toString(),
@@ -59,6 +70,7 @@ class AllUsers {
       grade: json['grade'].toString(),
       missedDaysTotal: json['missed_days_total'].toString(),
       dataWpda: parsedWpdaHistoryList,
+      profile: profile,
     );
   }
 }

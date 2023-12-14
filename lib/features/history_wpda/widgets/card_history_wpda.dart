@@ -392,7 +392,7 @@ class CardHistoryWpda extends StatelessWidget {
                       ),
                       Flexible(
                         child: Text(
-                          '{selectedItemsString}',
+                          '',
                           textAlign: TextAlign.right,
                           style: MyFonts.customTextStyle(
                             12,

@@ -1,5 +1,6 @@
 import 'package:diamond_generation_app/features/history_wpda/presentation/history_screen.dart';
 import 'package:diamond_generation_app/features/home/presentation/home_screen.dart';
+import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/profile/presentation/profile_screen.dart';
 import 'package:diamond_generation_app/features/wpda/presentation/wpda_screen.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
@@ -45,6 +46,8 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
 
   @override
   void initState() {
+    TextFieldControllerLogin.emailController.text = '';
+    TextFieldControllerLogin.passwordController.text = '';
     goToHome();
     if (widget.index != null) {
       selected = widget.index!;

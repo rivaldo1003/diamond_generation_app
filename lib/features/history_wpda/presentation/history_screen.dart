@@ -51,7 +51,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
               future: getWpdaUsecase.getAllWpdaByUserID(
                   value.userId!, (token == null) ? '' : token!),
               builder: (context, snapshot) {
-                print('SNAPSHOT HISTORY ${snapshot.data}');
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
                     child: CircularProgressIndicator(),
@@ -82,7 +81,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 SizedBox(height: 8),
                                 Center(
                                   child: Text(
-                                    'WPDA data is empty!',
+                                    'Belum ada riwayat WPDA',
                                     style: MyFonts.customTextStyle(
                                       14,
                                       FontWeight.w500,
@@ -96,14 +95,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         ],
                       );
                     } else {
+                      history.data.sort((a, b) => DateTime.parse(b.createdAt)
+                          .compareTo(DateTime.parse(a.createdAt)));
                       return Column(
                         children: [
                           _buildHeaderWidget(context, history),
                           Expanded(
                             child: RefreshIndicator(
                               onRefresh: () async {
-                                await wpdaProvider
-                                    .refreshWpdaHistory(value.userId!);
+                                await wpdaProvider.refreshWpdaHistory(
+                                    value.userId!, token!);
                               },
                               child: ListView.builder(
                                 padding: EdgeInsets.symmetric(
@@ -214,7 +215,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             SizedBox(height: 8),
             Center(
               child: Text(
-                'WPDA data not found! Server error',
+                'WPDA tidak ditemukan. Server sedang dalam perbaikan',
                 style: MyFonts.customTextStyle(
                   14,
                   FontWeight.w500,

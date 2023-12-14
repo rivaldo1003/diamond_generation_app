@@ -12,7 +12,6 @@ import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/custom_dialog.dart';
 import 'package:diamond_generation_app/shared/widgets/textfield.dart';
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -406,11 +405,11 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                                                               });
                                                                             },
                                                                             title:
-                                                                                'Approve confirmation',
+                                                                                'Setujui Konfirmasi',
                                                                             content:
-                                                                                'Are you sure you want to approve this user?',
+                                                                                'Apakah Anda yakin ingin menyetujui pengguna ini?',
                                                                             textColorYes:
-                                                                                'Approve',
+                                                                                'Setujui',
                                                                           );
                                                                         },
                                                                       );
@@ -444,8 +443,10 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                                                           CircularProgressIndicator();
                                                                         });
                                                                         viewValue
-                                                                            .deleteData(userData.id,
-                                                                                context)
+                                                                            .deleteData(
+                                                                                userData.id,
+                                                                                context,
+                                                                                (token == null) ? '' : token!)
                                                                             .then((value) {
                                                                           Future.delayed(
                                                                               Duration(seconds: 2),
@@ -456,11 +457,11 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                                                         ;
                                                                       },
                                                                       title:
-                                                                          'Delete confirmation',
+                                                                          'Hapus konfirmasi',
                                                                       content:
-                                                                          'Are you sure you want to delete this user?',
+                                                                          'Apakah anda yakin ingin menghapus user ini? semua data WPDA juga akan ikut terhapus. Mohon diperhatikan!',
                                                                       textColorYes:
-                                                                          'Delete',
+                                                                          'Hapus',
                                                                     );
                                                                   },
                                                                 );

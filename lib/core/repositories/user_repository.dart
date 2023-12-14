@@ -12,7 +12,9 @@ abstract class UserRepository {
   Future<Map<String, dynamic>> getUserProfile(int userId, String token);
   Future<List<AllUsers>> getAllUser(String token);
   Future<void> approveUser(BuildContext context, String token, String id);
-  Future<void> deleteUser(String userId, BuildContext context);
+  Future<void> deleteUser(String userId, BuildContext context, String token);
+  Future<void> updateProfile(BuildContext context, Map<String, dynamic> body,
+      String userId, String token);
 }
 
 class UserRepositoryImpl implements UserRepository {
@@ -64,7 +66,14 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<void> deleteUser(String userId, BuildContext context) async {
-    await userApi.deleteUser(userId, context);
+  Future<void> deleteUser(
+      String userId, BuildContext context, String token) async {
+    await userApi.deleteUser(userId, context, token);
+  }
+
+  @override
+  Future<void> updateProfile(BuildContext context, Map<String, dynamic> body,
+      String userId, String token) async {
+    await userApi.updateProfile(context, userId, token, body);
   }
 }

@@ -1,10 +1,7 @@
-import 'dart:convert';
-
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/profile/data/providers/profile_provider.dart';
-import 'package:diamond_generation_app/features/profile/presentation/edit_profile_screen.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
@@ -15,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -49,6 +45,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
   }
 
+  final TextEditingController _newAddress = TextEditingController();
+  final TextEditingController _newPhoneNumber = TextEditingController();
+  final TextEditingController _newGender = TextEditingController();
+  final TextEditingController _newAge = TextEditingController();
+  final TextEditingController _newBirthPlace = TextEditingController();
+  final TextEditingController _newBirthDate = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
@@ -66,7 +69,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 int.parse(value.userId.toString()),
                 (token == null) ? '' : token!),
             builder: (context, snapshot) {
-              print('SNAPSHOT : ${snapshot.data}');
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(
                   child: CircularProgressIndicator(),
@@ -97,305 +99,387 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (dataUser['success']) {
                   Map<String, dynamic> user = dataUser['data'];
                   Map<String, dynamic> user_profile = user['user_profile'];
-                  String date = user_profile['created_at'];
+                  String date = user['created_at'];
                   var resultDate = date.split(' ').first;
                   String formatDate = DateFormat('dd MMMM yyyy', 'id')
                       .format(DateTime.parse(date));
-                  print(user_profile);
-                  return Column(
-                    children: [
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  Container(
-                                    margin: EdgeInsets.only(
-                                      top: 16,
-                                      bottom: 18,
-                                    ),
-                                    height: 120,
-                                    width: 120,
-                                    child: CircleAvatar(
-                                      backgroundImage: AssetImage(
-                                          'assets/images/profile_empty.jpg'),
-                                    ),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: Colors.white,
-                                        width: 5.0,
+
+                  _newAddress.text = user_profile['address'];
+                  _newBirthPlace.text = user_profile['birth_place'];
+                  _newPhoneNumber.text = user_profile['phone_number'];
+
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      Future.delayed(Duration(seconds: 2));
+                      // profileProvider.refreshProfile();
+                    },
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.only(
+                                        top: 16,
+                                        bottom: 18,
                                       ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 20,
-                                    right: 0,
-                                    child: GestureDetector(
-                                      onTap: () {},
-                                      child: Container(
-                                        height: 40,
-                                        width: 40,
-                                        child: Icon(Icons.add),
-                                        decoration: BoxDecoration(
-                                          color: MyColor.colorLightBlue,
-                                          shape: BoxShape.circle,
+                                      height: 120,
+                                      width: 120,
+                                      child: CircleAvatar(
+                                        backgroundImage: AssetImage(
+                                            'assets/images/profile_empty.jpg'),
+                                      ),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 5.0,
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                '${user['full_name']}',
-                                style: MyFonts.customTextStyle(
-                                  18,
-                                  FontWeight.bold,
-                                  MyColor.whiteColor,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Divider(),
-                                  ),
-                                  Container(
-                                    margin:
-                                        EdgeInsets.symmetric(horizontal: 10),
-                                    height: 24,
-                                    width: 70,
-                                    decoration: BoxDecoration(
-                                      color: MyColor.colorLightBlue,
-                                      border: Border.all(
-                                          // color: MyColor.primaryColor,
+                                    Positioned(
+                                      bottom: 20,
+                                      right: 0,
+                                      child: GestureDetector(
+                                        onTap: () {},
+                                        child: Container(
+                                          height: 40,
+                                          width: 40,
+                                          child: Icon(Icons.add),
+                                          decoration: BoxDecoration(
+                                            color: MyColor.colorLightBlue,
+                                            shape: BoxShape.circle,
                                           ),
-                                      borderRadius: BorderRadius.circular(5),
+                                        ),
+                                      ),
                                     ),
-                                    child: Center(
-                                      child: Text(
-                                        '${user['role']}',
+                                  ],
+                                ),
+                                Text(
+                                  '${user['full_name']}',
+                                  style: MyFonts.customTextStyle(
+                                    18,
+                                    FontWeight.bold,
+                                    MyColor.whiteColor,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Divider(),
+                                    ),
+                                    Container(
+                                      margin:
+                                          EdgeInsets.symmetric(horizontal: 10),
+                                      height: 24,
+                                      width: 70,
+                                      decoration: BoxDecoration(
+                                        color: MyColor.colorLightBlue,
+                                        border: Border.all(
+                                            // color: MyColor.primaryColor,
+                                            ),
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          '${user['role']}',
+                                          style: MyFonts.customTextStyle(
+                                            14,
+                                            FontWeight.bold,
+                                            MyColor.whiteColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Divider(),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Aktif sejak - ${formatDate}',
+                                  style: MyFonts.customTextStyle(
+                                    14,
+                                    FontWeight.w500,
+                                    MyColor.greyText,
+                                  ),
+                                ),
+                                SizedBox(height: 24),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Informasi Pribadi',
+                                            style: MyFonts.customTextStyle(
+                                              14,
+                                              FontWeight.w500,
+                                              MyColor.whiteColor,
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              Container(
+                                                height: 5,
+                                                width: 5,
+                                                decoration: BoxDecoration(
+                                                  color: MyColor.colorLightBlue,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                'Bisa diedit',
+                                                style: MyFonts.customTextStyle(
+                                                  12,
+                                                  FontWeight.w500,
+                                                  MyColor.greyText,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    CardDetailProfile(
+                                      readOnly: true,
+                                      iconData: Icons.numbers,
+                                      title: 'Nomor Akun',
+                                      value: (user['account_number'] == null)
+                                          ? 'Null'
+                                          : user['account_number'],
+                                    ),
+                                    SizedBox(height: 4),
+                                    CardDetailProfile(
+                                      readOnly: true,
+                                      iconData: Icons.campaign,
+                                      title: 'Umur',
+                                      value: user_profile['age'] + ' Tahun',
+                                    ),
+                                    SizedBox(height: 4),
+                                    CardDetailProfile(
+                                      readOnly: true,
+                                      iconData: Icons.email,
+                                      title: 'Email',
+                                      value: user['email'],
+                                    ),
+                                    SizedBox(height: 4),
+                                    CardDetailProfile(
+                                      controller: _newAddress,
+                                      readOnly: false,
+                                      iconData: Icons.home_rounded,
+                                      title: 'Alamat',
+                                      value: user_profile['address'],
+                                      onPressed: () {
+                                        profileProvider
+                                            .updateProfile(
+                                                context,
+                                                {
+                                                  'address': _newAddress.text,
+                                                },
+                                                value.userId!,
+                                                token!)
+                                            .then((value) {
+                                          Future.delayed(Duration(seconds: 2),
+                                              () {
+                                            setState(() {});
+                                          });
+                                        });
+                                      },
+                                    ),
+                                    SizedBox(height: 4),
+                                    CardDetailProfile(
+                                      readOnly: false,
+                                      controller: _newPhoneNumber,
+                                      onPressed: () {
+                                        profileProvider
+                                            .updateProfile(
+                                                context,
+                                                {
+                                                  'phone_number':
+                                                      _newPhoneNumber.text,
+                                                },
+                                                value.userId!,
+                                                token!)
+                                            .then((value) {
+                                          Future.delayed(Duration(seconds: 2),
+                                              () {
+                                            setState(() {});
+                                          });
+                                        });
+                                      },
+                                      iconData: Icons.phone,
+                                      title: 'No Telepon',
+                                      value: user_profile['phone_number'],
+                                    ),
+                                    SizedBox(height: 4),
+                                    CardDetailProfile(
+                                      readOnly: false,
+                                      iconData: Icons.person,
+                                      title: 'Jenis Kelamin',
+                                      value: (user_profile['gender'] == 'Male')
+                                          ? 'Laki-Laki'
+                                          : 'Perempuan',
+                                    ),
+                                    SizedBox(height: 4),
+                                    CardDetailProfile(
+                                      controller: _newBirthPlace,
+                                      onPressed: () {
+                                        profileProvider
+                                            .updateProfile(
+                                                context,
+                                                {
+                                                  'birth_place':
+                                                      _newBirthPlace.text,
+                                                },
+                                                value.userId!,
+                                                token!)
+                                            .then((value) {
+                                          Future.delayed(Duration(seconds: 2),
+                                              () {
+                                            setState(() {});
+                                          });
+                                        });
+                                      },
+                                      readOnly: false,
+                                      iconData: Icons.add_location_alt,
+                                      title: 'Tempat/Tanggal Lahir',
+                                      value: user_profile['birth_place'] +
+                                          ', ' +
+                                          user_profile['birth_date'],
+                                    ),
+                                    SizedBox(height: 32),
+                                    (appVersion != null)
+                                        ? Center(
+                                            child: Text(
+                                              'App Version - ${appVersion} ',
+                                              style: MyFonts.customTextStyle(
+                                                12,
+                                                FontWeight.w500,
+                                                MyColor.greyText,
+                                              ),
+                                            ),
+                                          )
+                                        : CircularProgressIndicator(),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: ButtonWidget(
+                            profileProvider: profileProvider,
+                            title: 'Keluar',
+                            icon: Icons.logout,
+                            color: MyColor.colorLogOut,
+                            onPressed: () {
+                              showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text(
+                                        'Konfirmasi keluar akun',
                                         style: MyFonts.customTextStyle(
-                                          14,
+                                          16,
                                           FontWeight.bold,
                                           MyColor.whiteColor,
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Divider(),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                'Aktif sejak - ${formatDate}',
-                                style: MyFonts.customTextStyle(
-                                  14,
-                                  FontWeight.w500,
-                                  MyColor.greyText,
-                                ),
-                              ),
-                              SizedBox(height: 12),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Informasi Pribadi',
-                                          style: MyFonts.customTextStyle(
-                                            14,
-                                            FontWeight.w500,
-                                            MyColor.whiteColor,
-                                          ),
+                                      content: Text(
+                                        'Apakah anda yakin ingin keluar dari akun anda?',
+                                        style: MyFonts.customTextStyle(
+                                          14,
+                                          FontWeight.w500,
+                                          MyColor.whiteColor,
                                         ),
-                                        IconButton(
+                                      ),
+                                      actions: [
+                                        TextButton(
                                           onPressed: () {
-                                            Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                    builder: (context) {
-                                              return EditProfileScreen();
-                                            }));
+                                            Navigator.of(context).pop();
                                           },
-                                          icon: Icon(Icons.edit),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  CardDetailProfile(
-                                    iconData: Icons.numbers,
-                                    title: 'Nomor Akun',
-                                    value: (user['account_number'] == null)
-                                        ? 'Null'
-                                        : user['account_number'],
-                                  ),
-                                  SizedBox(height: 4),
-                                  CardDetailProfile(
-                                    iconData: Icons.campaign,
-                                    title: 'Umur',
-                                    value: user_profile['age'] + ' Tahun',
-                                  ),
-                                  SizedBox(height: 4),
-                                  CardDetailProfile(
-                                    iconData: Icons.email,
-                                    title: 'Email',
-                                    value: user['email'],
-                                  ),
-                                  SizedBox(height: 4),
-                                  CardDetailProfile(
-                                    iconData: Icons.home_rounded,
-                                    title: 'Alamat',
-                                    value: user_profile['address'],
-                                  ),
-                                  SizedBox(height: 4),
-                                  CardDetailProfile(
-                                    iconData: Icons.phone,
-                                    title: 'No Telepon',
-                                    value: user_profile['phone_number'],
-                                  ),
-                                  SizedBox(height: 4),
-                                  CardDetailProfile(
-                                    iconData: Icons.person,
-                                    title: 'Jenis Kelamin',
-                                    value: (user_profile['gender'] == 'Male')
-                                        ? 'Laki-Laki'
-                                        : 'Perempuan',
-                                  ),
-                                  SizedBox(height: 4),
-                                  CardDetailProfile(
-                                    iconData: Icons.add_location_alt,
-                                    title: 'Tempat/Tanggal Lahir',
-                                    value: user_profile['birth_place'] +
-                                        ', ' +
-                                        user_profile['birth_date'],
-                                  ),
-                                  SizedBox(height: 32),
-                                  (appVersion != null)
-                                      ? Center(
                                           child: Text(
-                                            'App Version - ${appVersion} ',
+                                            'Batal',
                                             style: MyFonts.customTextStyle(
-                                              12,
-                                              FontWeight.w500,
-                                              MyColor.greyText,
+                                              15,
+                                              FontWeight.bold,
+                                              Colors.lightBlue,
                                             ),
                                           ),
-                                        )
-                                      : CircularProgressIndicator(),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: ButtonWidget(
-                          profileProvider: profileProvider,
-                          title: 'Keluar',
-                          icon: Icons.logout,
-                          color: MyColor.colorLogOut,
-                          onPressed: () {
-                            showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: Text(
-                                      'Konfirmasi keluar akun',
-                                      style: MyFonts.customTextStyle(
-                                        16,
-                                        FontWeight.bold,
-                                        MyColor.whiteColor,
-                                      ),
-                                    ),
-                                    content: Text(
-                                      'Apakah anda yakin ingin keluar dari akun anda?',
-                                      style: MyFonts.customTextStyle(
-                                        14,
-                                        FontWeight.w500,
-                                        MyColor.whiteColor,
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Text(
-                                          'Batal',
-                                          style: MyFonts.customTextStyle(
-                                            15,
-                                            FontWeight.bold,
-                                            Colors.lightBlue,
-                                          ),
                                         ),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          showDialog(
-                                              barrierDismissible: false,
-                                              context: context,
-                                              builder: (context) {
-                                                return Center(
-                                                  child:
-                                                      CircularProgressIndicator(),
-                                                );
-                                              });
-                                          Future.delayed(Duration(seconds: 2),
-                                              () {
-                                            Navigator.pushAndRemoveUntil(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) {
-                                                return LoginScreen();
-                                              }),
-                                              (route) => false,
-                                            );
-                                            profileProvider.clearAllData();
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                backgroundColor:
-                                                    MyColor.colorGreen,
-                                                content: Text(
-                                                  'Anda telah berhasil keluar.',
-                                                  style:
-                                                      MyFonts.customTextStyle(
-                                                    15,
-                                                    FontWeight.w500,
-                                                    MyColor.whiteColor,
+                                        TextButton(
+                                          onPressed: () {
+                                            showDialog(
+                                                barrierDismissible: false,
+                                                context: context,
+                                                builder: (context) {
+                                                  return Center(
+                                                    child:
+                                                        CircularProgressIndicator(),
+                                                  );
+                                                });
+                                            Future.delayed(Duration(seconds: 2),
+                                                () {
+                                              Navigator.pushAndRemoveUntil(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) {
+                                                  return LoginScreen();
+                                                }),
+                                                (route) => false,
+                                              );
+                                              profileProvider.clearAllData();
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  backgroundColor:
+                                                      MyColor.colorGreen,
+                                                  content: Text(
+                                                    'Anda telah berhasil keluar.',
+                                                    style:
+                                                        MyFonts.customTextStyle(
+                                                      15,
+                                                      FontWeight.w500,
+                                                      MyColor.whiteColor,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            );
-                                          });
-                                        },
-                                        child: Text(
-                                          'Keluar',
-                                          style: MyFonts.customTextStyle(
-                                            15,
-                                            FontWeight.bold,
-                                            Colors.lightBlue,
+                                              );
+                                            });
+                                          },
+                                          child: Text(
+                                            'Keluar',
+                                            style: MyFonts.customTextStyle(
+                                              15,
+                                              FontWeight.bold,
+                                              Colors.lightBlue,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  );
-                                });
-                          },
+                                      ],
+                                    );
+                                  });
+                            },
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   );
                 } else {
                   return Text(

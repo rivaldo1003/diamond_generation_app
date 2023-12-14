@@ -23,6 +23,9 @@ class WpdaUserScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    allUsers.dataWpda.sort((a, b) =>
+        DateTime.parse(b.createdAt).compareTo(DateTime.parse(a.createdAt)));
+
     return Scaffold(
       appBar: AppBarWidget(title: 'WPDA User'),
       body: Column(
@@ -90,6 +93,9 @@ class WpdaUserScreen extends StatelessWidget {
                       }
 
                       String selectedItemString = abbreviations.join(',');
+
+                      String dateTimeString = timeOnly;
+                      String time = dateTimeString.substring(11, 16);
 
                       return Column(
                         children: [
@@ -452,7 +458,7 @@ class WpdaUserScreen extends StatelessWidget {
                                                         ),
                                                   SizedBox(width: 4),
                                                   Text(
-                                                    '| ' + timeOnly,
+                                                    '| ' + time,
                                                     style:
                                                         MyFonts.customTextStyle(
                                                       12,

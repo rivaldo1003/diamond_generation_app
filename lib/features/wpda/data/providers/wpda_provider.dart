@@ -34,14 +34,34 @@ class WpdaProvider with ChangeNotifier {
   var history;
   List<HistoryWpda> historyWpda = [];
 
-  Future refreshAllUsers() async {
-    // wpdas = await _getWpdaUsecase.getAllWpda();
-    notifyListeners();
+  Future refreshAllUsers(String token) async {
+    try {
+      List<WPDA> fetchedWpdas = await _getWpdaUsecase.getAllWpda(token);
+      wpdas.clear();
+      wpdas.addAll(fetchedWpdas);
+      notifyListeners();
+    } catch (e) {
+      // Handle error
+      print("Error fetching WPDA: $e");
+    }
   }
 
-  Future refreshWpdaHistory(String userId) async {
-    // await _getWpdaUsecase.getAllWpdaByUserID(userId);
-    notifyListeners();
+  Future refreshWpdaHistory(String userId, String token) async {
+    // try {
+    //   History history = await _getWpdaUsecase.getAllWpdaByUserID(userId, token);
+    //   // Jika historyWpda adalah List<HistoryWpda>, perbarui sesuai kebutuhan
+    //   // Misalnya, jika history memiliki list HistoryWpda yang ingin Anda tambahkan ke historyWpda:
+    //   historyWpda.clear();
+    //   historyWpda.addAll(history.data);
+    //   notifyListeners();
+    // } catch (e) {
+    //   // Handle error
+    //   print("Error fetching WPDA history: $e");
+    // }
+    Future.delayed(Duration(seconds: 0), () async {
+      await _getWpdaUsecase.getAllWpdaByUserID(userId, token);
+      notifyListeners();
+    });
   }
 
   bool showRequiredMessageReadingBook = false;

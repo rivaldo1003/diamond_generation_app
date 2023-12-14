@@ -11,15 +11,22 @@ import 'package:intl/intl.dart';
 class ViewAllDataUsers extends StatelessWidget {
   final AllUsers userData;
 
-  const ViewAllDataUsers({
+  ViewAllDataUsers({
     super.key,
     required this.userData,
   });
 
+  String? birthPlace;
+
+  DateTime? dateTimeBirth;
+  String? formattedDate;
+
   @override
   Widget build(BuildContext context) {
-    String formatDate = DateFormat('dd MMMM yyyy', 'id')
-        .format(DateTime.parse(userData.createdAt));
+    if (userData.profile != null) {
+      dateTimeBirth = DateTime.parse(userData.profile!.birth_date);
+      formattedDate = DateFormat('d MMMM yyyy', 'id').format(dateTimeBirth!);
+    }
     return Scaffold(
       appBar: AppBarWidget(title: 'Detail Pengguna'),
       body: Column(
@@ -87,7 +94,7 @@ class ViewAllDataUsers extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Aktif sejak - ${formatDate}',
+                  'Aktif sejak - ${userData.createdAt}',
                   style: MyFonts.customTextStyle(
                     14,
                     FontWeight.w500,
@@ -119,7 +126,9 @@ class ViewAllDataUsers extends StatelessWidget {
                     CardDetailProfile(
                       iconData: Icons.campaign,
                       title: 'Umur',
-                      value: userData.age + ' Tahun',
+                      value: (userData.profile == null)
+                          ? '-'
+                          : userData.profile!.age + ' Tahun',
                     ),
                     SizedBox(height: 4),
                     CardDetailProfile(
@@ -131,27 +140,37 @@ class ViewAllDataUsers extends StatelessWidget {
                     CardDetailProfile(
                       iconData: Icons.home_rounded,
                       title: 'Alamat',
-                      value: userData.address,
+                      value: (userData.profile == null)
+                          ? '-'
+                          : userData.profile!.address,
                     ),
                     SizedBox(height: 4),
                     CardDetailProfile(
                       iconData: Icons.phone,
                       title: 'No Telepon',
-                      value: userData.phoneNumber,
+                      value: (userData.profile == null)
+                          ? '-'
+                          : userData.profile!.phone_number,
                     ),
                     SizedBox(height: 4),
                     CardDetailProfile(
                       iconData: Icons.person,
                       title: 'Jenis Kelamin',
-                      value: userData.gender,
+                      value: (userData.profile == null)
+                          ? '-'
+                          : (userData.profile!.gender == 'Male')
+                              ? 'Laki-Laki'
+                              : 'Perempuan',
                     ),
                     SizedBox(height: 4),
                     CardDetailProfile(
                       iconData: Icons.add_location_alt,
                       title: 'Tempat/Tanggal Lahir',
-                      value: '${userData.birthPlace}' +
-                          ', ' +
-                          '${userData.birthDate}',
+                      value: (userData.profile == null)
+                          ? '-'
+                          : '${userData.profile!.birth_place}' +
+                              ', ' +
+                              '${formattedDate}',
                     ),
                     SizedBox(height: 4),
                   ],

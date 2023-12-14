@@ -39,7 +39,10 @@ class MyApp extends StatelessWidget {
           create: (context) => ViewAllDataProvider(),
         ),
         ChangeNotifierProvider(
-          create: (context) => ProfileProvider(),
+          create: (context) => ProfileProvider(
+              getUserUsecase: GetUserUsecase(
+                  userRepository: UserRepositoryImpl(
+                      userApi: UserApi(urlApi: ApiConstants.updateProfile)))),
         ),
         ChangeNotifierProvider(
           create: (context) => AddWpdaWProvider(),
