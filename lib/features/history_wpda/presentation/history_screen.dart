@@ -59,11 +59,30 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   final history = snapshot.data;
                   if (snapshot.hasError) {
                     return Center(
-                      child: Text(
-                        'Server sedang dalam masalah! Riwayat WPDA tidak ditemukan',
-                        textAlign: TextAlign.center,
+                        child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/images/emoji.png',
+                            height: MediaQuery.of(context).size.height * 0.15,
+                          ),
+                          SizedBox(height: 8),
+                          Center(
+                            child: Text(
+                              'Koneksi server sedang bermasalah. Coba lagi nanti!',
+                              textAlign: TextAlign.center,
+                              style: MyFonts.customTextStyle(
+                                14,
+                                FontWeight.w500,
+                                MyColor.whiteColor,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    );
+                    ));
                   } else {
                     if (history!.data.isEmpty) {
                       return Column(

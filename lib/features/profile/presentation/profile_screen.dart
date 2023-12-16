@@ -2,6 +2,7 @@ import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/profile/data/providers/profile_provider.dart';
+import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
@@ -49,6 +50,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _newPhoneNumber = TextEditingController();
   final TextEditingController _newGender = TextEditingController();
   final TextEditingController _newAge = TextEditingController();
+  final TextEditingController _newAccountNumber = TextEditingController();
+  final TextEditingController _newEmail = TextEditingController();
   final TextEditingController _newBirthPlace = TextEditingController();
   final TextEditingController _newBirthDate = TextEditingController();
 
@@ -75,6 +78,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               } else if (snapshot.hasError) {
                 return Center(
+                    child: Padding(
+                  padding: const EdgeInsets.all(20),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -83,30 +88,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         height: MediaQuery.of(context).size.height * 0.15,
                       ),
                       SizedBox(height: 8),
-                      Text(
-                        'Koneksi server sedang error. Coba lagi nanti',
-                        style: MyFonts.customTextStyle(
-                          14,
-                          FontWeight.w500,
-                          MyColor.whiteColor,
+                      Center(
+                        child: Text(
+                          'Koneksi server sedang bermasalah. Profil gagal dimuat!',
+                          textAlign: TextAlign.center,
+                          style: MyFonts.customTextStyle(
+                            14,
+                            FontWeight.w500,
+                            MyColor.whiteColor,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                );
+                ));
               } else {
                 Map<String, dynamic> dataUser = snapshot.data!;
                 if (dataUser['success']) {
                   Map<String, dynamic> user = dataUser['data'];
                   Map<String, dynamic> user_profile = user['user_profile'];
                   String date = user['created_at'];
-                  var resultDate = date.split(' ').first;
                   String formatDate = DateFormat('dd MMMM yyyy', 'id')
                       .format(DateTime.parse(date));
 
                   _newAddress.text = user_profile['address'];
+                  // var birthAndPlace = user_profile['birth_place'] +
+                  //     ', ' +
+                  user_profile['birth_date'];
                   _newBirthPlace.text = user_profile['birth_place'];
                   _newPhoneNumber.text = user_profile['phone_number'];
+                  _newGender.text = user_profile['gender'];
+                  _newAccountNumber.text = user['account_number'];
+                  _newEmail.text = user['email'];
+                  _newAge.text = user_profile['age'] + ' Tahun';
+
+                  // var data = registerFormProvider.selectedGender;
+                  // var dataGender = data.toString().split('.').last;
 
                   return RefreshIndicator(
                     onRefresh: () async {
@@ -210,6 +227,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     MyColor.greyText,
                                   ),
                                 ),
+                                SizedBox(height: 12),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 4,
+                                    horizontal: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: MyColor.primaryColor,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    'NEW CREATION 1',
+                                    style: MyFonts.customTextStyle(
+                                      14,
+                                      FontWeight.bold,
+                                      MyColor.whiteColor,
+                                    ),
+                                  ),
+                                ),
                                 SizedBox(height: 24),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,6 +292,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     SizedBox(height: 4),
                                     CardDetailProfile(
                                       readOnly: true,
+                                      controller: _newAccountNumber,
                                       iconData: Icons.numbers,
                                       title: 'Nomor Akun',
                                       value: (user['account_number'] == null)
@@ -265,12 +302,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     SizedBox(height: 4),
                                     CardDetailProfile(
                                       readOnly: true,
+                                      controller: _newAge,
                                       iconData: Icons.campaign,
                                       title: 'Umur',
                                       value: user_profile['age'] + ' Tahun',
                                     ),
                                     SizedBox(height: 4),
                                     CardDetailProfile(
+                                      controller: _newEmail,
                                       readOnly: true,
                                       iconData: Icons.email,
                                       title: 'Email',
@@ -293,15 +332,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 value.userId!,
                                                 token!)
                                             .then((value) {
-                                          Future.delayed(Duration(seconds: 2),
-                                              () {
-                                            setState(() {});
-                                          });
+                                          Future.delayed(
+                                              Duration(seconds: 2), () {});
                                         });
                                       },
                                     ),
                                     SizedBox(height: 4),
                                     CardDetailProfile(
+                                      keyboardType: TextInputType.number,
                                       readOnly: false,
                                       controller: _newPhoneNumber,
                                       onPressed: () {
@@ -326,13 +364,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       value: user_profile['phone_number'],
                                     ),
                                     SizedBox(height: 4),
-                                    CardDetailProfile(
-                                      readOnly: false,
-                                      iconData: Icons.person,
-                                      title: 'Jenis Kelamin',
-                                      value: (user_profile['gender'] == 'Male')
-                                          ? 'Laki-Laki'
-                                          : 'Perempuan',
+                                    Consumer<RegisterFormProvider>(
+                                      builder: (context, formProv, _) =>
+                                          CardDetailProfile(
+                                        controller: _newGender,
+                                        readOnly: true,
+                                        iconData: Icons.person,
+                                        title: 'Jenis Kelamin',
+                                        onPressed: () {
+                                          print(_newGender.text);
+                                          profileProvider
+                                              .updateProfile(
+                                                  context,
+                                                  {
+                                                    'gender': _newGender.text,
+                                                  },
+                                                  value.userId!,
+                                                  token!)
+                                              .then((value) {
+                                            Future.delayed(Duration(seconds: 2),
+                                                () {
+                                              setState(() {});
+                                            });
+                                          });
+                                        },
+                                        value: user_profile['gender'],
+                                      ),
                                     ),
                                     SizedBox(height: 4),
                                     CardDetailProfile(
