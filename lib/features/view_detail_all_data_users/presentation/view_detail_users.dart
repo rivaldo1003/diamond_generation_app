@@ -5,6 +5,7 @@ import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/button.dart';
 import 'package:diamond_generation_app/shared/widgets/card_detail_profile.dart';
+import 'package:diamond_generation_app/shared/widgets/detail_user.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -20,6 +21,14 @@ class ViewAllDataUsers extends StatelessWidget {
 
   DateTime? dateTimeBirth;
   String? formattedDate;
+
+  TextEditingController _controllerAccountNumber = TextEditingController();
+  TextEditingController _controllerAge = TextEditingController();
+  TextEditingController _controllerEmail = TextEditingController();
+  TextEditingController _controllerAddress = TextEditingController();
+  TextEditingController _controllerPhoneNumber = TextEditingController();
+  TextEditingController _controllerGender = TextEditingController();
+  TextEditingController _controllerBirthDateAndPlace = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -117,43 +126,54 @@ class ViewAllDataUsers extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 8),
-                    CardDetailProfile(
+                    DetailUser(
+                      readOnly: true,
                       iconData: Icons.numbers,
                       title: 'Nomor Akun',
                       value: userData.accountNumber,
+                      controller: _controllerAccountNumber,
                     ),
                     SizedBox(height: 4),
-                    CardDetailProfile(
+                    DetailUser(
+                      readOnly: true,
                       iconData: Icons.campaign,
                       title: 'Umur',
                       value: (userData.profile == null)
                           ? '-'
                           : userData.profile!.age + ' Tahun',
+                      controller: _controllerAge,
                     ),
                     SizedBox(height: 4),
-                    CardDetailProfile(
+                    DetailUser(
+                      readOnly: true,
                       iconData: Icons.email,
                       title: 'Email',
                       value: userData.email,
+                      controller: _controllerEmail,
                     ),
                     SizedBox(height: 4),
-                    CardDetailProfile(
+                    DetailUser(
+                      readOnly: true,
                       iconData: Icons.home_rounded,
                       title: 'Alamat',
                       value: (userData.profile == null)
                           ? '-'
                           : userData.profile!.address,
+                      controller: _controllerAddress,
                     ),
                     SizedBox(height: 4),
-                    CardDetailProfile(
+                    DetailUser(
+                      readOnly: true,
                       iconData: Icons.phone,
                       title: 'No Telepon',
                       value: (userData.profile == null)
                           ? '-'
                           : userData.profile!.phone_number,
+                      controller: _controllerPhoneNumber,
                     ),
                     SizedBox(height: 4),
-                    CardDetailProfile(
+                    DetailUser(
+                      readOnly: true,
                       iconData: Icons.person,
                       title: 'Jenis Kelamin',
                       value: (userData.profile == null)
@@ -161,9 +181,11 @@ class ViewAllDataUsers extends StatelessWidget {
                           : (userData.profile!.gender == 'Male')
                               ? 'Laki-Laki'
                               : 'Perempuan',
+                      controller: _controllerGender,
                     ),
                     SizedBox(height: 4),
-                    CardDetailProfile(
+                    DetailUser(
+                      readOnly: true,
                       iconData: Icons.add_location_alt,
                       title: 'Tempat/Tanggal Lahir',
                       value: (userData.profile == null)
@@ -171,6 +193,7 @@ class ViewAllDataUsers extends StatelessWidget {
                           : '${userData.profile!.birth_place}' +
                               ', ' +
                               '${formattedDate}',
+                      controller: _controllerBirthDateAndPlace,
                     ),
                     SizedBox(height: 4),
                   ],

@@ -1,7 +1,11 @@
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/presentation/edit_wpda.screen.dart';
+import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
@@ -10,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class CardWpda extends StatefulWidget {
   final WPDA wpda;
@@ -24,6 +29,10 @@ class CardWpda extends StatefulWidget {
 }
 
 class _CardWpdaState extends State<CardWpda> {
+  String buildImageUrlWithTimestamp(String profilePicture) {
+    return "${ApiConstants.baseUrlImage}/$profilePicture?timestamp=${DateTime.now().millisecondsSinceEpoch}";
+  }
+
   String convertTimeFormat(String originalTime) {
     // Membuat formatter untuk waktu dengan format HH.mm.ss
     DateFormat originalFormat = DateFormat('HH:mm:ss');
@@ -47,6 +56,8 @@ class _CardWpdaState extends State<CardWpda> {
       print(token);
     });
   }
+
+  String? _imgTemp;
 
   @override
   void initState() {
@@ -167,7 +178,7 @@ class _CardWpdaState extends State<CardWpda> {
                                 'assets/images/profile.png',
                                 fit: BoxFit.cover,
                               ),
-                            ),
+                            )
                           ],
                         ),
                       ),
@@ -277,8 +288,6 @@ class _CardWpdaState extends State<CardWpda> {
                                   } else {
                                     return IconButton(
                                       onPressed: () {
-                                        print(
-                                            'INI TOKEN UNTUK DELETE : ${token}');
                                         showDialog(
                                             context: context,
                                             builder: (context) {
@@ -345,12 +354,21 @@ class _CardWpdaState extends State<CardWpda> {
                       children: [
                         Row(
                           children: [
-                            CircleAvatar(
-                              backgroundImage:
-                                  AssetImage('assets/images/profile_empty.jpg'),
-                              backgroundColor: Colors.white,
-                              radius: 20,
-                            ),
+                            (widget.wpda.writer.profile_picture == null)
+                                ? CircleAvatar(
+                                    backgroundImage: AssetImage(
+                                        'assets/images/profile_empty.jpg'),
+                                    backgroundColor: Colors.white,
+                                    radius: 20,
+                                  )
+                                : CircleAvatar(
+                                    backgroundImage: CachedNetworkImageProvider(
+                                      buildImageUrlWithTimestamp(
+                                          widget.wpda.writer.profile_picture),
+                                    ),
+                                    backgroundColor: Colors.white,
+                                    radius: 20,
+                                  ),
                             SizedBox(width: 12),
                             Expanded(
                               child: Column(

@@ -37,11 +37,13 @@ class Writer {
   final String id;
   final String full_name;
   final String email;
+  final String profile_picture;
 
   Writer({
     required this.id,
     required this.full_name,
     required this.email,
+    required this.profile_picture,
   });
 
   factory Writer.fromJson(Map<String, dynamic> json) {
@@ -49,6 +51,7 @@ class Writer {
       id: json['id'].toString(),
       full_name: json['full_name'],
       email: json['email'],
+      profile_picture: json['profile_picture'] ?? '',
     );
   }
 }

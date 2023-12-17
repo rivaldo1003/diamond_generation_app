@@ -34,6 +34,11 @@ class LoginProvider with ChangeNotifier {
   String? _profileCompleted;
   String? get profileCompleted => _profileCompleted;
 
+  //BIRTH DATE
+
+  String? _birthDate;
+  String? get birthDate => _birthDate;
+
 // TEXTFIELD PASSWORD
   void showPassword() {
     _obscure = !_obscure;
@@ -45,6 +50,19 @@ class LoginProvider with ChangeNotifier {
 //LOGIN USER
   void loginUser(Map<String, dynamic> body, BuildContext context) {
     _getUserUsecase.loginUser(body, context);
+    notifyListeners();
+  }
+
+  //BIRTH DATE
+
+  void saveBirthDate(String birthDate) async {
+    await SharedPreferencesManager.saveBirthDate(birthDate);
+    _birthDate = birthDate;
+    notifyListeners();
+  }
+
+  Future<String?> loadBirthDate() async {
+    _birthDate = await SharedPreferencesManager.loadBirthDate();
     notifyListeners();
   }
 

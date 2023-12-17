@@ -49,6 +49,8 @@ dependencies:
   device_preview: ^1.1.0
   flutter_keyboard_visibility: ^5.4.1
   font_awesome_flutter: ^10.6.0
+  cached_network_image: ^3.3.0
+  dio: ^5.4.0
 
 dev_dependencies:
   flutter_test:

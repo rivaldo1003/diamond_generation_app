@@ -56,7 +56,10 @@ class UserApi {
 
       if (data['success']) {
         Map<String, dynamic> userData = json.decode(response.body)['user'];
+        Map<String, dynamic> profile = userData['profile'];
+
         loginProvider.saveFullName(userData['full_name']);
+        loginProvider.saveBirthDate(profile['birth_date']);
         loginProvider.saveToken(data['token']);
         loginProvider.saveRole(userData['role']);
         loginProvider.saveUserId(userData['id'].toString());

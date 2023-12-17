@@ -129,8 +129,10 @@ class WpdaApi {
       "Content-Type": "application/json",
       'Authorization': 'Bearer ${token}',
     };
+    String imageUrlWithTimestamp =
+        "${ApiConstants.getAllWpdaUrl}?timestamp=${DateTime.now().millisecondsSinceEpoch}";
     final response = await http.get(
-      Uri.parse(ApiConstants.getAllWpdaUrl),
+      Uri.parse(imageUrlWithTimestamp),
       headers: headers,
     );
     if (response.statusCode == 200) {

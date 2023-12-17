@@ -1,6 +1,8 @@
 class ApiConstants {
   static const baseUrl =
       'http://192.168.110.85/diamond-generation-service/public/api';
+  static const baseUrlImage =
+      'http://192.168.110.85/diamond-generation-service/public/storage';
 
   static const loginUrl = baseUrl + '/login';
   static const registerUrl = baseUrl + '/register';

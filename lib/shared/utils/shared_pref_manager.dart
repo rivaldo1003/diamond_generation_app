@@ -7,6 +7,18 @@ class SharedPreferencesManager {
   static final String keyAccountNumber = 'account_number';
   static final String keyUserId = 'id';
   static final String keyProfileCompleted = 'profile_completed';
+  static final String keyBirthDate = 'birth_date';
+
+  // BIRTH DATE
+  static Future<void> saveBirthDate(String birthDate) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(keyBirthDate, birthDate);
+  }
+
+  static Future<String?> loadBirthDate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(keyBirthDate) ?? '';
+  }
 
 //PROFILE_COMPLETED
   static Future<void> saveProfileCompleted(String profileCompleted) async {

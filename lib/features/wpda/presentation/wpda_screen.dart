@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
 import 'package:diamond_generation_app/features/klasemen/presentation/klasmen_wpda_screen.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/presentation/add_wpda.dart';
+import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
@@ -52,6 +55,8 @@ class _WPDAScreenState extends State<WPDAScreen> {
 
   @override
   void initState() {
+    // final provider = Provider.of<GetWpdaUsecase>(context);
+    // provider.getAllWpda(token!);
     getToken();
     super.initState();
   }

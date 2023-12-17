@@ -26,6 +26,7 @@ class ProfileProvider with ChangeNotifier {
 
   Future refreshProfile(int userId, String token) async {
     _getUserUsecase.getUserProfile(userId, token);
+    notifyListeners();
   }
 
   TextEditingController _controller = TextEditingController();
