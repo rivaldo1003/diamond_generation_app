@@ -29,8 +29,14 @@ class CardWpda extends StatefulWidget {
 }
 
 class _CardWpdaState extends State<CardWpda> {
-  String buildImageUrlWithTimestamp(String profilePicture) {
-    return "${ApiConstants.baseUrlImage}/$profilePicture?timestamp=${DateTime.now().millisecondsSinceEpoch}";
+  String buildImageUrlWithTimestamp(String? profilePicture) {
+    // Periksa apakah profilePicture tidak null dan tidak kosong sebelum membangun URL
+    if (profilePicture != null && profilePicture.isNotEmpty) {
+      return "${ApiConstants.baseUrlImage}/$profilePicture?timestamp=${DateTime.now().millisecondsSinceEpoch}";
+    } else {
+      // Handle ketika profilePicture null atau kosong, misalnya mengembalikan URL default atau kosong
+      return ""; // Gantilah dengan URL default atau kosong sesuai kebutuhan
+    }
   }
 
   String convertTimeFormat(String originalTime) {
@@ -57,8 +63,6 @@ class _CardWpdaState extends State<CardWpda> {
     });
   }
 
-  String? _imgTemp;
-
   @override
   void initState() {
     getToken();
@@ -67,6 +71,9 @@ class _CardWpdaState extends State<CardWpda> {
 
   @override
   Widget build(BuildContext context) {
+    String imgUrl =
+        buildImageUrlWithTimestamp(widget.wpda.writer.profile_picture);
+
     String time = widget.wpda.created_at.split(' ').last;
 
     String timeOnly = convertTimeFormat(time);
@@ -354,7 +361,7 @@ class _CardWpdaState extends State<CardWpda> {
                       children: [
                         Row(
                           children: [
-                            (widget.wpda.writer.profile_picture == null)
+                            (imgUrl.isEmpty)
                                 ? CircleAvatar(
                                     backgroundImage: AssetImage(
                                         'assets/images/profile_empty.jpg'),
@@ -362,10 +369,8 @@ class _CardWpdaState extends State<CardWpda> {
                                     radius: 20,
                                   )
                                 : CircleAvatar(
-                                    backgroundImage: CachedNetworkImageProvider(
-                                      buildImageUrlWithTimestamp(
-                                          widget.wpda.writer.profile_picture),
-                                    ),
+                                    backgroundImage:
+                                        CachedNetworkImageProvider(imgUrl),
                                     backgroundColor: Colors.white,
                                     radius: 20,
                                   ),

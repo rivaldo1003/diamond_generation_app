@@ -20,11 +20,11 @@ class MyFonts {
   }
 
   static TextStyle customTextStyle(
-      double size, FontWeight fontWeight, Color color) {
+      double size, FontWeight fontWeight, Color? color) {
     return GoogleFonts.montserrat(
       fontSize: size,
       fontWeight: fontWeight,
-      color: color,
+      color: (color == null) ? Colors.white : color,
     );
   }
 

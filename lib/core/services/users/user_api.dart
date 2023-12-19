@@ -603,4 +603,33 @@ class UserApi {
       throw Exception('Gagal update user profile');
     }
   }
+
+  Future<void> uploadProfilePicture(
+      String imagePath, int userId, String token) async {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse(
+          'http://192.168.110.85/diamond-generation-service/public/api/users/$userId/upload-profile-picture'),
+    );
+
+    request.fields['user_id'] = userId.toString();
+
+    request.headers['Content-Type'] = 'multipart/form-data';
+    request.headers['Authorization'] = 'Bearer $token';
+
+    request.files.add(
+      await http.MultipartFile.fromPath('profile_picture', imagePath),
+    );
+
+    try {
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        print('Upload berhasil');
+      } else {
+        print('Gagal upload. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
 }
