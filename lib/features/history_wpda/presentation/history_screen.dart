@@ -8,6 +8,8 @@ import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
+import 'package:diamond_generation_app/shared/widgets/placeholder_card_wpda.dart';
+import 'package:diamond_generation_app/shared/widgets/placeholder_history.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,19 +50,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
             return Center(child: CircularProgressIndicator());
           } else {
             return FutureBuilder<History>(
-              future: getWpdaUsecase.getAllWpdaByUserID(
-                  value.userId!, (token == null) ? '' : token!),
+              future: Future.delayed(
+                Duration(milliseconds: 500),
+                () => getWpdaUsecase.getAllWpdaByUserID(value.userId!, token!),
+              ),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
+                  return PlaceholderCardWpda();
                 } else {
                   final history = snapshot.data;
                   if (snapshot.hasError) {
-                    return Center(
-                        child: Padding(
-                      padding: const EdgeInsets.all(20),
+                    return SingleChildScrollView(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -70,19 +70,37 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ),
                           SizedBox(height: 8),
                           Center(
-                            child: Text(
-                              'Koneksi server sedang bermasalah. Coba lagi nanti!',
-                              textAlign: TextAlign.center,
-                              style: MyFonts.customTextStyle(
-                                14,
-                                FontWeight.w500,
-                                MyColor.whiteColor,
-                              ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  'Ada gangguan sepertinya',
+                                  style: MyFonts.customTextStyle(
+                                    16,
+                                    FontWeight.bold,
+                                    MyColor.whiteColor,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Coba lagi atau kembali nanti.',
+                                  style: MyFonts.customTextStyle(
+                                    12,
+                                    FontWeight.w500,
+                                    MyColor.greyText,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
+                          SizedBox(height: 12),
+                          PlaceholderHistory(),
+                          PlaceholderHistory(),
+                          PlaceholderHistory(),
+                          PlaceholderHistory(),
+                          SizedBox(height: 12),
                         ],
                       ),
-                    ));
+                    );
                   } else {
                     if (history!.data.isEmpty) {
                       return Column(

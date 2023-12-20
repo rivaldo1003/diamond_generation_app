@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:connectivity/connectivity.dart';
 import 'package:diamond_generation_app/core/services/profile/profile_api.dart';
+import 'package:diamond_generation_app/features/profile/widgets/profile_placeholder.dart';
+import 'package:diamond_generation_app/features/profile/widgets/profile_placeholder_no_connection.dart';
 import 'package:diamond_generation_app/shared/widgets/bottom_dialog_profile_screen.dart';
 import 'package:diamond_generation_app/shared/widgets/placeholder.dart';
 import 'package:path_provider/path_provider.dart';
@@ -296,51 +298,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return CircularProgressIndicator();
         } else {
           return FutureBuilder<Map<String, dynamic>>(
-            future: getUserUsecase.getUserProfile(
-                int.parse(value.userId.toString()),
-                (token == null) ? '' : token!),
+            future: Future.delayed(
+              Duration(milliseconds: 500),
+              () => getUserUsecase.getUserProfile(
+                  int.parse(value.userId.toString()),
+                  (token == null) ? '' : token!),
+            ),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
+                return ProfilePlaceholder();
               } else if (snapshot.hasError) {
                 return Center(
                     child: Padding(
                   padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        'assets/images/emoji.png',
-                        height: MediaQuery.of(context).size.height * 0.15,
-                      ),
-                      SizedBox(height: 8),
-                      PlaceholderErrorConnection(),
-                      ButtonWidget(
-                        title: 'Coba Lagi',
-                        onPressed: () {
-                          profileProvider
-                              .refreshProfile(int.parse(userId!), token!)
-                              .then((value) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Ada gangguan',
-                                  style: MyFonts.customTextStyle(
-                                    12,
-                                    FontWeight.w500,
-                                    MyColor.whiteColor,
-                                  ),
-                                ),
-                                backgroundColor: MyColor.colorRed,
-                              ),
-                            );
-                          });
-                        },
-                        color: MyColor.primaryColor,
-                      ),
-                    ],
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/images/emoji.png',
+                          height: MediaQuery.of(context).size.height * 0.15,
+                        ),
+                        SizedBox(height: 8),
+                        PlaceholderErrorConnection(),
+                        ButtonWidget(
+                          title: 'Coba Lagi',
+                          onPressed: () async {
+                            var connectivityResult =
+                                await Connectivity().checkConnectivity();
+                            profileProvider
+                                .refreshProfile(int.parse(userId!), token!)
+                                .then((value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                (connectivityResult == ConnectivityResult.none)
+                                    ? SnackBar(
+                                        content: Text(
+                                          'Ada gangguan. Sepertinya koneksi terputus. Periksa koneksi Anda!',
+                                          style: MyFonts.customTextStyle(
+                                            12,
+                                            FontWeight.w500,
+                                            MyColor.whiteColor,
+                                          ),
+                                        ),
+                                        backgroundColor: MyColor.colorRed,
+                                      )
+                                    : SnackBar(
+                                        content: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Terhubung kembali',
+                                              style: MyFonts.customTextStyle(
+                                                12,
+                                                FontWeight.w500,
+                                                MyColor.whiteColor,
+                                              ),
+                                            ),
+                                            Icon(Icons.wifi),
+                                          ],
+                                        ),
+                                        backgroundColor: MyColor.colorGreen,
+                                      ),
+                              );
+                            });
+                          },
+                          color: MyColor.primaryColor,
+                        ),
+                        SizedBox(height: 12),
+                        ProfilePlaceholderNoConnection(),
+                      ],
+                    ),
                   ),
                 ));
               } else {
@@ -354,9 +382,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       .format(DateTime.parse(date));
 
                   _newAddress.text = user_profile['address'];
-                  // var birthAndPlace = user_profile['birth_place'] +
-                  //     ', ' +
-                  // user_profile['birth_date'];
+
                   _newBirthPlace.text = user_profile['birth_place'];
                   _newPhoneNumber.text = user_profile['phone_number'];
                   _newGender.text = user_profile['gender'];

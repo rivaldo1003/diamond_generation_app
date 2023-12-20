@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
@@ -6,8 +8,9 @@ import 'package:diamond_generation_app/shared/widgets/prayer_abbreviation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class CardHistoryWpda extends StatelessWidget {
+class CardHistoryWpda extends StatefulWidget {
   final HistoryWpda historyWpda;
 
   const CardHistoryWpda({
@@ -15,6 +18,11 @@ class CardHistoryWpda extends StatelessWidget {
     required this.historyWpda,
   });
 
+  @override
+  State<CardHistoryWpda> createState() => _CardHistoryWpdaState();
+}
+
+class _CardHistoryWpdaState extends State<CardHistoryWpda> {
   String convertTimeFormat(String originalTime) {
     // Membuat formatter untuk waktu dengan format HH.mm.ss
     DateFormat originalFormat = DateFormat('HH:mm:ss');
@@ -29,19 +37,39 @@ class CardHistoryWpda extends StatelessWidget {
     return newFormat.format(dateTime);
   }
 
+  File? _image;
+  final keyImageProfile = "image_profile";
+
+  Future<void> loadImage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? imagePath = prefs.getString(keyImageProfile);
+    if (imagePath != null && imagePath.isNotEmpty) {
+      setState(() {
+        _image = File(imagePath);
+        print('INI FILE IMAGE PATH :$imagePath');
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    loadImage();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    String time = historyWpda.createdAt.split(' ').last;
+    String time = widget.historyWpda.createdAt.split(' ').last;
 
     String timeOnly = convertTimeFormat(time);
     String formatDate = DateFormat('dd MMMM yyyy', 'id')
-        .format(DateTime.parse(historyWpda.createdAt));
+        .format(DateTime.parse(widget.historyWpda.createdAt));
 
     String currentDate = DateTime.now().toString();
     var currentDateFormat =
         DateFormat('dd MMMM yyyy', 'id').format(DateTime.parse(currentDate));
-    String dateResult =
-        DateFormat('dd MMM yy').format(DateTime.parse(historyWpda.createdAt));
+    String dateResult = DateFormat('dd MMM yy')
+        .format(DateTime.parse(widget.historyWpda.createdAt));
 
     // String selectedPrayers = historyWpda.selectedPrayers;
 
@@ -84,7 +112,7 @@ class CardHistoryWpda extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                historyWpda.writer.fullName,
+                                widget.historyWpda.writer.fullName,
                                 textAlign: TextAlign.end,
                                 style: MyFonts.customTextStyle(
                                   14,
@@ -149,7 +177,7 @@ class CardHistoryWpda extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      historyWpda.readingBook,
+                      widget.historyWpda.readingBook,
                       style: MyFonts.customTextStyle(
                         14,
                         FontWeight.w500,
@@ -171,7 +199,7 @@ class CardHistoryWpda extends StatelessWidget {
                         ),
                         Expanded(
                           child: Text(
-                            historyWpda.messageOfGod,
+                            widget.historyWpda.messageOfGod,
                             style: MyFonts.customTextStyle(
                               14,
                               FontWeight.w500,
@@ -195,7 +223,7 @@ class CardHistoryWpda extends StatelessWidget {
                         ),
                         Expanded(
                           child: Text(
-                            historyWpda.applicationInLife,
+                            widget.historyWpda.applicationInLife,
                             style: MyFonts.customTextStyle(
                               14,
                               FontWeight.w500,
@@ -265,7 +293,33 @@ class CardHistoryWpda extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(),
+                      (_image == null)
+                          ? Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white, // Warna border putih
+                                  width: 2.0, // Lebar border
+                                ),
+                              ),
+                              child: CircleAvatar(
+                                backgroundImage: AssetImage(
+                                  'assets/images/profile_empty.jpg',
+                                ),
+                              ),
+                            )
+                          : Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white, // Warna border putih
+                                  width: 2.0, // Lebar border
+                                ),
+                              ),
+                              child: CircleAvatar(
+                                backgroundImage: FileImage(_image!),
+                              ),
+                            ),
                       SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -278,7 +332,7 @@ class CardHistoryWpda extends StatelessWidget {
                                   return CircularProgressIndicator();
                                 } else {
                                   return Text(
-                                    historyWpda.writer.fullName,
+                                    widget.historyWpda.writer.fullName,
                                     overflow: TextOverflow.ellipsis,
                                     style: MyFonts.customTextStyle(
                                       14,
@@ -290,7 +344,7 @@ class CardHistoryWpda extends StatelessWidget {
                               },
                             ),
                             Text(
-                              historyWpda.writer.email,
+                              widget.historyWpda.writer.email,
                               style: MyFonts.customTextStyle(
                                 14,
                                 FontWeight.w500,
@@ -326,7 +380,7 @@ class CardHistoryWpda extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          historyWpda.readingBook,
+                          widget.historyWpda.readingBook,
                           style: MyFonts.customTextStyle(
                             16,
                             FontWeight.bold,
@@ -405,7 +459,7 @@ class CardHistoryWpda extends StatelessWidget {
                   ),
                   SizedBox(height: 12),
                   Text(
-                    historyWpda.verseContent,
+                    widget.historyWpda.verseContent,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 4,
                     style: MyFonts.customTextStyle(

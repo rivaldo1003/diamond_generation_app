@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
@@ -12,6 +13,8 @@ import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/card_wpda.dart';
+import 'package:diamond_generation_app/shared/widgets/placeholder_card_wpda.dart';
+import 'package:diamond_generation_app/shared/widgets/placeholder_history.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -44,6 +47,7 @@ class _WPDAScreenState extends State<WPDAScreen> {
   }
 
   String? token;
+  String? userId;
 
   Future getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -53,10 +57,49 @@ class _WPDAScreenState extends State<WPDAScreen> {
     });
   }
 
+  Future<String?> getUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userId = prefs.getString(SharedPreferencesManager.keyUserId);
+    });
+    return userId;
+  }
+
+  File? _image;
+  final keyImageProfile = "image_profile";
+
+  Future<void> loadImage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? imagePath = prefs.getString(keyImageProfile);
+    if (imagePath != null && imagePath.isNotEmpty) {
+      setState(() {
+        _image = File(imagePath);
+        print('INI FILE IMAGE PATH :$imagePath');
+      });
+    }
+  }
+
+  Future<void> viewAllSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Map<String, dynamic> allData = prefs.getKeys().fold<Map<String, dynamic>>(
+      {},
+      (Map<String, dynamic> acc, String key) {
+        acc[key] = prefs.get(key);
+        return acc;
+      },
+    );
+
+    print('All SharedPreferences Data: $allData');
+  }
+
   @override
   void initState() {
-    // final provider = Provider.of<GetWpdaUsecase>(context);
-    // provider.getAllWpda(token!);
+    viewAllSharedPreferences();
+    getUserId().then((userId) {
+      if (userId != null) {
+        loadImage();
+      }
+    });
     getToken();
     super.initState();
   }
@@ -147,28 +190,50 @@ class _WPDAScreenState extends State<WPDAScreen> {
                             ],
                           ),
                         ),
-                        Container(
-                          height: 60,
-                          width: 60,
-                          child: Image.asset(
-                            'assets/images/profile.png',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                        (_image == null)
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white, // Warna border putih
+                                    width: 2.0, // Lebar border
+                                  ),
+                                ),
+                                child: CircleAvatar(
+                                  backgroundImage: AssetImage(
+                                    'assets/images/profile_empty.jpg',
+                                  ),
+                                ),
+                              )
+                            : Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white, // Warna border putih
+                                    width: 2.0, // Lebar border
+                                  ),
+                                ),
+                                child: CircleAvatar(
+                                  backgroundImage: FileImage(_image!),
+                                ),
+                              ),
                       ],
                     ),
                   ),
                   SizedBox(height: 12),
                   Expanded(
                     child: FutureBuilder<List<WPDA>>(
-                      future: getWpdaUsecase.getAllWpda("${token}"),
+                      future: Future.delayed(
+                        Duration(
+                            milliseconds:
+                                500), // Tambahkan delay selama 3 detik
+                        () => getWpdaUsecase.getAllWpda("${token}"),
+                      ),
                       builder: (context, snapshot) {
                         var data = snapshot.data;
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
+                          return PlaceholderCardWpda();
                         } else {
                           if (snapshot.hasData) {
                             if (snapshot.data!.isEmpty) {
@@ -339,26 +404,47 @@ class _WPDAScreenState extends State<WPDAScreen> {
                               });
                             }
                           } else {
-                            return Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/images/emoji.png',
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.15,
-                                ),
-                                SizedBox(height: 8),
-                                Center(
-                                  child: Text(
-                                    'WPDA data not found!',
-                                    style: MyFonts.customTextStyle(
-                                      14,
-                                      FontWeight.w500,
-                                      MyColor.whiteColor,
+                            return SingleChildScrollView(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/emoji.png',
+                                    height: MediaQuery.of(context).size.height *
+                                        0.15,
+                                  ),
+                                  SizedBox(height: 8),
+                                  Center(
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          'Ada gangguan sepertinya',
+                                          style: MyFonts.customTextStyle(
+                                            16,
+                                            FontWeight.bold,
+                                            MyColor.whiteColor,
+                                          ),
+                                        ),
+                                        SizedBox(height: 8),
+                                        Text(
+                                          'Coba lagi atau kembali nanti.',
+                                          style: MyFonts.customTextStyle(
+                                            12,
+                                            FontWeight.w500,
+                                            MyColor.greyText,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
-                              ],
+                                  SizedBox(height: 12),
+                                  PlaceholderHistory(),
+                                  PlaceholderHistory(),
+                                  PlaceholderHistory(),
+                                  PlaceholderHistory(),
+                                  SizedBox(height: 12),
+                                ],
+                              ),
                             );
                           }
                         }

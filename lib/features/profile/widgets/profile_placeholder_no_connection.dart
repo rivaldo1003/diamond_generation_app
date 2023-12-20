@@ -3,45 +3,14 @@ import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
-class ProfilePlaceholder extends StatelessWidget {
+class ProfilePlaceholderNoConnection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          ContainerSkeleton(
-            shapeBorder: CircleBorder(),
-            height: 120,
-            width: 120,
-            borderRadius: 60,
-          ),
-          SizedBox(height: 8),
-          ContainerSkeleton(
-            height: 16,
-            width: 150,
-            borderRadius: 8,
-          ),
-          SizedBox(height: 4),
-          ContainerSkeleton(
-            height: 24,
-            width: 90,
-            borderRadius: 8,
-          ),
-          SizedBox(height: 4),
-          ContainerSkeleton(
-            height: 16,
-            width: 200,
-            borderRadius: 8,
-          ),
-          SizedBox(height: 4),
-          ContainerSkeleton(
-            height: 28,
-            width: 180,
-            borderRadius: 8,
-          ),
-          SizedBox(height: 32),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -81,7 +50,7 @@ class ProfilePlaceholder extends StatelessWidget {
 
   Padding DetailSkeletonCard() {
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 0),
         child: Card(
           color: MyColor.colorBlackBg,
           child: Shimmer.fromColors(

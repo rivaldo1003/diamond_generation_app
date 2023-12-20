@@ -46,8 +46,8 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
 
   @override
   void initState() {
-    TextFieldControllerLogin.emailController.text = '';
-    TextFieldControllerLogin.passwordController.text = '';
+    // TextFieldControllerLogin.emailController.text = '';
+    // TextFieldControllerLogin.passwordController.text = '';
     goToHome();
     if (widget.index != null) {
       selected = widget.index!;

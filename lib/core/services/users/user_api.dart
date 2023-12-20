@@ -4,6 +4,7 @@ import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
 import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
+import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_register.dart';
 import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
@@ -56,16 +57,19 @@ class UserApi {
 
       if (data['success']) {
         Map<String, dynamic> userData = json.decode(response.body)['user'];
-        Map<String, dynamic> profile = userData['profile'];
+        if (userData['profile'] != null) {
+          Map<String, dynamic> profile = userData['profile'];
+          loginProvider.saveBirthDate(profile['birth_date']);
+        }
 
         loginProvider.saveFullName(userData['full_name']);
-        loginProvider.saveBirthDate(profile['birth_date']);
         loginProvider.saveToken(data['token']);
         loginProvider.saveRole(userData['role']);
         loginProvider.saveUserId(userData['id'].toString());
         loginProvider
             .saveProfileCompleted(userData['profile_completed'].toString());
-
+        print('DATA : $data');
+        print('Token : ${data['token']}');
         if (data['role'] == 'admin') {
           showDialog(
               barrierDismissible: false,
@@ -98,8 +102,8 @@ class UserApi {
               ),
             );
           });
-          // TextFieldControllerLogin.emailController.text = '';
-          // TextFieldControllerLogin.passwordController.text = '';
+          TextFieldControllerLogin.emailController.text = '';
+          TextFieldControllerLogin.passwordController.text = '';
         } else {
           showDialog(
               barrierDismissible: false,
@@ -601,35 +605,6 @@ class UserApi {
       }
     } else {
       throw Exception('Gagal update user profile');
-    }
-  }
-
-  Future<void> uploadProfilePicture(
-      String imagePath, int userId, String token) async {
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse(
-          'http://192.168.110.85/diamond-generation-service/public/api/users/$userId/upload-profile-picture'),
-    );
-
-    request.fields['user_id'] = userId.toString();
-
-    request.headers['Content-Type'] = 'multipart/form-data';
-    request.headers['Authorization'] = 'Bearer $token';
-
-    request.files.add(
-      await http.MultipartFile.fromPath('profile_picture', imagePath),
-    );
-
-    try {
-      var response = await request.send();
-      if (response.statusCode == 200) {
-        print('Upload berhasil');
-      } else {
-        print('Gagal upload. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error: $e');
     }
   }
 }
