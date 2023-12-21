@@ -368,7 +368,7 @@ class _WPDAScreenState extends State<WPDAScreen> {
                                         child: Row(
                                           children: [
                                             Text(
-                                              'Today : ',
+                                              'Hari ini : ',
                                               style: MyFonts.customTextStyle(
                                                 12,
                                                 FontWeight.w500,

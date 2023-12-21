@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:diamond_generation_app/core/models/all_users.dart';
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
@@ -35,11 +36,23 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
     });
   }
 
+  String buildImageUrlWithTimestamp(String? profilePicture) {
+    // Periksa apakah profilePicture tidak null dan tidak kosong sebelum membangun URL
+    if (profilePicture != null && profilePicture.isNotEmpty) {
+      return "${ApiConstants.baseUrlImage}/$profilePicture?timestamp=${DateTime.now().millisecondsSinceEpoch}";
+    } else {
+      // Handle ketika profilePicture null atau kosong, misalnya mengembalikan URL default atau kosong
+      return ""; // Gantilah dengan URL default atau kosong sesuai kebutuhan
+    }
+  }
+
   @override
   void initState() {
     getToken();
     super.initState();
   }
+
+  String? imgUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -299,6 +312,9 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                   });
                                   final userData = searchUserProvider
                                       .filteredUserData[index];
+
+                                  imgUrl = buildImageUrlWithTimestamp(
+                                      userData.profile!.profile_picture);
                                   return Stack(
                                     children: [
                                       ListTile(
@@ -313,6 +329,7 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                         },
                                         title: Text(
                                           userData.fullName,
+                                          overflow: TextOverflow.ellipsis,
                                           style: MyFonts.customTextStyle(
                                             15,
                                             FontWeight.w500,
@@ -330,7 +347,38 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                         leading: Stack(
                                           clipBehavior: Clip.none,
                                           children: [
-                                            CircleAvatar(),
+                                            (imgUrl!.isEmpty)
+                                                ? Container(
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        color: Colors
+                                                            .white, // Warna border putih
+                                                        width:
+                                                            2.0, // Lebar border
+                                                      ),
+                                                    ),
+                                                    child: CircleAvatar(
+                                                      backgroundImage: AssetImage(
+                                                          'assets/images/profile_empty.jpg'),
+                                                    ),
+                                                  )
+                                                : Container(
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        color: Colors
+                                                            .white, // Warna border putih
+                                                        width:
+                                                            2.0, // Lebar border
+                                                      ),
+                                                    ),
+                                                    child: CircleAvatar(
+                                                      backgroundImage:
+                                                          CachedNetworkImageProvider(
+                                                              imgUrl!),
+                                                    ),
+                                                  ),
                                             Positioned(
                                               left: -5,
                                               top: -5,

@@ -139,12 +139,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('DATE :${DateTime.now().toString()}');
     return Scaffold(
       appBar: AppBarWidget(title: 'Beranda'),
       body: Column(
         children: [
           Padding(
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -185,34 +186,89 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     (_image == null)
-                        ? Container(
-                            height: 60,
-                            width: 60,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white, // Warna border putih
-                                width: 2.0, // Lebar border
+                        ? GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    backgroundColor: Colors.transparent,
+                                    content: InkWell(
+                                      onTap: () {
+                                        // Close the dialog when the image is tapped
+                                      },
+                                      child: Container(
+                                        height: 300,
+                                        width: 300,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: CircleAvatar(
+                                          backgroundImage: AssetImage(
+                                            'assets/images/profile_empty.jpg',
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white, // Warna border putih
+                                  width: 2.0, // Lebar border
+                                ),
                               ),
-                            ),
-                            child: CircleAvatar(
-                              backgroundImage: AssetImage(
-                                'assets/images/profile_empty.jpg',
+                              child: CircleAvatar(
+                                backgroundImage: AssetImage(
+                                  'assets/images/profile_empty.jpg',
+                                ),
                               ),
                             ),
                           )
-                        : Container(
-                            height: 60,
-                            width: 60,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white, // Warna border putih
-                                width: 2.0, // Lebar border
+                        : GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    backgroundColor: Colors.transparent,
+                                    content: InkWell(
+                                      onTap: () {
+                                        // Close the dialog when the image is tapped
+                                      },
+                                      child: Container(
+                                        height: 300,
+                                        width: 300,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: CircleAvatar(
+                                          backgroundImage: FileImage(_image!),
+                                          radius: 150,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white, // Warna border putih
+                                  width: 2.0, // Lebar border
+                                ),
                               ),
-                            ),
-                            child: CircleAvatar(
-                              backgroundImage: FileImage(_image!),
+                              child: CircleAvatar(
+                                backgroundImage: FileImage(_image!),
+                              ),
                             ),
                           ),
                   ],

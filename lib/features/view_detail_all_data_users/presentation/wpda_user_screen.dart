@@ -27,7 +27,9 @@ class WpdaUserScreen extends StatelessWidget {
         DateTime.parse(b.createdAt).compareTo(DateTime.parse(a.createdAt)));
 
     return Scaffold(
-      appBar: AppBarWidget(title: 'WPDA User'),
+      appBar: AppBarWidget(
+        title: 'WPDA User',
+      ),
       body: Column(
         children: [
           Padding(
@@ -44,8 +46,9 @@ class WpdaUserScreen extends StatelessWidget {
                 SizedBox(width: 8),
                 Expanded(
                   child: CardHeaderHistoryWpda(
-                    totalWpda:
-                        (allUsers.dataWpda.isEmpty) ? 'C' : allUsers.grade,
+                    totalWpda: (allUsers.dataWpda.isEmpty)
+                        ? 'C'
+                        : allUsers.profile!.grade,
                     title: 'GRADE',
                     color: MyColor.colorLightBlue,
                   ),
@@ -53,9 +56,7 @@ class WpdaUserScreen extends StatelessWidget {
                 SizedBox(width: 8),
                 Expanded(
                   child: CardHeaderHistoryWpda(
-                    totalWpda: (allUsers.missedDaysTotal == "-1")
-                        ? '0'
-                        : allUsers.missedDaysTotal,
+                    totalWpda: allUsers.profile!.missed_days_total,
                     title: 'MISSED DAY',
                     color: MyColor.colorRed,
                   ),

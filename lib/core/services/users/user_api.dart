@@ -144,6 +144,8 @@ class UserApi {
               );
             }
           });
+          TextFieldControllerLogin.emailController.text = '';
+          TextFieldControllerLogin.passwordController.text = '';
         }
       } else {
         showDialog(
@@ -296,6 +298,8 @@ class UserApi {
       if (data['success']) {
         loginProvider
             .saveProfileCompleted(data['profile_completed'].toString());
+        loginProvider.saveGender(data['gender'].toString());
+
         showDialog(
             barrierDismissible: false,
             context: context,

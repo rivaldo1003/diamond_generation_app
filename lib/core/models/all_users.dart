@@ -8,15 +8,9 @@ class AllUsers {
   final String accountNumber;
   final String role;
   final String address;
-  final String phoneNumber;
-  final String gender;
-  final String age;
-  final String birthPlace;
-  final String birthDate;
+
   final String profileCompleted;
   final String approvalStatus;
-  final String grade;
-  final String missedDaysTotal;
   final List<DataWpda> dataWpda;
   final UserProfile? profile;
 
@@ -28,15 +22,8 @@ class AllUsers {
     required this.accountNumber,
     required this.role,
     required this.address,
-    required this.phoneNumber,
-    required this.gender,
-    required this.age,
-    required this.birthPlace,
-    required this.birthDate,
     required this.profileCompleted,
     required this.approvalStatus,
-    required this.grade,
-    required this.missedDaysTotal,
     required this.dataWpda,
     required this.profile,
   });
@@ -60,15 +47,8 @@ class AllUsers {
       accountNumber: json['account_number'].toString(),
       role: json['role'].toString(),
       address: json['address'].toString(),
-      phoneNumber: json['phone_number'].toString(),
-      gender: json['gender'].toString(),
-      age: json['age'].toString(),
-      birthPlace: json['birth_place'].toString(),
-      birthDate: json['birth_date'].toString(),
       profileCompleted: json['profile_completed'].toString(),
       approvalStatus: json['approval_status'].toString(),
-      grade: json['grade'].toString(),
-      missedDaysTotal: json['missed_days_total'].toString(),
       dataWpda: parsedWpdaHistoryList,
       profile: profile,
     );

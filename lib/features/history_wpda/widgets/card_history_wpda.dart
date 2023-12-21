@@ -157,14 +157,33 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                           ),
                         ),
                         SizedBox(width: 8),
-                        Container(
-                          height: 48,
-                          width: 48,
-                          child: Image.asset(
-                            'assets/images/profile.png',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                        (_image == null)
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white, // Warna border putih
+                                    width: 2.0, // Lebar border
+                                  ),
+                                ),
+                                child: CircleAvatar(
+                                  backgroundImage: AssetImage(
+                                    'assets/images/profile_empty.jpg',
+                                  ),
+                                ),
+                              )
+                            : Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white, // Warna border putih
+                                    width: 2.0, // Lebar border
+                                  ),
+                                ),
+                                child: CircleAvatar(
+                                  backgroundImage: FileImage(_image!),
+                                ),
+                              ),
                       ],
                     ),
                   ),

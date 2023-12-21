@@ -178,14 +178,19 @@ class _CardWpdaState extends State<CardWpda> {
                               ),
                             ),
                             SizedBox(width: 8),
-                            Container(
-                              height: 48,
-                              width: 48,
-                              child: Image.asset(
-                                'assets/images/profile.png',
-                                fit: BoxFit.cover,
-                              ),
-                            )
+                            (imgUrl.isEmpty)
+                                ? CircleAvatar(
+                                    backgroundImage: AssetImage(
+                                        'assets/images/profile_empty.jpg'),
+                                    backgroundColor: Colors.white,
+                                    radius: 20,
+                                  )
+                                : CircleAvatar(
+                                    backgroundImage:
+                                        CachedNetworkImageProvider(imgUrl),
+                                    backgroundColor: Colors.white,
+                                    radius: 20,
+                                  ),
                           ],
                         ),
                       ),

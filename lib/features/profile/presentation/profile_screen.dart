@@ -469,11 +469,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     ? MediaQuery.of(context)
                                                             .size
                                                             .height *
-                                                        0.25
+                                                        0.16
                                                     : MediaQuery.of(context)
                                                             .size
                                                             .height *
-                                                        0.15,
+                                                        0.12,
                                                 child: Stack(
                                                   alignment:
                                                       Alignment.topCenter,
@@ -524,7 +524,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                                   },
                                                                 )
                                                               : SizedBox(),
-                                                          SizedBox(height: 32),
+                                                          SizedBox(height: 12),
                                                           BottomDialogProfileScreen(
                                                             title:
                                                                 'Unggah Foto Profil',
@@ -757,29 +757,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     Consumer<RegisterFormProvider>(
                                       builder: (context, formProv, _) =>
                                           CardDetailProfile(
-                                        controller: _newGender,
-                                        readOnly: true,
-                                        iconData: Icons.person,
-                                        title: 'Jenis Kelamin',
-                                        onPressed: () {
-                                          print(_newGender.text);
-                                          profileProvider
-                                              .updateProfile(
-                                                  context,
-                                                  {
-                                                    'gender': _newGender.text,
-                                                  },
-                                                  value.userId!,
-                                                  token!)
-                                              .then((value) {
-                                            Future.delayed(Duration(seconds: 2),
-                                                () {
-                                              setState(() {});
-                                            });
-                                          });
-                                        },
-                                        value: user_profile['gender'],
-                                      ),
+                                              controller: _newGender,
+                                              readOnly: true,
+                                              iconData: Icons.person,
+                                              title: 'Jenis Kelamin',
+                                              onPressed: () {
+                                                print(_newGender.text);
+                                                profileProvider
+                                                    .updateProfile(
+                                                        context,
+                                                        {
+                                                          'gender':
+                                                              _newGender.text,
+                                                        },
+                                                        value.userId!,
+                                                        token!)
+                                                    .then((value) {
+                                                  Future.delayed(
+                                                      Duration(seconds: 2), () {
+                                                    setState(() {});
+                                                  });
+                                                });
+                                              },
+                                              value: user_profile['gender']),
                                     ),
                                     SizedBox(height: 4),
                                     Consumer<RegisterFormProvider>(

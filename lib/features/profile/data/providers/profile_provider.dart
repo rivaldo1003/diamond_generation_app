@@ -18,10 +18,10 @@ class ProfileProvider with ChangeNotifier {
     // Bersihkan semua data
     await prefs.clear();
 
-    // Set ulang nilai keyImageProfile
-    if (imageProfile != null) {
-      await prefs.setString(keyImageProfile, imageProfile);
-    }
+    // // Set ulang nilai keyImageProfile
+    // if (imageProfile != null) {
+    //   await prefs.setString(keyImageProfile, imageProfile);
+    // }
   }
 
   Future updateProfile(

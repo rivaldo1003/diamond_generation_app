@@ -8,6 +8,7 @@ import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
+import 'package:diamond_generation_app/shared/widgets/button.dart';
 import 'package:diamond_generation_app/shared/widgets/placeholder_card_wpda.dart';
 import 'package:diamond_generation_app/shared/widgets/placeholder_history.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +42,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final getWpdaUsecase = Provider.of<GetWpdaUsecase>(context);
     final wpdaProvider = Provider.of<WpdaProvider>(context);
     return Scaffold(
-      appBar: AppBarWidget(title: 'Riwayat WPDA'),
+      appBar: AppBarWidget(
+        title: 'Riwayat WPDA',
+        action: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: IconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.history,
+                color: MyColor.primaryColor,
+              ),
+            ),
+          ),
+        ],
+      ),
       body: Consumer<LoginProvider>(
         builder: (context, value, _) {
           if (value.userId == null) {
@@ -87,6 +102,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     12,
                                     FontWeight.w500,
                                     MyColor.greyText,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20),
+                                  child: ButtonWidget(
+                                    title: 'Coba Lagi',
+                                    onPressed: () async {
+                                      await wpdaProvider.refreshWpdaHistory(
+                                          value.userId!, token!);
+                                    },
+                                    color: MyColor.primaryColor,
                                   ),
                                 ),
                               ],

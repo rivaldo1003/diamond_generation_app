@@ -16,23 +16,33 @@ class BottomDialogProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      splashColor: MyColor.primaryColor,
-      borderRadius: BorderRadius.circular(10),
-      onTap: onTap,
-      child: Row(
-        children: [
-          icon,
-          SizedBox(width: 8),
-          Text(
-            title,
-            style: MyFonts.customTextStyle(
-              14,
-              FontWeight.w500,
-              MyColor.whiteColor,
-            ),
+    return Container(
+      // padding: EdgeInsets.symmetric(horizontal: 16),
+      height: 40,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        // color: Colors.amber,
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Material(
+          color: Colors.transparent,
+          child: Row(
+            children: [
+              icon,
+              SizedBox(width: 8),
+              Text(
+                title,
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -39,6 +39,11 @@ class LoginProvider with ChangeNotifier {
   String? _birthDate;
   String? get birthDate => _birthDate;
 
+  // GENDER
+
+  String? _gender;
+  String? get gender => _gender;
+
 // TEXTFIELD PASSWORD
   void showPassword() {
     _obscure = !_obscure;
@@ -129,6 +134,18 @@ class LoginProvider with ChangeNotifier {
 
   Future<String?> loadProfileCompleted() async {
     _profileCompleted = await SharedPreferencesManager.loadProfiledCompleted();
+    notifyListeners();
+  }
+
+  // GENDER
+  void saveGender(String gender) async {
+    await SharedPreferencesManager.saveGender(gender);
+    _gender = gender;
+    notifyListeners();
+  }
+
+  Future<String?> loadGender() async {
+    _gender = await SharedPreferencesManager.loadGender();
     notifyListeners();
   }
 

@@ -37,12 +37,12 @@ class _CardDetailProfileState extends State<CardDetailProfile> {
 
   Future<void> saveGenderPreference(String gender) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('key_gender', gender);
+    prefs.setString(SharedPreferencesManager.keyGender, gender);
   }
 
   Future<void> loadGenderPreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? gender = prefs.getString('key_gender');
+    String? gender = prefs.getString(SharedPreferencesManager.keyGender);
 
     if (gender != null) {
       if (gender == 'Male') {
