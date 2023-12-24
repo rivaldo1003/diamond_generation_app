@@ -74,7 +74,6 @@ class _WPDAScreenState extends State<WPDAScreen> {
     if (imagePath != null && imagePath.isNotEmpty) {
       setState(() {
         _image = File(imagePath);
-        print('INI FILE IMAGE PATH :$imagePath');
       });
     }
   }

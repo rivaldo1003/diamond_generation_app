@@ -17,6 +17,7 @@ class ApiConstants {
   static const submitDataUserUrl = baseUrl + '/profile';
   static const deleteUserUrl = baseUrl + '/user/delete';
   static const updateProfile = baseUrl + '/profile/update';
+  static const getTotalNewUsers = baseUrl + '/total-new-users';
 
   // OLD API URL
   static const newCreation1Url = baseUrl + 'new_creation_1.php';

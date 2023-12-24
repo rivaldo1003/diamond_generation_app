@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:diamond_generation_app/core/models/all_users.dart';
+import 'package:diamond_generation_app/features/history_wpda/presentation/history_screen.dart';
 import 'package:diamond_generation_app/features/view_detail_all_data_users/presentation/wpda_user_screen.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
@@ -45,12 +46,12 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
   TextEditingController _controllerBirthDateAndPlace = TextEditingController();
 
   String buildImageUrlWithTimestamp(String? profilePicture) {
-    // Periksa apakah profilePicture tidak null dan tidak kosong sebelum membangun URL
-    if (profilePicture != null && profilePicture.isNotEmpty) {
+    if (profilePicture != null &&
+        profilePicture.isNotEmpty &&
+        profilePicture != 'null') {
       return "${ApiConstants.baseUrlImage}/$profilePicture?timestamp=${DateTime.now().millisecondsSinceEpoch}";
     } else {
-      // Handle ketika profilePicture null atau kosong, misalnya mengembalikan URL default atau kosong
-      return ""; // Gantilah dengan URL default atau kosong sesuai kebutuhan
+      return "${ApiConstants.baseUrlImage}/profile_pictures/dummy.jpg";
     }
   }
 
@@ -58,10 +59,14 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
 
   @override
   void initState() {
-    if (widget.userData.profile!.profile_picture.isNotEmpty) {
+    super.initState();
+    if (widget.userData.profile != null &&
+        widget.userData.profile!.profile_picture != null &&
+        widget.userData.profile!.profile_picture.isNotEmpty) {
       imgUrl =
           buildImageUrlWithTimestamp(widget.userData.profile!.profile_picture);
-      super.initState();
+    } else {
+      imgUrl = "${ApiConstants.baseUrlImage}/profile_pictures/dummy.jpg";
     }
   }
 
@@ -117,7 +122,7 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                     ),
                     height: 120,
                     width: 120,
-                    child: (imgUrl!.isEmpty)
+                    child: (imgUrl!.isEmpty || imgUrl == null)
                         ? CircleAvatar(
                             backgroundImage:
                                 AssetImage('assets/images/profile_empty.jpg'),
@@ -283,12 +288,14 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
               title: 'Lihat WPDA',
               color: MyColor.primaryColor,
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return WpdaUserScreen(
-                    allUsers: widget.userData,
-                    totalWpda: widget.userData.dataWpda.length.toString(),
-                  );
-                }));
+                if (widget.userData.dataWpda != null) {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return HistoryScreen(
+                      id: widget.userData.id,
+                      fullName: widget.userData.fullName,
+                    );
+                  }));
+                }
               },
             ),
           ),

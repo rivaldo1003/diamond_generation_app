@@ -37,12 +37,12 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
   }
 
   String buildImageUrlWithTimestamp(String? profilePicture) {
-    // Periksa apakah profilePicture tidak null dan tidak kosong sebelum membangun URL
-    if (profilePicture != null && profilePicture.isNotEmpty) {
+    if (profilePicture != null &&
+        profilePicture.isNotEmpty &&
+        profilePicture != 'null') {
       return "${ApiConstants.baseUrlImage}/$profilePicture?timestamp=${DateTime.now().millisecondsSinceEpoch}";
     } else {
-      // Handle ketika profilePicture null atau kosong, misalnya mengembalikan URL default atau kosong
-      return ""; // Gantilah dengan URL default atau kosong sesuai kebutuhan
+      return "${ApiConstants.baseUrlImage}/profile_pictures/dummy.jpg";
     }
   }
 
@@ -51,8 +51,6 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
     getToken();
     super.initState();
   }
-
-  String? imgUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -313,8 +311,8 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                   final userData = searchUserProvider
                                       .filteredUserData[index];
 
-                                  imgUrl = buildImageUrlWithTimestamp(
-                                      userData.profile!.profile_picture);
+                                  String imgUrl = buildImageUrlWithTimestamp(
+                                      userData.profile?.profile_picture ?? '');
                                   return Stack(
                                     children: [
                                       ListTile(
@@ -347,7 +345,7 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                         leading: Stack(
                                           clipBehavior: Clip.none,
                                           children: [
-                                            (imgUrl!.isEmpty)
+                                            (imgUrl.isEmpty || imgUrl == null)
                                                 ? Container(
                                                     decoration: BoxDecoration(
                                                       shape: BoxShape.circle,

@@ -52,6 +52,9 @@ dependencies:
   cached_network_image: ^3.3.0
   dio: ^5.4.0
   connectivity: ^3.0.6
+  tuple: ^2.0.2
+  carousel_slider: ^4.2.1
+  dots_indicator: ^3.0.0
 
 dev_dependencies:
   flutter_test:

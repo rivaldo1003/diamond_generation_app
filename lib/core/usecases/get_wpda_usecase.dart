@@ -1,4 +1,5 @@
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
+import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/repositories/wpda_repository.dart';
 import 'package:flutter/material.dart';
@@ -29,5 +30,16 @@ class GetWpdaUsecase {
 
   Future<History> getAllWpdaByUserID(String userId, String token) async {
     return await wpdaRepository.getAllWpdaByUserId(userId, token);
+  }
+
+  Future<MonthlyReport> fetchWpdaByMonth(
+    BuildContext context,
+    String token,
+    String userId,
+    int month,
+    int year,
+  ) async {
+    return await wpdaRepository.fetchWpdaByMonth(
+        context, token, userId, month, year);
   }
 }

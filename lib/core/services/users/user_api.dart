@@ -611,4 +611,21 @@ class UserApi {
       throw Exception('Gagal update user profile');
     }
   }
+
+  Future<Map<String, dynamic>> getTotalNewUsers(String token) async {
+    final url = Uri.parse(ApiConstants.getTotalNewUsers);
+    final response = await http.get(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      },
+    );
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = json.decode(response.body);
+      return data;
+    } else {
+      throw Exception('Failed to load data new users');
+    }
+  }
 }

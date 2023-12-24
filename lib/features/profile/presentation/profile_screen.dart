@@ -205,7 +205,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (imagePath != null && imagePath.isNotEmpty) {
       setState(() {
         _image = File(imagePath);
-        print('INI FILE IMAGE PATH :$imagePath');
       });
     }
 

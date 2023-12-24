@@ -1,4 +1,5 @@
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
+import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/services/wpda/wpda_api.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,8 @@ abstract class WpdaRepository {
       Map<String, dynamic> body, BuildContext context, String token, String id);
   Future<void> deleteWpda(BuildContext context, String token, String id);
   Future<History> getAllWpdaByUserId(String userId, String token);
+  Future<MonthlyReport> fetchWpdaByMonth(
+      BuildContext context, String token, String userId, int month, int year);
 }
 
 class WpdaRepositoryImpl implements WpdaRepository {
@@ -45,5 +48,16 @@ class WpdaRepositoryImpl implements WpdaRepository {
   @override
   Future<History> getAllWpdaByUserId(String userId, String token) async {
     return await wpdaApi.getAllWpdaByUserId(userId, token);
+  }
+
+  @override
+  Future<MonthlyReport> fetchWpdaByMonth(
+    BuildContext context,
+    String token,
+    String userId,
+    int month,
+    int year,
+  ) async {
+    return await wpdaApi.fetchWpdaByMonth(context, token, userId, month, year);
   }
 }

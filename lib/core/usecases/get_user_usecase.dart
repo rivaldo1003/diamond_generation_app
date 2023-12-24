@@ -51,4 +51,8 @@ class GetUserUsecase {
       Map<String, dynamic> body) async {
     await userRepository.updateProfile(context, body, userId, token);
   }
+
+  Future<Map<String, dynamic>> getTotalNewUsers(String token) async {
+    return await userRepository.getTotalNewUsers(token);
+  }
 }

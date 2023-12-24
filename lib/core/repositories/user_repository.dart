@@ -15,6 +15,7 @@ abstract class UserRepository {
   Future<void> deleteUser(String userId, BuildContext context, String token);
   Future<void> updateProfile(BuildContext context, Map<String, dynamic> body,
       String userId, String token);
+  Future<Map<String, dynamic>> getTotalNewUsers(String token);
 }
 
 class UserRepositoryImpl implements UserRepository {
@@ -75,5 +76,10 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> updateProfile(BuildContext context, Map<String, dynamic> body,
       String userId, String token) async {
     await userApi.updateProfile(context, userId, token, body);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getTotalNewUsers(String token) async {
+    return await userApi.getTotalNewUsers(token);
   }
 }

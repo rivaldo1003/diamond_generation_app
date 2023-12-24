@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
+import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/add_wpda_provider.dart';
@@ -324,6 +325,28 @@ class WpdaApi {
       return History.fromJson(jsonResponse);
     } else {
       throw Exception('Failed to load history data');
+    }
+  }
+
+  Future<MonthlyReport> fetchWpdaByMonth(BuildContext context, String token,
+      String userId, int month, int year) async {
+    final url = Uri.parse(
+      ApiConstants.historyWpdaUrl + '/filter/$userId?month=$month&year=$year',
+    );
+    final response = await http.get(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonResponse = json.decode(response.body);
+      return MonthlyReport.fromJson(jsonResponse);
+    } else {
+      throw Exception(
+          'Failed to load history data. Status code: ${response.statusCode}');
     }
   }
 }

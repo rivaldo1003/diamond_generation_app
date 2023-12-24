@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:diamond_generation_app/core/models/history_wpda.dart';
+import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
@@ -8,19 +8,16 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class CardHistoryWpda extends StatefulWidget {
-  final HistoryWpda historyWpda;
+class CardMonthlyReport extends StatefulWidget {
+  final ReportData reportData;
 
-  const CardHistoryWpda({
-    super.key,
-    required this.historyWpda,
-  });
+  const CardMonthlyReport({super.key, required this.reportData});
 
   @override
-  State<CardHistoryWpda> createState() => _CardHistoryWpdaState();
+  State<CardMonthlyReport> createState() => _CardMonthlyReportState();
 }
 
-class _CardHistoryWpdaState extends State<CardHistoryWpda> {
+class _CardMonthlyReportState extends State<CardMonthlyReport> {
   String convertTimeFormat(String originalTime) {
     // Membuat formatter untuk waktu dengan format HH.mm.ss
     DateFormat originalFormat = DateFormat('HH:mm:ss');
@@ -56,19 +53,19 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
 
   @override
   Widget build(BuildContext context) {
-    String time = widget.historyWpda.createdAt.split(' ').last;
+    String time = widget.reportData.createdAt.split(' ').last;
 
     String timeOnly = convertTimeFormat(time);
     String formatDate = DateFormat('dd MMMM yyyy', 'id')
-        .format(DateTime.parse(widget.historyWpda.createdAt));
+        .format(DateTime.parse(widget.reportData.createdAt));
 
     String currentDate = DateTime.now().toString();
     var currentDateFormat =
         DateFormat('dd MMMM yyyy', 'id').format(DateTime.parse(currentDate));
     String dateResult = DateFormat('dd MMM yy')
-        .format(DateTime.parse(widget.historyWpda.createdAt));
+        .format(DateTime.parse(widget.reportData.createdAt));
 
-    // String selectedPrayers = historyWpda.selectedPrayers;
+    // String selectedPrayers = reportData.selectedPrayers;
 
     // List<String> abbreviations = [];
 
@@ -109,7 +106,7 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                widget.historyWpda.writer.fullName,
+                                widget.reportData.writer.fullName,
                                 textAlign: TextAlign.end,
                                 style: MyFonts.customTextStyle(
                                   14,
@@ -193,7 +190,7 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      widget.historyWpda.readingBook,
+                      widget.reportData.readingBook,
                       style: MyFonts.customTextStyle(
                         14,
                         FontWeight.w500,
@@ -215,7 +212,7 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                         ),
                         Expanded(
                           child: Text(
-                            widget.historyWpda.messageOfGod,
+                            widget.reportData.messageOfGod,
                             style: MyFonts.customTextStyle(
                               14,
                               FontWeight.w500,
@@ -239,7 +236,7 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                         ),
                         Expanded(
                           child: Text(
-                            widget.historyWpda.applicationInLife,
+                            widget.reportData.applicationInLife,
                             style: MyFonts.customTextStyle(
                               14,
                               FontWeight.w500,
@@ -348,7 +345,7 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                                   return CircularProgressIndicator();
                                 } else {
                                   return Text(
-                                    widget.historyWpda.writer.fullName,
+                                    widget.reportData.writer.fullName,
                                     overflow: TextOverflow.ellipsis,
                                     style: MyFonts.customTextStyle(
                                       14,
@@ -360,7 +357,7 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                               },
                             ),
                             Text(
-                              widget.historyWpda.writer.email,
+                              widget.reportData.writer.email,
                               style: MyFonts.customTextStyle(
                                 14,
                                 FontWeight.w500,
@@ -396,7 +393,7 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                     children: [
                       Expanded(
                         child: Text(
-                          widget.historyWpda.readingBook,
+                          widget.reportData.readingBook,
                           style: MyFonts.customTextStyle(
                             16,
                             FontWeight.bold,
@@ -475,7 +472,7 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                   ),
                   SizedBox(height: 12),
                   Text(
-                    widget.historyWpda.verseContent,
+                    widget.reportData.verseContent,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 4,
                     style: MyFonts.customTextStyle(

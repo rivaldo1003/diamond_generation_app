@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 
 class CardWpda extends StatefulWidget {
   final WPDA wpda;
@@ -29,13 +29,15 @@ class CardWpda extends StatefulWidget {
 }
 
 class _CardWpdaState extends State<CardWpda> {
-  String buildImageUrlWithTimestamp(String? profilePicture) {
-    // Periksa apakah profilePicture tidak null dan tidak kosong sebelum membangun URL
-    if (profilePicture != null && profilePicture.isNotEmpty) {
-      return "${ApiConstants.baseUrlImage}/$profilePicture?timestamp=${DateTime.now().millisecondsSinceEpoch}";
+  String buildImageUrlWithStaticTimestamp(String? profilePicture) {
+    final staticTimestamp = DateTime.now().millisecondsSinceEpoch;
+
+    if (profilePicture != null &&
+        profilePicture.isNotEmpty &&
+        profilePicture != 'null') {
+      return "${ApiConstants.baseUrlImage}/$profilePicture?timestamp=$staticTimestamp";
     } else {
-      // Handle ketika profilePicture null atau kosong, misalnya mengembalikan URL default atau kosong
-      return ""; // Gantilah dengan URL default atau kosong sesuai kebutuhan
+      return "${ApiConstants.baseUrlImage}/profile_pictures/dummy.jpg";
     }
   }
 
@@ -59,7 +61,6 @@ class _CardWpdaState extends State<CardWpda> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       token = prefs.getString(SharedPreferencesManager.keyToken);
-      print(token);
     });
   }
 
@@ -71,9 +72,6 @@ class _CardWpdaState extends State<CardWpda> {
 
   @override
   Widget build(BuildContext context) {
-    String imgUrl =
-        buildImageUrlWithTimestamp(widget.wpda.writer.profile_picture);
-
     String time = widget.wpda.created_at.split(' ').last;
 
     String timeOnly = convertTimeFormat(time);
@@ -166,7 +164,7 @@ class _CardWpdaState extends State<CardWpda> {
                                           ],
                                         )
                                       : Text(
-                                          widget.wpda.created_at,
+                                          dateResult + ' | ${timeOnly}',
                                           textAlign: TextAlign.end,
                                           style: MyFonts.customTextStyle(
                                             12,
@@ -178,7 +176,8 @@ class _CardWpdaState extends State<CardWpda> {
                               ),
                             ),
                             SizedBox(width: 8),
-                            (imgUrl.isEmpty)
+                            (widget.wpda.writer.profile_picture.isEmpty ||
+                                    widget.wpda.writer.profile_picture == null)
                                 ? CircleAvatar(
                                     backgroundImage: AssetImage(
                                         'assets/images/profile_empty.jpg'),
@@ -186,8 +185,9 @@ class _CardWpdaState extends State<CardWpda> {
                                     radius: 20,
                                   )
                                 : CircleAvatar(
-                                    backgroundImage:
-                                        CachedNetworkImageProvider(imgUrl),
+                                    backgroundImage: CachedNetworkImageProvider(
+                                        buildImageUrlWithStaticTimestamp(widget
+                                            .wpda.writer.profile_picture)),
                                     backgroundColor: Colors.white,
                                     radius: 20,
                                   ),
@@ -366,7 +366,8 @@ class _CardWpdaState extends State<CardWpda> {
                       children: [
                         Row(
                           children: [
-                            (imgUrl.isEmpty)
+                            (widget.wpda.writer.profile_picture.isEmpty ||
+                                    widget.wpda.writer.profile_picture == null)
                                 ? CircleAvatar(
                                     backgroundImage: AssetImage(
                                         'assets/images/profile_empty.jpg'),
@@ -374,8 +375,9 @@ class _CardWpdaState extends State<CardWpda> {
                                     radius: 20,
                                   )
                                 : CircleAvatar(
-                                    backgroundImage:
-                                        CachedNetworkImageProvider(imgUrl),
+                                    backgroundImage: CachedNetworkImageProvider(
+                                        buildImageUrlWithStaticTimestamp(widget
+                                            .wpda.writer.profile_picture)),
                                     backgroundColor: Colors.white,
                                     radius: 20,
                                   ),

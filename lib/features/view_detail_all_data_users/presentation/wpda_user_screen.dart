@@ -1,8 +1,11 @@
 // ignore_for_file: unnecessary_null_comparison
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:diamond_generation_app/core/models/all_users.dart';
 import 'package:diamond_generation_app/features/history_wpda/presentation/history_screen.dart';
+import 'package:diamond_generation_app/features/history_wpda/widgets/filter_date_dropdown.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
+import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
@@ -11,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class WpdaUserScreen extends StatelessWidget {
+class WpdaUserScreen extends StatefulWidget {
   final AllUsers allUsers;
   final String totalWpda;
 
@@ -22,13 +25,59 @@ class WpdaUserScreen extends StatelessWidget {
   });
 
   @override
+  State<WpdaUserScreen> createState() => _WpdaUserScreenState();
+}
+
+class _WpdaUserScreenState extends State<WpdaUserScreen> {
+  String buildImageUrlWithStaticTimestamp(String? profilePicture) {
+    final staticTimestamp = DateTime.now().millisecondsSinceEpoch;
+
+    if (profilePicture != null &&
+        profilePicture.isNotEmpty &&
+        profilePicture != 'null') {
+      return "${ApiConstants.baseUrlImage}/$profilePicture?timestamp=$staticTimestamp";
+    } else {
+      return "${ApiConstants.baseUrlImage}/profile_pictures/dummy.jpg";
+    }
+  }
+
+  String? imgUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.allUsers.profile != null &&
+        widget.allUsers.profile!.profile_picture != null &&
+        widget.allUsers.profile!.profile_picture.isNotEmpty) {
+      imgUrl = buildImageUrlWithStaticTimestamp(
+          widget.allUsers.profile!.profile_picture);
+    } else {
+      imgUrl = "${ApiConstants.baseUrlImage}/profile_pictures/dummy.jpg";
+    }
+  }
+
+  String convertTimeFormat(String originalTime) {
+    // Membuat formatter untuk waktu dengan format HH.mm.ss
+    DateFormat originalFormat = DateFormat('HH:mm:ss');
+
+    // Parsing waktu dari string ke objek DateTime
+    DateTime dateTime = originalFormat.parseStrict(originalTime);
+
+    // Membuat formatter baru untuk waktu dengan format HH.mm
+    DateFormat newFormat = DateFormat('HH:mm');
+
+    // Mengonversi waktu ke format yang diinginkan
+    return newFormat.format(dateTime);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    allUsers.dataWpda.sort((a, b) =>
+    widget.allUsers.dataWpda.sort((a, b) =>
         DateTime.parse(b.createdAt).compareTo(DateTime.parse(a.createdAt)));
 
     return Scaffold(
       appBar: AppBarWidget(
-        title: 'WPDA User',
+        title: 'WPDA ${widget.allUsers.fullName}',
       ),
       body: Column(
         children: [
@@ -38,7 +87,7 @@ class WpdaUserScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: CardHeaderHistoryWpda(
-                    totalWpda: totalWpda,
+                    totalWpda: widget.totalWpda,
                     title: 'TOTAL WPDA',
                     color: MyColor.colorGreen,
                   ),
@@ -46,9 +95,9 @@ class WpdaUserScreen extends StatelessWidget {
                 SizedBox(width: 8),
                 Expanded(
                   child: CardHeaderHistoryWpda(
-                    totalWpda: (allUsers.dataWpda.isEmpty)
+                    totalWpda: (widget.allUsers.dataWpda.isEmpty)
                         ? 'C'
-                        : allUsers.profile!.grade,
+                        : widget.allUsers.profile!.grade,
                     title: 'GRADE',
                     color: MyColor.colorLightBlue,
                   ),
@@ -56,7 +105,7 @@ class WpdaUserScreen extends StatelessWidget {
                 SizedBox(width: 8),
                 Expanded(
                   child: CardHeaderHistoryWpda(
-                    totalWpda: allUsers.profile!.missed_days_total,
+                    totalWpda: widget.allUsers.profile!.missed_days_total,
                     title: 'MISSED DAY',
                     color: MyColor.colorRed,
                   ),
@@ -64,22 +113,37 @@ class WpdaUserScreen extends StatelessWidget {
               ],
             ),
           ),
+          FilterDateDropdown(),
           Expanded(
-            child: (allUsers.dataWpda.isNotEmpty)
+            child: (widget.allUsers.dataWpda.isNotEmpty)
                 ? ListView.builder(
-                    itemCount: allUsers.dataWpda.length,
+                    itemCount: widget.allUsers.dataWpda.length,
                     itemBuilder: (context, index) {
-                      var history = allUsers.dataWpda[index];
-                      String timeOnly = history.createdAt.split(' ').last;
+                      var history = widget.allUsers.dataWpda[index];
+
+                      DateFormat apiDateFormat =
+                          DateFormat("yyyy-MM-ddTHH:mm:ss.SSSSSSZ");
+                      DateFormat desiredDateFormat =
+                          DateFormat("yyyy-MM-dd HH:mm:ss");
+
+                      DateTime createdAt =
+                          apiDateFormat.parse(history.createdAt);
+                      String formattedCreatedAt =
+                          desiredDateFormat.format(createdAt);
+
+                      print('formattedCreatedAt : $formattedCreatedAt');
+
+                      String time = formattedCreatedAt.split(' ').last;
+
+                      String timeOnly = convertTimeFormat(time);
                       String formatDate = DateFormat('dd MMMM yyyy', 'id')
-                          .format(DateTime.parse(history.createdAt));
+                          .format(DateTime.parse(formattedCreatedAt));
 
                       String currentDate = DateTime.now().toString();
                       var currentDateFormat = DateFormat('dd MMMM yyyy', 'id')
                           .format(DateTime.parse(currentDate));
-
                       String dateResult = DateFormat('dd MMM yy')
-                          .format(DateTime.parse(history.createdAt));
+                          .format(DateTime.parse(formattedCreatedAt));
 
                       String selectedPrayers = history.selectedPrayers;
 
@@ -94,9 +158,6 @@ class WpdaUserScreen extends StatelessWidget {
                       }
 
                       String selectedItemString = abbreviations.join(',');
-
-                      String dateTimeString = timeOnly;
-                      String time = dateTimeString.substring(11, 16);
 
                       return Column(
                         children: [
@@ -131,7 +192,7 @@ class WpdaUserScreen extends StatelessWidget {
                                                       CrossAxisAlignment.end,
                                                   children: [
                                                     Text(
-                                                      allUsers.fullName,
+                                                      widget.allUsers.fullName,
                                                       textAlign: TextAlign.end,
                                                       style: MyFonts
                                                           .customTextStyle(
@@ -175,7 +236,8 @@ class WpdaUserScreen extends StatelessWidget {
                                                             ],
                                                           )
                                                         : Text(
-                                                            currentDateFormat,
+                                                            dateResult +
+                                                                ' | ${timeOnly}',
                                                             textAlign:
                                                                 TextAlign.end,
                                                             style: MyFonts
@@ -190,83 +252,116 @@ class WpdaUserScreen extends StatelessWidget {
                                               ),
                                               SizedBox(width: 8),
                                               Container(
-                                                height: 48,
-                                                width: 48,
-                                                child: Image.asset(
-                                                  'assets/images/profile.png',
-                                                  fit: BoxFit.cover,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
+                                                    color: Colors
+                                                        .white, // Warna border putih
+                                                    width: 2.0, // Lebar border
+                                                  ),
                                                 ),
-                                              ),
+                                                child: (widget
+                                                            .allUsers
+                                                            .profile!
+                                                            .profile_picture
+                                                            .isEmpty ||
+                                                        widget.allUsers.profile!
+                                                                .profile_picture ==
+                                                            null)
+                                                    ? CircleAvatar(
+                                                        backgroundImage: AssetImage(
+                                                            'assets/images/profile_empty.jpg'),
+                                                        backgroundColor:
+                                                            Colors.white,
+                                                        radius: 20,
+                                                      )
+                                                    : CircleAvatar(
+                                                        backgroundImage:
+                                                            CachedNetworkImageProvider(
+                                                                buildImageUrlWithStaticTimestamp(widget
+                                                                    .allUsers
+                                                                    .profile!
+                                                                    .profile_picture)),
+                                                        backgroundColor:
+                                                            Colors.white,
+                                                        radius: 20,
+                                                      ),
+                                              )
                                             ],
                                           ),
                                         ),
                                       ],
                                     ),
-                                    content: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          history.verseContent,
-                                          style: MyFonts.customTextStyle(
-                                            14,
-                                            FontWeight.w500,
-                                            MyColor.whiteColor,
+                                    content: Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            history.readingBook,
+                                            style: MyFonts.customTextStyle(
+                                              14,
+                                              FontWeight.w500,
+                                              MyColor.whiteColor,
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(height: 8),
-                                        Divider(),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'PT : ',
-                                              style: MyFonts.customTextStyle(
-                                                14,
-                                                FontWeight.bold,
-                                                MyColor.colorLightBlue,
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Text(
-                                                history.messageOfGod,
+                                          SizedBox(height: 8),
+                                          Divider(),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'PT : ',
                                                 style: MyFonts.customTextStyle(
                                                   14,
-                                                  FontWeight.w500,
-                                                  MyColor.whiteColor,
+                                                  FontWeight.bold,
+                                                  MyColor.colorLightBlue,
                                                 ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 8),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'AP : ',
-                                              style: MyFonts.customTextStyle(
-                                                14,
-                                                FontWeight.bold,
-                                                MyColor.colorLightBlue,
+                                              Expanded(
+                                                child: Text(
+                                                  history.messageOfGod,
+                                                  style:
+                                                      MyFonts.customTextStyle(
+                                                    14,
+                                                    FontWeight.w500,
+                                                    MyColor.whiteColor,
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                            Expanded(
-                                              child: Text(
-                                                history.applicationInLife,
+                                            ],
+                                          ),
+                                          SizedBox(height: 8),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'AP : ',
                                                 style: MyFonts.customTextStyle(
                                                   14,
-                                                  FontWeight.w500,
-                                                  MyColor.whiteColor,
+                                                  FontWeight.bold,
+                                                  MyColor.colorLightBlue,
                                                 ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                              Expanded(
+                                                child: Text(
+                                                  history.applicationInLife,
+                                                  style:
+                                                      MyFonts.customTextStyle(
+                                                    14,
+                                                    FontWeight.w500,
+                                                    MyColor.whiteColor,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                     actions: [
                                       Consumer<LoginProvider>(
@@ -275,7 +370,7 @@ class WpdaUserScreen extends StatelessWidget {
                                           value.loadFullName();
                                           return CircularProgressIndicator();
                                         } else {
-                                          if (value.userId == allUsers.id) {
+                                          if (value.userId == 0) {
                                             return Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.end,
@@ -325,12 +420,31 @@ class WpdaUserScreen extends StatelessWidget {
                                     children: [
                                       Row(
                                         children: [
-                                          CircleAvatar(
-                                            backgroundImage: AssetImage(
-                                                'assets/images/profile_empty.jpg'),
-                                            backgroundColor: Colors.white,
-                                            radius: 20,
-                                          ),
+                                          (widget
+                                                      .allUsers
+                                                      .profile!
+                                                      .profile_picture
+                                                      .isEmpty ||
+                                                  widget.allUsers.profile!
+                                                          .profile_picture ==
+                                                      null)
+                                              ? CircleAvatar(
+                                                  backgroundImage: AssetImage(
+                                                      'assets/images/profile_empty.jpg'),
+                                                  backgroundColor: Colors.white,
+                                                  radius: 20,
+                                                )
+                                              : CircleAvatar(
+                                                  backgroundImage:
+                                                      CachedNetworkImageProvider(
+                                                          buildImageUrlWithStaticTimestamp(
+                                                              widget
+                                                                  .allUsers
+                                                                  .profile!
+                                                                  .profile_picture)),
+                                                  backgroundColor: Colors.white,
+                                                  radius: 20,
+                                                ),
                                           SizedBox(width: 12),
                                           Expanded(
                                             child: Column(
@@ -347,7 +461,8 @@ class WpdaUserScreen extends StatelessWidget {
                                                         children: [
                                                           Expanded(
                                                             child: Text(
-                                                              allUsers.fullName,
+                                                              widget.allUsers
+                                                                  .fullName,
                                                               overflow:
                                                                   TextOverflow
                                                                       .ellipsis,
@@ -361,7 +476,7 @@ class WpdaUserScreen extends StatelessWidget {
                                                             ),
                                                           ),
                                                           SizedBox(width: 12),
-                                                          (allUsers.id ==
+                                                          (widget.allUsers.id ==
                                                                   value.userId)
                                                               ? Container(
                                                                   height: 20,
@@ -395,7 +510,7 @@ class WpdaUserScreen extends StatelessWidget {
                                                   },
                                                 ),
                                                 Text(
-                                                  allUsers.email,
+                                                  widget.allUsers.email,
                                                   style:
                                                       MyFonts.customTextStyle(
                                                     14,
@@ -540,9 +655,9 @@ class WpdaUserScreen extends StatelessWidget {
                           return CircularProgressIndicator();
                         } else {
                           return Text(
-                            (value.userId == allUsers.id)
+                            (value.userId == widget.allUsers.id)
                                 ? 'Anda belum pernah wpda'
-                                : '${allUsers.fullName} belum pernah wpda',
+                                : '${widget.allUsers.fullName} belum pernah wpda',
                             textAlign: TextAlign.center,
                             style: MyFonts.customTextStyle(
                               14,
