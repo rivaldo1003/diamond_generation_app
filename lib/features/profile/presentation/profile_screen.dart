@@ -4,6 +4,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:diamond_generation_app/core/services/profile/profile_api.dart';
 import 'package:diamond_generation_app/features/profile/widgets/profile_placeholder.dart';
 import 'package:diamond_generation_app/features/profile/widgets/profile_placeholder_no_connection.dart';
+import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/widgets/bottom_dialog_profile_screen.dart';
 import 'package:diamond_generation_app/shared/widgets/placeholder.dart';
 import 'package:path_provider/path_provider.dart';
@@ -233,7 +234,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       var response = await http.get(
         Uri.parse(
-          'http://192.168.110.85/diamond-generation-service/public/api/users/$userId/profile-picture',
+          '${ApiConstants.baseUrl}/users/$userId/profile-picture',
         ),
         headers: {
           "Content-Type": "application/json",

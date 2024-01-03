@@ -1,4 +1,5 @@
 import 'package:diamond_generation_app/core/models/all_users.dart';
+import 'package:diamond_generation_app/core/models/monthly_data_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/core/repositories/user_repository.dart';
 import 'package:flutter/material.dart';
@@ -54,5 +55,9 @@ class GetUserUsecase {
 
   Future<Map<String, dynamic>> getTotalNewUsers(String token) async {
     return await userRepository.getTotalNewUsers(token);
+  }
+
+  Future<ApiResponse> getMonthlyDataForAllUsers(String token) async {
+    return await userRepository.getMonthlyDataForAllUsers(token);
   }
 }

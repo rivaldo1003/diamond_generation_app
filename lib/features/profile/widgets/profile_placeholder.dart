@@ -78,8 +78,13 @@ class ProfilePlaceholder extends StatelessWidget {
       ),
     );
   }
+}
 
-  Padding DetailSkeletonCard() {
+class DetailSkeletonCard extends StatelessWidget {
+  const DetailSkeletonCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12),
         child: Card(

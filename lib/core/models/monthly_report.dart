@@ -2,7 +2,10 @@ class MonthlyReport {
   bool success;
   String grade;
   int totalWpda;
+  int totalUsers;
+  int totalAllWpda;
   int missedDaysTotal;
+  int missedDaysTotalThisMonth;
   String month;
   List<ReportData> data;
 
@@ -10,7 +13,10 @@ class MonthlyReport {
     required this.success,
     required this.grade,
     required this.totalWpda,
+    required this.totalUsers,
+    required this.totalAllWpda,
     required this.missedDaysTotal,
+    required this.missedDaysTotalThisMonth,
     required this.month,
     required this.data,
   });
@@ -20,7 +26,10 @@ class MonthlyReport {
       success: json['success'] ?? false,
       grade: json['grade'] ?? '',
       totalWpda: json['total_wpda'] ?? 0,
+      totalUsers: json['total_users'] ?? 0,
+      totalAllWpda: json['total_all_wpda'] ?? 0,
       missedDaysTotal: json['missed_days_total'] ?? 0,
+      missedDaysTotalThisMonth: json['missed_days_total_this_month'] ?? 0,
       month: json['month'] ?? '',
       data: (json['data'] as List<dynamic>?)
               ?.map((e) => ReportData.fromJson(e))

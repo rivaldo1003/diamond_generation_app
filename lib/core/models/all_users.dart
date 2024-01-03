@@ -7,6 +7,7 @@ class AllUsers {
   final String createdAt;
   final String accountNumber;
   final String role;
+  final String totalWpda;
   final String address;
 
   final String profileCompleted;
@@ -21,6 +22,7 @@ class AllUsers {
     required this.createdAt,
     required this.accountNumber,
     required this.role,
+    required this.totalWpda,
     required this.address,
     required this.profileCompleted,
     required this.approvalStatus,
@@ -46,6 +48,7 @@ class AllUsers {
       createdAt: json['created_at'].toString(),
       accountNumber: json['account_number'].toString(),
       role: json['role'].toString(),
+      totalWpda: json['total_wpda'].toString(),
       address: json['address'].toString(),
       profileCompleted: json['profile_completed'].toString(),
       approvalStatus: json['approval_status'].toString(),

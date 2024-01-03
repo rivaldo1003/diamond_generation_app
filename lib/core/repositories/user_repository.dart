@@ -1,4 +1,5 @@
 import 'package:diamond_generation_app/core/models/all_users.dart';
+import 'package:diamond_generation_app/core/models/monthly_data_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/core/services/users/user_api.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ abstract class UserRepository {
   Future<void> updateProfile(BuildContext context, Map<String, dynamic> body,
       String userId, String token);
   Future<Map<String, dynamic>> getTotalNewUsers(String token);
+  Future<ApiResponse> getMonthlyDataForAllUsers(String token);
 }
 
 class UserRepositoryImpl implements UserRepository {
@@ -81,5 +83,10 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<Map<String, dynamic>> getTotalNewUsers(String token) async {
     return await userApi.getTotalNewUsers(token);
+  }
+
+  @override
+  Future<ApiResponse> getMonthlyDataForAllUsers(String token) async {
+    return await userApi.getMonthlyDataForAllUsers(token);
   }
 }

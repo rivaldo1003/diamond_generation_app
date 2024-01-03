@@ -246,7 +246,7 @@ class WpdaApi {
     String token,
   ) async {
     var url = Uri.parse(
-        'http://192.168.110.85/diamond-generation-service/public/api/wpda/delete/$id'); // Sesuaikan URL dengan endpoint backend Anda
+        '${ApiConstants.baseUrl}/wpda/delete/$id'); // Sesuaikan URL dengan endpoint backend Anda
 
     try {
       var response = await http.delete(
@@ -300,7 +300,41 @@ class WpdaApi {
       } else if (response.statusCode == 404) {
         print('WPDA data not found');
       } else if (response.statusCode == 403) {
-        print('You are not authorized to delete this WPDA!');
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? role = prefs.getString(SharedPreferencesManager.keyRole);
+        final data = json.decode(response.body);
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            });
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) {
+              return BottomNavigationPage(
+                index: (role == "admin") ? 1 : 0,
+              );
+            }),
+            (route) => false,
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorRed,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+        });
       } else {
         print('Failed to delete WPDA. Error: ${response.statusCode}');
       }

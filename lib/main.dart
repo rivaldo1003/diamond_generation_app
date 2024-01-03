@@ -6,6 +6,7 @@ import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/data/providers/bottom_nav_bar_provider.dart';
 import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
+import 'package:diamond_generation_app/features/history_wpda/data/detail_history_provider.dart';
 import 'package:diamond_generation_app/features/history_wpda/data/history_provider.dart';
 import 'package:diamond_generation_app/features/home/data/providers/home_provider.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
@@ -40,6 +41,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (context) => BottomNaviBarProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => DetailHistoryProvider(),
         ),
         ChangeNotifierProvider(
           create: (context) => HistoryProvider(),

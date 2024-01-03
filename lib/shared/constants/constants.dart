@@ -1,8 +1,8 @@
 class ApiConstants {
   static const baseUrl =
-      'http://192.168.110.85/diamond-generation-service/public/api';
+      'https://ae54-158-140-167-54.ngrok-free.app/diamond-generation-service/public/api';
   static const baseUrlImage =
-      'http://192.168.110.85/diamond-generation-service/public/storage';
+      'https://ae54-158-140-167-54.ngrok-free.app/diamond-generation-service/public/storage';
 
   static const loginUrl = baseUrl + '/login';
   static const registerUrl = baseUrl + '/register';
@@ -18,6 +18,7 @@ class ApiConstants {
   static const deleteUserUrl = baseUrl + '/user/delete';
   static const updateProfile = baseUrl + '/profile/update';
   static const getTotalNewUsers = baseUrl + '/total-new-users';
+  static const getMonthlyDataForAllUsers = baseUrl + '/users/monthly-data';
 
   // OLD API URL
   static const newCreation1Url = baseUrl + 'new_creation_1.php';

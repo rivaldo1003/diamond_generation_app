@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:diamond_generation_app/core/models/all_users.dart';
+import 'package:diamond_generation_app/core/models/monthly_data_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
 import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
@@ -626,6 +627,24 @@ class UserApi {
       return data;
     } else {
       throw Exception('Failed to load data new users');
+    }
+  }
+
+  Future<ApiResponse> getMonthlyDataForAllUsers(String token) async {
+    final url = Uri.parse(ApiConstants.getMonthlyDataForAllUsers);
+    final response = await http.get(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+    if (response.statusCode == 200) {
+      print('Get data success');
+      final Map<String, dynamic> data = json.decode(response.body);
+      return ApiResponse.fromJson(data);
+    } else {
+      throw Exception('Failed get data');
     }
   }
 }

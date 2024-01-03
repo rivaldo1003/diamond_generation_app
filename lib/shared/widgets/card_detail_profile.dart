@@ -214,74 +214,70 @@ class _CardDetailProfileState extends State<CardDetailProfile> {
                       SizedBox(height: 12),
                       (widget.title == 'Jenis Kelamin')
                           ? Container(
-                              height: 48,
+                              // height: 150,
                               width: MediaQuery.of(context).size.width,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Row(
+                              child: Column(
                                 children: [
-                                  Expanded(
-                                    child: RadioListTile<Gender>(
-                                      title: Text(
-                                        'Laki-Laki',
-                                        style: MyFonts.customTextStyle(
-                                          12,
-                                          FontWeight.w500,
-                                          MyColor.greyText,
-                                        ),
+                                  RadioListTile<Gender>(
+                                    title: Text(
+                                      'Laki-Laki',
+                                      style: MyFonts.customTextStyle(
+                                        12,
+                                        FontWeight.w500,
+                                        MyColor.greyText,
                                       ),
-                                      value: Gender.Male,
-                                      dense: true,
-                                      groupValue: formProv.selectedGender,
-                                      activeColor: MyColor.primaryColor,
-                                      onChanged: (Gender? value) {
-                                        formProv.selectedGender = value!;
-                                        var data = formProv.selectedGender;
-                                        var dataGender =
-                                            data.toString().split('.').last;
-                                        if (widget.title == 'Jenis Kelamin') {
-                                          widget.controller!.text =
-                                              (dataGender == 'Male')
-                                                  ? 'Laki-Laki'
-                                                  : 'Perempuan';
-                                        }
-                                      },
                                     ),
+                                    value: Gender.Male,
+                                    dense: false,
+                                    groupValue: formProv.selectedGender,
+                                    activeColor: MyColor.primaryColor,
+                                    onChanged: (Gender? value) {
+                                      formProv.selectedGender = value!;
+                                      var data = formProv.selectedGender;
+                                      var dataGender =
+                                          data.toString().split('.').last;
+                                      if (widget.title == 'Jenis Kelamin') {
+                                        widget.controller!.text =
+                                            (dataGender == 'Male')
+                                                ? 'Laki-Laki'
+                                                : 'Perempuan';
+                                      }
+                                    },
                                   ),
-                                  Expanded(
-                                    child: RadioListTile<Gender>(
-                                      title: Text(
-                                        'Perempuan',
-                                        style: MyFonts.customTextStyle(
-                                          12,
-                                          FontWeight.w500,
-                                          MyColor.greyText,
-                                        ),
+                                  RadioListTile<Gender>(
+                                    title: Text(
+                                      'Perempuan',
+                                      style: MyFonts.customTextStyle(
+                                        12,
+                                        FontWeight.w500,
+                                        MyColor.greyText,
                                       ),
-                                      value: Gender.Female,
-                                      dense: true,
-                                      activeColor: MyColor.primaryColor,
-                                      groupValue: formProv.selectedGender,
-                                      onChanged: (Gender? value) {
-                                        formProv.selectedGender = value!;
-                                        var data = formProv.selectedGender;
-                                        var dataGender =
-                                            data.toString().split('.').last;
-                                        if (widget.title == 'Jenis Kelamin') {
-                                          widget.controller!.text =
-                                              (dataGender == 'Female')
-                                                  ? 'Perempuan'
-                                                  : 'Laki-Laki';
-                                        }
-                                      },
                                     ),
+                                    value: Gender.Female,
+                                    dense: false,
+                                    activeColor: MyColor.primaryColor,
+                                    groupValue: formProv.selectedGender,
+                                    onChanged: (Gender? value) {
+                                      formProv.selectedGender = value!;
+                                      var data = formProv.selectedGender;
+                                      var dataGender =
+                                          data.toString().split('.').last;
+                                      if (widget.title == 'Jenis Kelamin') {
+                                        widget.controller!.text =
+                                            (dataGender == 'Female')
+                                                ? 'Perempuan'
+                                                : 'Laki-Laki';
+                                      }
+                                    },
                                   ),
                                 ],
                               ),
                             )
                           : SizedBox(),
-                      SizedBox(height: 12),
+                      SizedBox(height: 48),
                       (widget.readOnly == true &&
                               widget.title != 'Jenis Kelamin')
                           ? Container()

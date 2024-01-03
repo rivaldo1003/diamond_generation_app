@@ -11,8 +11,7 @@ class ProfileAPI {
       String imagePath, int userId, String token) async {
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse(
-          'http://192.168.110.85/diamond-generation-service/public/api/users/$userId/upload-profile-picture'),
+      Uri.parse('${ApiConstants.baseUrl}/users/$userId/upload-profile-picture'),
     );
 
     request.fields['user_id'] = userId.toString();

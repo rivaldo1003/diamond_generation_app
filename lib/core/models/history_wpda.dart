@@ -3,6 +3,7 @@ class History {
   final int missedDaysTotal;
   final int missedDaysLast7Days;
   final int missedDaysLast30Days;
+  final int totalUsers;
   final String grade;
   final int totalWPDA;
   final List<HistoryWpda> data;
@@ -12,6 +13,7 @@ class History {
     required this.missedDaysTotal,
     required this.missedDaysLast7Days,
     required this.missedDaysLast30Days,
+    required this.totalUsers,
     required this.grade,
     required this.totalWPDA,
     required this.data,
@@ -83,6 +85,7 @@ class History {
       missedDaysTotal: json['missed_days_total'],
       missedDaysLast7Days: json['missed_days_last_7_days'],
       missedDaysLast30Days: json['missed_days_last_30_days'],
+      totalUsers: json['total_users'],
       grade: json['grade'],
       totalWPDA: json['total_wpda'],
       data: wpdaList,

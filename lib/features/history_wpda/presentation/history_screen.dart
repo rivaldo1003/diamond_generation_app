@@ -1,8 +1,8 @@
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
-import 'package:diamond_generation_app/features/filter_screen/presentation/filter_screen.dart';
 import 'package:diamond_generation_app/features/history_wpda/data/history_provider.dart';
+import 'package:diamond_generation_app/features/history_wpda/presentation/detail_history.dart';
 import 'package:diamond_generation_app/features/history_wpda/widgets/card_history_wpda.dart';
 import 'package:diamond_generation_app/features/history_wpda/widgets/card_monthly_report.dart';
 import 'package:diamond_generation_app/features/history_wpda/widgets/filter_date_dropdown.dart';
@@ -981,7 +981,6 @@ class HeaderMonthlyReport extends StatelessWidget {
   Widget build(BuildContext context) {
     final historyProvider = Provider.of<HistoryProvider>(context);
     var now = DateTime.now();
-    String currentMonth = DateFormat('MMMM').format(now);
     return Center(
       child: Column(
         children: [
@@ -1020,30 +1019,38 @@ class HeaderMonthlyReport extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_month,
-                      color: MyColor.primaryColor,
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      '${monthlyReport!.month}',
-                      style: MyFonts.customTextStyle(
-                        15,
-                        FontWeight.bold,
-                        MyColor.primaryColor,
+                SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) {
+                      return DetailHistoryWPDA();
+                    }));
+                  },
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_month,
+                        color: MyColor.primaryColor,
                       ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        indent: 10,
+                      SizedBox(width: 8),
+                      Text(
+                        '${monthlyReport!.month}',
+                        style: MyFonts.customTextStyle(
+                          15,
+                          FontWeight.bold,
+                          MyColor.primaryColor,
+                        ),
                       ),
-                    )
-                  ],
+                      Expanded(
+                        child: Divider(
+                          indent: 10,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-                SizedBox(height: 8),
+                SizedBox(height: 16),
                 FilterDateDropdown(),
                 SizedBox(height: 8),
                 Row(
@@ -1076,7 +1083,8 @@ class HeaderMonthlyReport extends StatelessWidget {
                     Expanded(
                       child: CardHeaderHistoryWpda(
                         title: 'HARI TERLEWAT',
-                        totalWpda: monthlyReport!.missedDaysTotal.toString(),
+                        totalWpda:
+                            monthlyReport!.missedDaysTotalThisMonth.toString(),
                         color: MyColor.colorRed,
                         onTap: () {},
                       ),

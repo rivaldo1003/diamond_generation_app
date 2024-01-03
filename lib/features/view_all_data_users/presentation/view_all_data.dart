@@ -11,6 +11,7 @@ import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/custom_dialog.dart';
+import 'package:diamond_generation_app/shared/widgets/placeholder_all_user.dart';
 import 'package:diamond_generation_app/shared/widgets/textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -76,13 +77,14 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
         ],
       ),
       body: FutureBuilder(
-        future: searchUserProvider.fetchData(
-            context, ApiConstants.getAllUser, (token == null) ? '' : token!),
+        future: Future.delayed(
+          Duration(seconds: 1),
+          () => searchUserProvider.fetchData(
+              context, ApiConstants.getAllUser, (token == null) ? '' : token!),
+        ),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
+            return PlaceholderAllUser();
           } else if (snapshot.hasError) {
             return Center(
               child: Column(
@@ -334,13 +336,30 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                             MyColor.whiteColor,
                                           ),
                                         ),
-                                        subtitle: Text(
-                                          userData.email,
-                                          style: MyFonts.customTextStyle(
-                                            13,
-                                            FontWeight.w500,
-                                            MyColor.greyText,
-                                          ),
+                                        subtitle: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              userData.email,
+                                              style: MyFonts.customTextStyle(
+                                                13,
+                                                FontWeight.w500,
+                                                MyColor.greyText,
+                                              ),
+                                            ),
+                                            (userData.dataWpda.isEmpty)
+                                                ? Text(
+                                                    'Belum pernah WPDA',
+                                                    style:
+                                                        MyFonts.customTextStyle(
+                                                      13,
+                                                      FontWeight.w500,
+                                                      MyColor.colorRed,
+                                                    ),
+                                                  )
+                                                : SizedBox()
+                                          ],
                                         ),
                                         leading: Stack(
                                           clipBehavior: Clip.none,
@@ -531,16 +550,7 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                   );
                                 },
                               )
-                            : Center(
-                                child: Text(
-                                  'No users found',
-                                  style: MyFonts.customTextStyle(
-                                    14,
-                                    FontWeight.w500,
-                                    MyColor.whiteColor,
-                                  ),
-                                ),
-                              ),
+                            : PlaceholderAllUser(),
                       ),
                     ),
                   ),

@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
+import 'package:diamond_generation_app/features/comment/presentation/comment_screen.dart';
+import 'package:diamond_generation_app/features/comment/presentation/my_bottom_sheet.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/presentation/edit_wpda.screen.dart';
@@ -274,10 +276,34 @@ class _CardWpdaState extends State<CardWpda> {
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              IconButton(
-                                onPressed: () {},
-                                icon: Icon(Icons.favorite_border_outlined),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () {},
+                                    icon: Icon(Icons.favorite_border_outlined),
+                                  ),
+                                  Text('1'),
+                                ],
                               ),
+                              SizedBox(width: 8),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () {
+                                      showModalBottomSheet(
+                                        isScrollControlled: true,
+                                        context: context,
+                                        builder: (context) {
+                                          return CommentScreen();
+                                        },
+                                      );
+                                    },
+                                    icon: Icon(Icons.comment),
+                                  ),
+                                  Text('1'),
+                                ],
+                              ),
+                              SizedBox(width: 12),
                               IconButton(
                                 onPressed: () {
                                   Navigator.push(context,
@@ -332,7 +358,30 @@ class _CardWpdaState extends State<CardWpda> {
                             ],
                           );
                         } else {
-                          return Container();
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () {},
+                                    icon: Icon(Icons.favorite_border_outlined),
+                                  ),
+                                  Text('1'),
+                                ],
+                              ),
+                              SizedBox(width: 8),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () {},
+                                    icon: Icon(Icons.comment),
+                                  ),
+                                  Text('1'),
+                                ],
+                              ),
+                            ],
+                          );
                         }
                       }
                     }),

@@ -120,20 +120,20 @@ class RegisterScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'Lupa kata sandi?',
-                        style: MyFonts.customTextStyle(
-                          14,
-                          FontWeight.w500,
-                          MyColor.primaryColor,
-                        ),
-                      ),
-                    ),
+                    // TextButton(
+                    //   onPressed: () {},
+                    //   child: Text(
+                    //     'Lupa kata sandi?',
+                    //     style: MyFonts.customTextStyle(
+                    //       14,
+                    //       FontWeight.w500,
+                    //       MyColor.primaryColor,
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
-                SizedBox(height: 12),
+                SizedBox(height: 24),
                 SizedBox(
                   height: 48,
                   width: MediaQuery.of(context).size.width,

@@ -1,5 +1,6 @@
 import 'package:diamond_generation_app/features/history_wpda/presentation/history_screen.dart';
 import 'package:diamond_generation_app/features/home/presentation/home_screen.dart';
+import 'package:diamond_generation_app/features/home/presentation/home_screen_user.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/profile/presentation/profile_screen.dart';
 import 'package:diamond_generation_app/features/wpda/presentation/wpda_screen.dart';
@@ -39,6 +40,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
     ProfileScreen(),
   ];
   List<Widget> bodyUser = [
+    HomeScreenUser(),
     WPDAScreen(),
     HistoryScreen(),
     ProfileScreen(),
@@ -104,6 +106,12 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
                   ),
                 ]
               : [
+                  BottomNavigationBarItem(
+                    label: 'Beranda',
+                    icon: (selected == 0)
+                        ? SvgPicture.asset('assets/icons/home_active.svg')
+                        : SvgPicture.asset('assets/icons/home_nonactive.svg'),
+                  ),
                   BottomNavigationBarItem(
                     label: 'WPDA',
                     icon: (selected == 0) ? Icon(Icons.book) : Icon(Icons.book),

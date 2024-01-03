@@ -6,6 +6,7 @@ import 'package:diamond_generation_app/core/services/profile/profile_api.dart';
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/detail_community/presentation/detail_community.dart';
 import 'package:diamond_generation_app/features/home/data/providers/home_provider.dart';
+import 'package:diamond_generation_app/features/home/presentation/home_screen.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/view_all_data_users/presentation/view_all_data.dart';
@@ -72,12 +73,12 @@ final List<Widget> imageSliders = imgList
         ))
     .toList();
 
-class HomeScreen extends StatefulWidget {
+class HomeScreenUser extends StatefulWidget {
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreenUser> createState() => _HomeScreenUserState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenUserState extends State<HomeScreenUser> {
   File? _image;
   final keyImageProfile = "image_profile";
 
@@ -346,22 +347,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: MediaQuery.of(context).size.width / 2.5,
                       child: Image.asset('assets/images/title.png'),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return ViewAllData();
-                        }));
-                      },
-                      child: Text(
-                        'Lihat semua\n pengguna',
-                        style: MyFonts.customTextStyle(
-                          12,
-                          FontWeight.bold,
-                          MyColor.colorLightBlue,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ],
@@ -422,224 +407,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       }).toList(),
                     ),
                   ),
-                  SizedBox(height: 16),
-                  FutureBuilder<Map<String, dynamic>>(
-                    future: getUserUsecase
-                        .getTotalNewUsers((token != null) ? token! : ''),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      } else {
-                        if (snapshot.hasData) {
-                          if (snapshot.data!.isNotEmpty ||
-                              snapshot.data != null) {
-                            var data = snapshot.data;
-                            var totalUser = data!['total_users'];
-                            var totalNewUser = data['total_new_users'];
-                            var totalUserWithWpda =
-                                data['total_user_with_wpda'];
-                            return Container(
-                              padding: EdgeInsets.only(
-                                top: 20,
-                                left: 20,
-                                right: 20,
-                                bottom: 30,
-                              ),
-                              decoration: BoxDecoration(
-                                // color: MyColor.colorLightBlue.withOpacity(0.7),
-                                color: MyColor.colorBlackBg,
-                                borderRadius: BorderRadius.circular(15),
-                                // border: Border.all(color: MyColor.whiteColor),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'DATA DG YOUTH',
-                                            style: MyFonts.customTextStyle(
-                                              20,
-                                              FontWeight.bold,
-                                              MyColor.whiteColor,
-                                            ),
-                                          ),
-                                          Text(
-                                            'Senin, 25 Desember 2023',
-                                            style: MyFonts.customTextStyle(
-                                              12,
-                                              FontWeight.w500,
-                                              MyColor.whiteColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Text(
-                                        'DIAMOND \nCOMMUNITY',
-                                        style: MyFonts.customTextStyle(
-                                          10,
-                                          FontWeight.bold,
-                                          MyColor.colorLightBlue,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 16),
-                                  Row(
-                                    children: [
-                                      CardBeranda(
-                                        title: 'Sudah WPDA',
-                                        subtitle1: '${totalUserWithWpda}',
-                                        subtitle2: ' / ${totalUser} ',
-                                        textColorSub2: Colors.grey[300],
-                                        description: 'Orang',
-                                      ),
-                                      SizedBox(width: 12),
-                                      CardBeranda(
-                                        title: 'Pengguna',
-                                        subtitle1: '${totalUser}',
-                                        subtitle2: ' + ${totalNewUser}',
-                                        textColorSub2: Colors.amber,
-                                        description:
-                                            'Jiwa Baru (1 bulan terakhir)',
-                                      ),
-                                    ],
-                                  ),
-                                  // SizedBox(height: 12),
-                                  // Row(
-                                  //   children: [
-                                  //     CardBeranda(
-                                  //       title: 'Komunitas',
-                                  //       subtitle1: '200',
-                                  //       subtitle2: ' / 260',
-                                  //       description: 'Orang',
-                                  //     ),
-                                  //     SizedBox(width: 12),
-                                  //     CardBeranda(
-                                  //       title: 'WPDA',
-                                  //       subtitle1: '240',
-                                  //       subtitle2: ' / 260',
-                                  //       description: 'Orang',
-                                  //     ),
-                                  //   ],
-                                  // ),
-                                ],
-                              ),
-                            );
-                          } else {
-                            return Center(
-                              child: Text('Data masih kosong'),
-                            );
-                          }
-                        } else {
-                          return Center(
-                            child: Text('No data'),
-                          );
-                        }
-                      }
-                    },
-                  ),
                 ],
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class CardBeranda extends StatelessWidget {
-  final String title;
-  final String subtitle1;
-  final String subtitle2;
-  final String description;
-  Color? textColorSub2;
-
-  CardBeranda({
-    Key? key,
-    required this.title,
-    required this.subtitle1,
-    required this.subtitle2,
-    required this.description,
-    this.textColorSub2,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        height: 130,
-        decoration: BoxDecoration(
-          color: MyColor.colorLightBlue.withOpacity(0.9),
-          // color: Colors.black,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () {},
-            splashColor: MyColor.primaryColor,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: MyFonts.customTextStyle(
-                      12,
-                      FontWeight.bold,
-                      MyColor.whiteColor,
-                    ),
-                  ),
-                  SizedBox(height: 2),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        subtitle1,
-                        style: MyFonts.customTextStyle(
-                          20,
-                          FontWeight.bold,
-                          MyColor.whiteColor,
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          subtitle2,
-                          style: MyFonts.customTextStyle(
-                            14,
-                            FontWeight.bold,
-                            textColorSub2,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    description,
-                    style: MyFonts.customTextStyle(
-                      12,
-                      FontWeight.w500,
-                      MyColor.whiteColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
