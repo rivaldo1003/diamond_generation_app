@@ -30,14 +30,13 @@ class WpdaUserScreen extends StatefulWidget {
 
 class _WpdaUserScreenState extends State<WpdaUserScreen> {
   String buildImageUrlWithStaticTimestamp(String? profilePicture) {
-    final staticTimestamp = DateTime.now().millisecondsSinceEpoch;
-
     if (profilePicture != null &&
         profilePicture.isNotEmpty &&
         profilePicture != 'null') {
-      return "${ApiConstants.baseUrlImage}/$profilePicture?timestamp=$staticTimestamp";
+      // Tambahkan timestamp sebagai parameter query string
+      return "${ApiConstants.baseUrlImage}/profile_pictures/$profilePicture?timestamp=${DateTime.now().millisecondsSinceEpoch}";
     } else {
-      return "${ApiConstants.baseUrlImage}/profile_pictures/dummy.jpg";
+      return "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
     }
   }
 
@@ -46,13 +45,16 @@ class _WpdaUserScreenState extends State<WpdaUserScreen> {
   @override
   void initState() {
     super.initState();
+    print('Halo : User ${widget.allUsers.profile!.profile_picture}');
+
     if (widget.allUsers.profile != null &&
         widget.allUsers.profile!.profile_picture != null &&
         widget.allUsers.profile!.profile_picture.isNotEmpty) {
       imgUrl = buildImageUrlWithStaticTimestamp(
           widget.allUsers.profile!.profile_picture);
     } else {
-      imgUrl = "${ApiConstants.baseUrlImage}/profile_pictures/dummy.jpg";
+      imgUrl =
+          "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
     }
   }
 
@@ -77,7 +79,7 @@ class _WpdaUserScreenState extends State<WpdaUserScreen> {
 
     return Scaffold(
       appBar: AppBarWidget(
-        title: 'WPDA ${widget.allUsers.fullName}',
+        title: 'WPDA ${widget.allUsers.profile}',
       ),
       body: Column(
         children: [
@@ -277,11 +279,10 @@ class _WpdaUserScreenState extends State<WpdaUserScreen> {
                                                       )
                                                     : CircleAvatar(
                                                         backgroundImage:
-                                                            CachedNetworkImageProvider(
-                                                                buildImageUrlWithStaticTimestamp(widget
-                                                                    .allUsers
-                                                                    .profile!
-                                                                    .profile_picture)),
+                                                            NetworkImage(widget
+                                                                .allUsers
+                                                                .profile!
+                                                                .profile_picture),
                                                         backgroundColor:
                                                             Colors.white,
                                                         radius: 20,
@@ -435,13 +436,9 @@ class _WpdaUserScreenState extends State<WpdaUserScreen> {
                                                   radius: 20,
                                                 )
                                               : CircleAvatar(
-                                                  backgroundImage:
-                                                      CachedNetworkImageProvider(
-                                                          buildImageUrlWithStaticTimestamp(
-                                                              widget
-                                                                  .allUsers
-                                                                  .profile!
-                                                                  .profile_picture)),
+                                                  backgroundImage: NetworkImage(
+                                                      widget.allUsers.profile!
+                                                          .profile_picture),
                                                   backgroundColor: Colors.white,
                                                   radius: 20,
                                                 ),

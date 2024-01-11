@@ -10,13 +10,15 @@ class TextFieldWidget extends StatelessWidget {
   String? Function(String?)? validator;
   String? Function(String?)? onChanged;
   void Function(String)? onFieldSubmitted;
-  Icon? suffixIcon;
+  Widget? suffixIcon;
   FocusNode? focusNode;
   void Function()? onTap;
   bool? readOnly;
   Color? textColor;
   int? maxLines;
   TextInputType? keyboardType;
+  Color? fillColor;
+  BorderSide? borderSide;
 
   TextFieldWidget({
     super.key,
@@ -34,6 +36,8 @@ class TextFieldWidget extends StatelessWidget {
     this.maxLines,
     this.keyboardType,
     this.onFieldSubmitted,
+    this.fillColor,
+    this.borderSide,
   });
 
   @override
@@ -60,6 +64,11 @@ class TextFieldWidget extends StatelessWidget {
         filled: true,
         errorText: errorText,
         hintText: hintText,
+        errorStyle: MyFonts.customTextStyle(
+          10,
+          FontWeight.w500,
+          MyColor.colorRed.withOpacity(0.9),
+        ),
         hintStyle: (textColor == null)
             ? MyFonts.customTextStyle(
                 14,
@@ -72,14 +81,14 @@ class TextFieldWidget extends StatelessWidget {
                 textColor!,
               ),
         suffixIcon: suffixIcon,
-        fillColor: Colors.white,
+        fillColor: (fillColor == null) ? Colors.white : fillColor,
         contentPadding: EdgeInsets.all(10),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide.none,
+          borderSide: (borderSide == null) ? BorderSide.none : borderSide!,
           borderRadius: BorderRadius.circular(10),
         ),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide.none,
+          borderSide: (borderSide == null) ? BorderSide.none : borderSide!,
           borderRadius: BorderRadius.circular(10),
         ),
       ),

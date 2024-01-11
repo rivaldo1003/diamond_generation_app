@@ -18,6 +18,8 @@ abstract class UserRepository {
       String userId, String token);
   Future<Map<String, dynamic>> getTotalNewUsers(String token);
   Future<ApiResponse> getMonthlyDataForAllUsers(String token);
+  Future<void> verifyUser(
+      BuildContext context, Map<String, dynamic> body, String token);
 }
 
 class UserRepositoryImpl implements UserRepository {
@@ -88,5 +90,11 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<ApiResponse> getMonthlyDataForAllUsers(String token) async {
     return await userApi.getMonthlyDataForAllUsers(token);
+  }
+
+  @override
+  Future<void> verifyUser(
+      BuildContext context, Map<String, dynamic> body, String token) async {
+    await userApi.verifyUser(context, body, token);
   }
 }

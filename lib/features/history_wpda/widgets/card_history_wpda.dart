@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
+import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/widgets/prayer_abbreviation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -10,10 +12,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class CardHistoryWpda extends StatefulWidget {
   final HistoryWpda historyWpda;
+  final String profilePictures;
 
   const CardHistoryWpda({
     super.key,
     required this.historyWpda,
+    required this.profilePictures,
   });
 
   @override
@@ -48,9 +52,25 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
     }
   }
 
+  late String imgUrl;
+  String buildImageUrlWithStaticTimestamp(String? profilePicture) {
+    if (profilePicture != null &&
+        profilePicture.isNotEmpty &&
+        profilePicture != 'null') {
+      // Tambahkan timestamp sebagai parameter query string
+      return Uri.https(
+              'gsjasungaikehidupan.com',
+              '/storage/profile_pictures/$profilePicture',
+              {'timestamp': DateTime.now().millisecondsSinceEpoch.toString()})
+          .toString();
+    } else {
+      return "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
+    }
+  }
+
   @override
   void initState() {
-    loadImage();
+    imgUrl = buildImageUrlWithStaticTimestamp(widget.profilePictures);
     super.initState();
   }
 
@@ -68,19 +88,21 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
     String dateResult = DateFormat('dd MMM yy')
         .format(DateTime.parse(widget.historyWpda.createdAt));
 
-    // String selectedPrayers = historyWpda.selectedPrayers;
+    String selectedPrayers = widget.historyWpda.doaTabernakel;
 
-    // List<String> abbreviations = [];
+    List<String> abbreviations = [];
 
-    // if (selectedPrayers.isEmpty || selectedPrayers == null) {
-    //   abbreviations.add('Tidak Berdoa');
-    // } else {
-    //   List<String> prayersList = selectedPrayers.split(',');
-    //   abbreviations =
-    //       prayersList.map((prayer) => getAbbreviation(prayer)).toList();
-    // }
+    if (selectedPrayers.isEmpty || selectedPrayers == null) {
+      abbreviations.add('Tidak Berdoa');
+    } else {
+      List<String> prayersList = selectedPrayers.split(',');
+      abbreviations =
+          prayersList.map((prayer) => getAbbreviation(prayer)).toList();
+    }
 
-    // String selectedItemsString = abbreviations.join(', ');
+    String selectedItemsString = abbreviations.join(', ');
+    String filePath = widget.profilePictures;
+    FileImage fileImage = FileImage(File(filePath));
 
     return GestureDetector(
       onTap: () {
@@ -154,7 +176,8 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                           ),
                         ),
                         SizedBox(width: 8),
-                        (_image == null)
+                        (widget.profilePictures == null ||
+                                widget.profilePictures.isEmpty)
                             ? Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
@@ -177,9 +200,14 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                                     width: 2.0, // Lebar border
                                   ),
                                 ),
-                                child: CircleAvatar(
-                                  backgroundImage: FileImage(_image!),
-                                ),
+                                child: (widget.profilePictures.startsWith(
+                                        '/data/user/0/com.example.diamond_generation_app/'))
+                                    ? CircleAvatar(
+                                        backgroundImage: fileImage,
+                                      )
+                                    : CircleAvatar(
+                                        backgroundImage: NetworkImage(imgUrl),
+                                      ),
                               ),
                       ],
                     ),
@@ -188,68 +216,70 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
               ),
               content: Container(
                 width: MediaQuery.of(context).size.width,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      widget.historyWpda.readingBook,
-                      style: MyFonts.customTextStyle(
-                        14,
-                        FontWeight.w500,
-                        MyColor.whiteColor,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        widget.historyWpda.verseContent,
+                        style: MyFonts.customTextStyle(
+                          14,
+                          FontWeight.w500,
+                          MyColor.whiteColor,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 8),
-                    Divider(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'PT : ',
-                          style: MyFonts.customTextStyle(
-                            14,
-                            FontWeight.bold,
-                            MyColor.colorLightBlue,
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            widget.historyWpda.messageOfGod,
+                      SizedBox(height: 8),
+                      Divider(),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'PT : ',
                             style: MyFonts.customTextStyle(
                               14,
-                              FontWeight.w500,
-                              MyColor.whiteColor,
+                              FontWeight.bold,
+                              MyColor.colorLightBlue,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'AP : ',
-                          style: MyFonts.customTextStyle(
-                            14,
-                            FontWeight.bold,
-                            MyColor.colorLightBlue,
+                          Expanded(
+                            child: Text(
+                              widget.historyWpda.messageOfGod,
+                              style: MyFonts.customTextStyle(
+                                14,
+                                FontWeight.w500,
+                                MyColor.whiteColor,
+                              ),
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            widget.historyWpda.applicationInLife,
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'AP : ',
                             style: MyFonts.customTextStyle(
                               14,
-                              FontWeight.w500,
-                              MyColor.whiteColor,
+                              FontWeight.bold,
+                              MyColor.colorLightBlue,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          Expanded(
+                            child: Text(
+                              widget.historyWpda.applicationInLife,
+                              style: MyFonts.customTextStyle(
+                                14,
+                                FontWeight.w500,
+                                MyColor.whiteColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               actions: [
@@ -309,7 +339,8 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      (_image == null)
+                      (widget.profilePictures == null ||
+                              widget.profilePictures.isEmpty)
                           ? Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
@@ -332,9 +363,14 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                                   width: 2.0, // Lebar border
                                 ),
                               ),
-                              child: CircleAvatar(
-                                backgroundImage: FileImage(_image!),
-                              ),
+                              child: (widget.profilePictures.startsWith(
+                                      '/data/user/0/com.example.diamond_generation_app/'))
+                                  ? CircleAvatar(
+                                      backgroundImage: fileImage,
+                                    )
+                                  : CircleAvatar(
+                                      backgroundImage: NetworkImage(imgUrl),
+                                    ),
                             ),
                       SizedBox(width: 12),
                       Expanded(
@@ -461,8 +497,9 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                         ),
                       ),
                       Flexible(
+                        flex: 2,
                         child: Text(
-                          '',
+                          selectedItemsString,
                           textAlign: TextAlign.right,
                           style: MyFonts.customTextStyle(
                             12,

@@ -1,7 +1,9 @@
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
+import 'package:diamond_generation_app/features/whatsapp_launcher/presentation/whatsapp_launcher.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,6 +12,7 @@ class DetailUser extends StatefulWidget {
   final String title;
   final String value;
   final bool? readOnly;
+  final Widget? rightIcon;
   TextEditingController? controller;
   TextInputType? keyboardType;
 
@@ -21,6 +24,7 @@ class DetailUser extends StatefulWidget {
     this.readOnly,
     this.controller,
     this.keyboardType,
+    this.rightIcon,
   });
 
   @override
@@ -174,14 +178,36 @@ class _DetailUserState extends State<DetailUser> {
               Expanded(
                 child: Padding(
                   padding: EdgeInsets.only(left: 24),
-                  child: Text(
-                    widget.value,
-                    overflow: TextOverflow.ellipsis,
-                    style: MyFonts.customTextStyle(
-                      14,
-                      FontWeight.w500,
-                      MyColor.greyText,
-                    ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.value,
+                          overflow: TextOverflow.ellipsis,
+                          style: MyFonts.customTextStyle(
+                            14,
+                            FontWeight.w500,
+                            MyColor.greyText,
+                          ),
+                        ),
+                      ),
+                      (widget.title == 'No Telepon')
+                          ? Expanded(
+                              child: IconButton(
+                                  onPressed: () {
+                                    WhatsAppLauncher.openWhatsApp(
+                                        phoneNumber: "+62 ${widget.value} ",
+                                        message:
+                                            "Ayo, jangan lupa WPDA. Terus bertumbuh ya");
+                                  },
+                                  icon: SvgPicture.asset(
+                                    'assets/icons/whatsapp.svg',
+                                    height: 24,
+                                    width: 24,
+                                  )),
+                            )
+                          : SizedBox(),
+                    ],
                   ),
                 ),
               )

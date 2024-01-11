@@ -99,6 +99,7 @@ class HistoryWpda {
   final String verseContent;
   final String messageOfGod;
   final String applicationInLife;
+  final String doaTabernakel;
   final String createdAt;
   final int userId;
   final Writer writer;
@@ -109,6 +110,7 @@ class HistoryWpda {
     required this.verseContent,
     required this.messageOfGod,
     required this.applicationInLife,
+    required this.doaTabernakel,
     required this.createdAt,
     required this.userId,
     required this.writer,
@@ -121,6 +123,7 @@ class HistoryWpda {
       verseContent: json['verse_content'],
       messageOfGod: json['message_of_god'],
       applicationInLife: json['application_in_life'],
+      doaTabernakel: json['doa_tabernakel'],
       createdAt: json['created_at'],
       userId: json['user_id'],
       writer: Writer.fromJson(json['writer']),

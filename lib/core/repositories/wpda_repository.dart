@@ -14,6 +14,8 @@ abstract class WpdaRepository {
   Future<History> getAllWpdaByUserId(String userId, String token);
   Future<MonthlyReport> fetchWpdaByMonth(
       BuildContext context, String token, String userId, int month, int year);
+  Future<void> likeWpda(int userId, int wpdaId, String token);
+  Future<void> unlikeWpda(int userId, int wpdaId, String token);
 }
 
 class WpdaRepositoryImpl implements WpdaRepository {
@@ -59,5 +61,15 @@ class WpdaRepositoryImpl implements WpdaRepository {
     int year,
   ) async {
     return await wpdaApi.fetchWpdaByMonth(context, token, userId, month, year);
+  }
+
+  @override
+  Future<void> likeWpda(int userId, int wpdaId, String token) async {
+    await wpdaApi.likeWpda(userId, wpdaId, token);
+  }
+
+  @override
+  Future<void> unlikeWpda(int userId, int wpdaId, String token) async {
+    await wpdaApi.unlikeWpda(userId, wpdaId, token);
   }
 }

@@ -3,6 +3,7 @@ import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/detail_community/data/providers/user_data_provider.dart';
 import 'package:diamond_generation_app/features/detail_community/data/widgets/show_modal_bottom_sheet.dart';
 import 'package:diamond_generation_app/features/detail_person/presentation/detail_person_screen.dart';
+import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
 import 'package:diamond_generation_app/features/login/data/utils/user_controller.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
@@ -55,7 +56,7 @@ class _DetailCommunityState extends State<DetailCommunity> {
             final dataUser = snapshot.data;
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             } else {
               if (snapshot.hasData) {

@@ -2,26 +2,24 @@ import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
 import 'package:diamond_generation_app/features/history_wpda/data/detail_history_provider.dart';
-import 'package:diamond_generation_app/features/history_wpda/widgets/card_history_wpda.dart';
 import 'package:diamond_generation_app/features/history_wpda/widgets/card_monthly_report.dart';
 import 'package:diamond_generation_app/features/history_wpda/widgets/month_drop_down.dart';
-import 'package:diamond_generation_app/features/history_wpda/widgets/placeholder_ranking.dart';
 import 'package:diamond_generation_app/features/history_wpda/widgets/year_drop_down.dart';
-import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
-import 'package:diamond_generation_app/shared/widgets/button.dart';
 import 'package:diamond_generation_app/shared/widgets/placeholder_card_wpda.dart';
-import 'package:diamond_generation_app/shared/widgets/placeholder_history.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailHistoryWPDA extends StatefulWidget {
+  final String id;
+
+  const DetailHistoryWPDA({super.key, required this.id});
   @override
   State<DetailHistoryWPDA> createState() => _DetailHistoryWPDAState();
 }
@@ -78,6 +76,7 @@ class _DetailHistoryWPDAState extends State<DetailHistoryWPDA> {
     String monthName = detailHistoryProvider.selectedMonth;
     int monthNumber = MonthConverter.monthNameToNumber(monthName);
     int currentYear = int.parse(_getCurrentYear());
+    print('ID USER :${widget.id}');
 
     return Scaffold(
       appBar: AppBarWidget(title: 'Detail History WPDA'),
@@ -87,7 +86,7 @@ class _DetailHistoryWPDAState extends State<DetailHistoryWPDA> {
           () => getWpdaUsecase.fetchWpdaByMonth(
               context,
               (token == null) ? '' : token!,
-              (userId == null) ? '' : userId!,
+              widget.id,
               monthNumber,
               currentYear),
         ),
@@ -148,17 +147,20 @@ class _DetailHistoryWPDAState extends State<DetailHistoryWPDA> {
                               output: dataWpda!.totalWpda.toString()),
                           SizedBox(height: 2),
                           DetailHistoryItem(
-                              title: 'Nilai', output: dataWpda.grade),
+                            title: 'Nilai',
+                            output: dataWpda.grade,
+                          ),
                           SizedBox(height: 2),
                           DetailHistoryItem(
                             title: 'Hari Terlewat',
                             output:
                                 dataWpda.missedDaysTotalThisMonth.toString(),
-                            textColor: MyColor.colorRed,
+                            textColor: MyColor.whiteColor,
+                            bgColor: MyColor.colorRed,
                           ),
-                          SizedBox(height: 2),
-                          DetailHistoryItem(
-                              title: 'Doa Tabernakel', output: '-'),
+                          // SizedBox(height: 2),
+                          // DetailHistoryItem(
+                          //     title: 'Doa Tabernakel', output: '-'),
                         ],
                       ),
                     ),
@@ -207,74 +209,82 @@ class _DetailHistoryWPDAState extends State<DetailHistoryWPDA> {
                             ],
                           ),
                         ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
-                    ),
-                    decoration: BoxDecoration(
-                        color: MyColor.primaryColor,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(10),
-                        )),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Ranking',
-                              style: MyFonts.customTextStyle(
-                                18,
-                                FontWeight.bold,
-                                MyColor.whiteColor,
-                              ),
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  '1',
-                                  style: MyFonts.customTextStyle(
-                                    18,
-                                    FontWeight.bold,
-                                    MyColor.whiteColor,
-                                  ),
-                                ),
-                                Text(
-                                  ' / ${dataWpda.totalUsers}',
-                                  style: MyFonts.customTextStyle(
-                                    12,
-                                    FontWeight.w500,
-                                    MyColor.whiteColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8),
-                        DetailHistoryItem(
-                          title: 'Total Semua WPDA',
-                          output: dataWpda.totalAllWpda.toString(),
-                          textColor: MyColor.whiteColor,
-                        ),
-                        SizedBox(height: 2),
-                        DetailHistoryItem(
-                          title: 'Rata-Rata Nilai',
-                          output: 'A',
-                          textColor: MyColor.whiteColor,
-                        ),
-                        SizedBox(height: 2),
-                        DetailHistoryItem(
-                          title: 'Total Hari Terlewat',
-                          output: dataWpda.missedDaysTotal.toString(),
-                          textColor: MyColor.colorRed,
-                        ),
-                      ],
-                    ),
-                  ),
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(
+                  //     horizontal: 20,
+                  //     vertical: 20,
+                  //   ),
+                  //   decoration: BoxDecoration(
+                  //       color: MyColor.primaryColor,
+                  //       borderRadius: BorderRadius.vertical(
+                  //         top: Radius.circular(10),
+                  //       )),
+                  //   child: Column(
+                  //     crossAxisAlignment: CrossAxisAlignment.start,
+                  //     children: [
+                  //       Text(
+                  //         'Data Lengkap User',
+                  //         style: MyFonts.customTextStyle(
+                  //           18,
+                  //           FontWeight.bold,
+                  //           MyColor.whiteColor,
+                  //         ),
+                  //       ),
+                  //       // Row(
+                  //       //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //       //   children: [
+                  //       //     Text(
+                  //       //       'Ranking',
+                  //       //       style: MyFonts.customTextStyle(
+                  //       //         18,
+                  //       //         FontWeight.bold,
+                  //       //         MyColor.whiteColor,
+                  //       //       ),
+                  //       //     ),
+                  //       //     Row(
+                  //       //       crossAxisAlignment: CrossAxisAlignment.end,
+                  //       //       children: [
+                  //       //         Text(
+                  //       //           '1',
+                  //       //           style: MyFonts.customTextStyle(
+                  //       //             18,
+                  //       //             FontWeight.bold,
+                  //       //             MyColor.whiteColor,
+                  //       //           ),
+                  //       //         ),
+                  //       //         Text(
+                  //       //           ' / ${dataWpda.totalUsers}',
+                  //       //           style: MyFonts.customTextStyle(
+                  //       //             12,
+                  //       //             FontWeight.w500,
+                  //       //             MyColor.whiteColor,
+                  //       //           ),
+                  //       //         ),
+                  //       //       ],
+                  //       //     ),
+                  //       //   ],
+                  //       // ),
+                  //       SizedBox(height: 8),
+                  //       DetailHistoryItem(
+                  //         title: 'Total Semua WPDA',
+                  //         output: dataWpda.totalAllWpda.toString(),
+                  //         textColor: MyColor.whiteColor,
+                  //       ),
+                  //       // SizedBox(height: 2),
+                  //       // DetailHistoryItem(
+                  //       //   title: 'Grade bulan',
+                  //       //   output: dataWpda.grade,
+                  //       //   textColor: MyColor.whiteColor,
+                  //       // ),
+                  //       SizedBox(height: 2),
+                  //       DetailHistoryItem(
+                  //         title: 'Total Hari Terlewat',
+                  //         output: dataWpda.missedDaysTotal.toString(),
+                  //         textColor: MyColor.colorRed,
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               );
             } else if (!snapshot.hasData || snapshot.data == null) {
@@ -295,12 +305,14 @@ class DetailHistoryItem extends StatelessWidget {
   final String title;
   final String output;
   Color? textColor;
+  Color? bgColor;
 
   DetailHistoryItem({
     super.key,
     required this.title,
     required this.output,
     this.textColor,
+    this.bgColor,
   });
 
   @override
@@ -311,17 +323,27 @@ class DetailHistoryItem extends StatelessWidget {
         Text(
           title,
           style: MyFonts.customTextStyle(
-            14,
+            12,
             FontWeight.w500,
             MyColor.whiteColor,
           ),
         ),
-        Text(
-          output,
-          style: MyFonts.customTextStyle(
-            14,
-            FontWeight.bold,
-            (textColor != null) ? textColor : MyColor.colorLightBlue,
+        Container(
+          width: 30,
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: (bgColor == null) ? MyColor.primaryColor : bgColor,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: Center(
+            child: Text(
+              output,
+              style: MyFonts.customTextStyle(
+                12,
+                FontWeight.bold,
+                (textColor != null) ? textColor : MyColor.whiteColor,
+              ),
+            ),
           ),
         ),
       ],

@@ -42,4 +42,12 @@ class GetWpdaUsecase {
     return await wpdaRepository.fetchWpdaByMonth(
         context, token, userId, month, year);
   }
+
+  Future<void> likeWpda(int userId, int wpdaId, String token) async {
+    await wpdaRepository.likeWpda(userId, wpdaId, token);
+  }
+
+  Future<void> unlikeWpda(int userId, int wpdaId, String token) async {
+    await wpdaRepository.unlikeWpda(userId, wpdaId, token);
+  }
 }

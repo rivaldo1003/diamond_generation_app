@@ -9,12 +9,14 @@ class ButtonWidget extends StatelessWidget {
   final String title;
   void Function()? onPressed;
   IconData? icon;
+  String? logo;
   Color? color;
 
   ButtonWidget({
     this.profileProvider,
     this.onPressed,
     this.icon,
+    this.logo,
     this.color,
     required this.title,
   });
@@ -34,6 +36,14 @@ class ButtonWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             (icon != null) ? Icon(icon) : Container(),
+            SizedBox(width: 8),
+            (logo != null)
+                ? Container(
+                    height: 20,
+                    width: 20,
+                    child: Image.asset(logo!),
+                  )
+                : Container(),
             SizedBox(width: 8),
             Text(
               title,

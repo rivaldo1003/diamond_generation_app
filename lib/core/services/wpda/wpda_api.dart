@@ -3,7 +3,9 @@ import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
+import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/add_wpda_provider.dart';
+import 'package:diamond_generation_app/features/wpda/data/providers/bible_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/edit_wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
@@ -25,104 +27,131 @@ class WpdaApi {
   Future<void> createWpda(
       Map<String, dynamic> body, BuildContext context, String token) async {
     final wpdaProvider = Provider.of<WpdaProvider>(context, listen: false);
-    final checkBoxState = Provider.of<AddWpdaWProvider>(context, listen: false);
+    final bibleProvider = Provider.of<BibleProvider>(context, listen: false);
     final headers = {
       "Content-Type": "application/json",
       'Authorization': 'Bearer $token',
     };
-    final response = await http.post(
-      Uri.parse(ApiConstants.createWpdaUrl),
-      headers: headers,
-      body: json.encode(body),
-    );
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? role = prefs.getString(SharedPreferencesManager.keyRole);
-      if (data['success']) {
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            });
-        Future.delayed(Duration(seconds: 2), () {
-          Navigator.pop(context);
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) {
-              return BottomNavigationPage(
-                index: (role == "admin") ? 1 : 0,
-              );
-            }),
-            (route) => false,
-          );
-          wpdaProvider.readingBookController.text = '';
-          wpdaProvider.verseContentController.text = '';
-          wpdaProvider.messageOfGodController.text = '';
-          wpdaProvider.applicationInLifeController.text = '';
-          // checkBoxState.selectedItems.clear();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: MyColor.colorGreen,
-              content: Text(
-                '${data['message']}',
-                style: MyFonts.customTextStyle(
-                  14,
-                  FontWeight.w500,
-                  MyColor.whiteColor,
-                ),
-              ),
-            ),
-          );
-        });
+
+    try {
+      final response = await http.post(
+        Uri.parse(ApiConstants.createWpdaUrl),
+        headers: headers,
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        _showSuccessSnackBar(context, wpdaProvider, bibleProvider, data);
+      } else if (response.statusCode == 400) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        _handleError(context, wpdaProvider, data['message'], MyColor.colorRed);
+      } else {
+        _handleError(
+            context, wpdaProvider, 'Gagal membuat WPDA', MyColor.colorRed);
       }
-    } else if (response.statusCode == 400) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? role = prefs.getString(SharedPreferencesManager.keyRole);
-      final data = json.decode(response.body);
-      showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          });
-      Future.delayed(Duration(seconds: 2), () {
-        Navigator.pop(context);
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) {
-            return BottomNavigationPage(
-              index: (role == "admin") ? 1 : 0,
-            );
-          }),
-          (route) => false,
+    } catch (e) {
+      _handleError(
+          context, wpdaProvider, 'Terjadi kesalahan: $e', MyColor.colorRed);
+    }
+  }
+
+  void _showSuccessSnackBar(BuildContext context, WpdaProvider wpdaProvider,
+      BibleProvider bibleProvider, Map<String, dynamic> data) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? role = prefs.getString(SharedPreferencesManager.keyRole);
+
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) {
+        return Center(
+          child: CoolLoading(),
         );
-        wpdaProvider.readingBookController.text = '';
-        wpdaProvider.verseContentController.text = '';
-        wpdaProvider.messageOfGodController.text = '';
-        wpdaProvider.applicationInLifeController.text = '';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: MyColor.colorRed,
-            content: Text(
-              '${data['message']}',
-              style: MyFonts.customTextStyle(
-                14,
-                FontWeight.w500,
-                MyColor.whiteColor,
-              ),
+      },
+    );
+
+    Future.delayed(Duration(seconds: 2), () {
+      Navigator.pop(context);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) {
+          return BottomNavigationPage(
+            index: (role == "admin") ? 1 : 0,
+          );
+        }),
+        (route) => false,
+      );
+
+      wpdaProvider.readingBookController.text = '';
+      wpdaProvider.verseContentController.text = '';
+      wpdaProvider.messageOfGodController.text = '';
+      wpdaProvider.applicationInLifeController.text = '';
+      bibleProvider.startVerseController.text = '';
+      bibleProvider.endVerseController.text = '';
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: MyColor.colorGreen,
+          content: Text(
+            '${data['message']}',
+            style: MyFonts.customTextStyle(
+              14,
+              FontWeight.w500,
+              MyColor.whiteColor,
             ),
           ),
+        ),
+      );
+    });
+  }
+
+  void _handleError(BuildContext context, WpdaProvider wpdaProvider,
+      String errorMessage, Color snackBarColor) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? role = prefs.getString(SharedPreferencesManager.keyRole);
+
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) {
+        return Center(
+          child: CoolLoading(),
         );
-      });
-    } else {
-      throw Exception('Failed to create WPDA');
-    }
+      },
+    );
+
+    Future.delayed(Duration(seconds: 2), () {
+      Navigator.pop(context);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) {
+          return BottomNavigationPage(
+            index: (role == "admin") ? 1 : 0,
+          );
+        }),
+        (route) => false,
+      );
+
+      wpdaProvider.readingBookController.text = '';
+      wpdaProvider.verseContentController.text = '';
+      wpdaProvider.messageOfGodController.text = '';
+      wpdaProvider.applicationInLifeController.text = '';
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: snackBarColor,
+          content: Text(
+            errorMessage,
+            style: MyFonts.customTextStyle(
+              14,
+              FontWeight.w500,
+              MyColor.whiteColor,
+            ),
+          ),
+        ),
+      );
+    });
   }
 
   Future<List<WPDA>> getAllWpda(String token) async {
@@ -169,7 +198,7 @@ class WpdaApi {
             context: context,
             builder: (context) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             });
         Future.delayed(Duration(seconds: 2), () {
@@ -206,7 +235,7 @@ class WpdaApi {
             context: context,
             builder: (context) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             });
         Future.delayed(Duration(seconds: 2), () {
@@ -269,7 +298,7 @@ class WpdaApi {
               context: context,
               builder: (context) {
                 return Center(
-                  child: CircularProgressIndicator(),
+                  child: CoolLoading(),
                 );
               });
           Future.delayed(Duration(seconds: 2), () {
@@ -308,7 +337,7 @@ class WpdaApi {
             context: context,
             builder: (context) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             });
         Future.delayed(Duration(seconds: 2), () {
@@ -381,6 +410,40 @@ class WpdaApi {
     } else {
       throw Exception(
           'Failed to load history data. Status code: ${response.statusCode}');
+    }
+  }
+
+  Future<void> likeWpda(int userId, int wpdaId, String token) async {
+    final url = Uri.parse('${ApiConstants.baseUrl}/like/$userId/$wpdaId');
+    final headers = {
+      "Content-Type": "application/json",
+      'Authorization': 'Bearer $token',
+    };
+    final response = await http.post(
+      url,
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      print('Success connect likeWpda API');
+    } else {
+      throw Exception('Failed to connect likeWPDA API');
+    }
+  }
+
+  Future<void> unlikeWpda(int userId, int wpdaId, String token) async {
+    final url = Uri.parse('${ApiConstants.baseUrl}/unlike/$userId/$wpdaId');
+    final headers = {
+      "Content-Type": "application/json",
+      'Authorization': 'Bearer $token',
+    };
+    final response = await http.delete(
+      url,
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      print('Success connect unlikeWpda API');
+    } else {
+      throw Exception('Failed to connect unlikeWPDA API');
     }
   }
 }

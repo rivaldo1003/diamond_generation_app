@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
@@ -6,8 +8,11 @@ import 'package:diamond_generation_app/features/history_wpda/presentation/detail
 import 'package:diamond_generation_app/features/history_wpda/widgets/card_history_wpda.dart';
 import 'package:diamond_generation_app/features/history_wpda/widgets/card_monthly_report.dart';
 import 'package:diamond_generation_app/features/history_wpda/widgets/filter_date_dropdown.dart';
+import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
+import 'package:diamond_generation_app/features/loading_diamond/loading_diamond.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
+import 'package:diamond_generation_app/features/wpda/presentation/add_wpda.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
@@ -23,11 +28,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 class HistoryScreen extends StatefulWidget {
   String? id;
   String? fullName;
+  String? profilePictures;
 
   HistoryScreen({
     super.key,
     this.id,
     this.fullName,
+    this.profilePictures,
   });
   @override
   State<HistoryScreen> createState() => _HistoryScreenState();
@@ -35,7 +42,6 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   String? token;
-
   Future getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -43,10 +49,41 @@ class _HistoryScreenState extends State<HistoryScreen> {
     });
   }
 
+  late String url;
+  String? urlProfilePictures; // Sesuaikan dengan jenis data yang sesuai
+
+  File? _image;
+  final keyImageProfile = "image_profile";
+
+  Future<void> loadImage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? imagePath = prefs.getString(keyImageProfile);
+    if (imagePath != null && imagePath.isNotEmpty) {
+      setState(() {
+        _image = File(imagePath);
+      });
+    }
+  }
+
+  void changeUrl() {
+    if (widget.profilePictures != null && widget.profilePictures!.isNotEmpty) {
+      url = widget.profilePictures!;
+      urlProfilePictures = url.replaceAll("public/", "");
+    } else {
+      // Jika _image tidak null, dapatkan path-nya
+      if (_image != null) {
+        urlProfilePictures = _image?.path;
+      }
+    }
+  }
+
   @override
   void initState() {
+    loadImage().then((value) {
+      print('IMAGE path : ${(_image != null) ? _image!.path : 'No data'}');
+    });
+    changeUrl();
     getToken();
-
     super.initState();
   }
 
@@ -63,7 +100,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         builder: (context, value, _) {
           if (value.userId == null) {
             value.loadUserId();
-            return Center(child: CircularProgressIndicator());
+            return Center(
+              child: CoolLoading(),
+            );
           } else {
             DateTime now = DateTime.now();
             var currentMonth = now.month;
@@ -143,6 +182,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           children: [
                             HeaderMonthlyReport(
                               monthlyReport: monthlyReport,
+                              id: (widget.id == null)
+                                  ? value.userId!
+                                  : widget.id!,
                             ),
                             Expanded(
                               child: Column(
@@ -164,6 +206,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       ),
                                     ),
                                   ),
+                                  SizedBox(height: 8),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) {
+                                        return AddWPDAForm();
+                                      }));
+                                    },
+                                    child: Text(
+                                      'Mulai WPDA',
+                                      style: MyFonts.customTextStyle(
+                                        14,
+                                        FontWeight.w500,
+                                        MyColor.colorLightBlue,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -175,22 +234,33 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 .compareTo(DateTime.parse(a.createdAt)));
                         return Column(
                           children: [
-                            HeaderMonthlyReport(monthlyReport: monthlyReport),
+                            HeaderMonthlyReport(
+                              monthlyReport: monthlyReport,
+                              id: (widget.id == null)
+                                  ? value.userId!
+                                  : widget.id!,
+                            ),
                             Expanded(
-                                child: ListView.builder(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 4,
-                              ),
-                              // controller: _scrollController,
-                              itemCount: monthlyReport.data.length,
-                              itemBuilder: (context, index) {
-                                final monthlyReportData =
-                                    monthlyReport.data[index];
-                                return CardMonthlyReport(
-                                  reportData: monthlyReportData,
-                                );
+                                child: RefreshIndicator(
+                              onRefresh: () async {
+                                wpdaProvider.refreshWpdaHistory(
+                                    value.userId!, token!);
                               },
+                              child: ListView.builder(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 4,
+                                ),
+                                // controller: _scrollController,
+                                itemCount: monthlyReport.data.length,
+                                itemBuilder: (context, index) {
+                                  final monthlyReportData =
+                                      monthlyReport.data[index];
+                                  return CardMonthlyReport(
+                                    reportData: monthlyReportData,
+                                  );
+                                },
+                              ),
                             ))
                           ],
                         );
@@ -293,6 +363,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       ),
                                     ),
                                   ),
+                                  SizedBox(height: 8),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) {
+                                        return AddWPDAForm();
+                                      }));
+                                    },
+                                    child: Text(
+                                      'Mulai WPDA',
+                                      style: MyFonts.customTextStyle(
+                                        14,
+                                        FontWeight.w500,
+                                        MyColor.colorLightBlue,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -313,20 +400,31 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   },
                                   child: (historyProvider.selectedTanggal ==
                                           'Semua')
-                                      ? ListView.builder(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 4,
+                                      ? RefreshIndicator(
+                                          onRefresh: () async {},
+                                          child: ListView.builder(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 4,
+                                            ),
+                                            // controller: _scrollController,
+                                            itemCount: history.data.length,
+                                            itemBuilder: (context, index) {
+                                              final historyWpda =
+                                                  history.data[index];
+                                              return CardHistoryWpda(
+                                                historyWpda: historyWpda,
+                                                profilePictures: (widget
+                                                                .profilePictures !=
+                                                            null &&
+                                                        widget.profilePictures!
+                                                            .isNotEmpty)
+                                                    ? urlProfilePictures!
+                                                    : _image?.path ??
+                                                        '', // Gunakan null-aware operator untuk mendapatkan path _image jika tidak null
+                                              );
+                                            },
                                           ),
-                                          // controller: _scrollController,
-                                          itemCount: history.data.length,
-                                          itemBuilder: (context, index) {
-                                            final historyWpda =
-                                                history.data[index];
-                                            return CardHistoryWpda(
-                                              historyWpda: historyWpda,
-                                            );
-                                          },
                                         )
                                       : (historyProvider.selectedTanggal ==
                                               '7 Hari Terakhir')
@@ -339,8 +437,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                 if (snapshot.connectionState ==
                                                     ConnectionState.waiting) {
                                                   return Center(
-                                                      child:
-                                                          CircularProgressIndicator());
+                                                    child: CoolLoading(),
+                                                  );
                                                 } else if (snapshot.hasError) {
                                                   return Text(
                                                       'Error: ${snapshot.error}');
@@ -350,25 +448,39 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
                                                   return (snapshot
                                                           .data!.isNotEmpty)
-                                                      ? ListView.builder(
-                                                          padding: EdgeInsets
-                                                              .symmetric(
-                                                            horizontal: 12,
-                                                            vertical: 4,
+                                                      ? RefreshIndicator(
+                                                          onRefresh:
+                                                              () async {},
+                                                          child:
+                                                              ListView.builder(
+                                                            padding: EdgeInsets
+                                                                .symmetric(
+                                                              horizontal: 12,
+                                                              vertical: 4,
+                                                            ),
+                                                            itemCount:
+                                                                filteredData
+                                                                    .length,
+                                                            itemBuilder:
+                                                                (context,
+                                                                    index) {
+                                                              final historyWpda =
+                                                                  filteredData[
+                                                                      index];
+                                                              return CardHistoryWpda(
+                                                                historyWpda:
+                                                                    historyWpda,
+                                                                profilePictures: (widget.profilePictures !=
+                                                                            null &&
+                                                                        widget
+                                                                            .profilePictures!
+                                                                            .isNotEmpty)
+                                                                    ? urlProfilePictures!
+                                                                    : _image?.path ??
+                                                                        '', // Gunakan null-aware operator untuk mendapatkan path _image jika tidak null
+                                                              );
+                                                            },
                                                           ),
-                                                          itemCount:
-                                                              filteredData
-                                                                  .length,
-                                                          itemBuilder:
-                                                              (context, index) {
-                                                            final historyWpda =
-                                                                filteredData[
-                                                                    index];
-                                                            return CardHistoryWpda(
-                                                              historyWpda:
-                                                                  historyWpda,
-                                                            );
-                                                          },
                                                         )
                                                       : Center(
                                                           child: Column(
@@ -421,8 +533,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                         ConnectionState
                                                             .waiting) {
                                                       return Center(
-                                                          child:
-                                                              CircularProgressIndicator());
+                                                        child: CoolLoading(),
+                                                      );
                                                     } else if (snapshot
                                                         .hasError) {
                                                       return Text(
@@ -432,26 +544,39 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                           snapshot.data ?? [];
                                                       return (snapshot
                                                               .data!.isNotEmpty)
-                                                          ? ListView.builder(
-                                                              padding: EdgeInsets
-                                                                  .symmetric(
-                                                                horizontal: 12,
-                                                                vertical: 4,
+                                                          ? RefreshIndicator(
+                                                              onRefresh:
+                                                                  () async {},
+                                                              child: ListView
+                                                                  .builder(
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                  vertical: 4,
+                                                                ),
+                                                                itemCount:
+                                                                    filteredData
+                                                                        .length,
+                                                                itemBuilder:
+                                                                    (context,
+                                                                        index) {
+                                                                  final historyWpda =
+                                                                      filteredData[
+                                                                          index];
+                                                                  return CardHistoryWpda(
+                                                                    historyWpda:
+                                                                        historyWpda,
+                                                                    profilePictures: (widget.profilePictures !=
+                                                                                null &&
+                                                                            widget
+                                                                                .profilePictures!.isNotEmpty)
+                                                                        ? urlProfilePictures!
+                                                                        : _image?.path ??
+                                                                            '', // Gunakan null-aware operator untuk mendapatkan path _image jika tidak null
+                                                                  );
+                                                                },
                                                               ),
-                                                              itemCount:
-                                                                  filteredData
-                                                                      .length,
-                                                              itemBuilder:
-                                                                  (context,
-                                                                      index) {
-                                                                final historyWpda =
-                                                                    filteredData[
-                                                                        index];
-                                                                return CardHistoryWpda(
-                                                                  historyWpda:
-                                                                      historyWpda,
-                                                                );
-                                                              },
                                                             )
                                                           : Center(
                                                               child: Column(
@@ -506,8 +631,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                             ConnectionState
                                                                 .waiting) {
                                                           return Center(
-                                                              child:
-                                                                  CircularProgressIndicator());
+                                                            child:
+                                                                CoolLoading(),
+                                                          );
                                                         } else if (snapshot
                                                             .hasError) {
                                                           return Text(
@@ -518,29 +644,38 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                                   [];
                                                           return (snapshot.data!
                                                                   .isNotEmpty)
-                                                              ? ListView
-                                                                  .builder(
-                                                                  padding:
-                                                                      EdgeInsets
-                                                                          .symmetric(
-                                                                    horizontal:
-                                                                        12,
-                                                                    vertical: 4,
+                                                              ? RefreshIndicator(
+                                                                  onRefresh:
+                                                                      () async {},
+                                                                  child: ListView
+                                                                      .builder(
+                                                                    padding:
+                                                                        EdgeInsets
+                                                                            .symmetric(
+                                                                      horizontal:
+                                                                          12,
+                                                                      vertical:
+                                                                          4,
+                                                                    ),
+                                                                    itemCount:
+                                                                        filteredData
+                                                                            .length,
+                                                                    itemBuilder:
+                                                                        (context,
+                                                                            index) {
+                                                                      final historyWpda =
+                                                                          filteredData[
+                                                                              index];
+                                                                      return CardHistoryWpda(
+                                                                        historyWpda:
+                                                                            historyWpda,
+                                                                        profilePictures: (widget.profilePictures != null && widget.profilePictures!.isNotEmpty)
+                                                                            ? urlProfilePictures!
+                                                                            : _image?.path ??
+                                                                                '', // Gunakan null-aware operator untuk mendapatkan path _image jika tidak null
+                                                                      );
+                                                                    },
                                                                   ),
-                                                                  itemCount:
-                                                                      filteredData
-                                                                          .length,
-                                                                  itemBuilder:
-                                                                      (context,
-                                                                          index) {
-                                                                    final historyWpda =
-                                                                        filteredData[
-                                                                            index];
-                                                                    return CardHistoryWpda(
-                                                                      historyWpda:
-                                                                          historyWpda,
-                                                                    );
-                                                                  },
                                                                 )
                                                               : Center(
                                                                   child: Column(
@@ -591,8 +726,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                             ConnectionState
                                                                 .waiting) {
                                                           return Center(
-                                                              child:
-                                                                  CircularProgressIndicator());
+                                                            child:
+                                                                CoolLoading(),
+                                                          );
                                                         } else if (snapshot
                                                             .hasError) {
                                                           return Text(
@@ -604,29 +740,38 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
                                                           return (snapshot.data!
                                                                   .isNotEmpty)
-                                                              ? ListView
-                                                                  .builder(
-                                                                  padding:
-                                                                      EdgeInsets
-                                                                          .symmetric(
-                                                                    horizontal:
-                                                                        12,
-                                                                    vertical: 4,
+                                                              ? RefreshIndicator(
+                                                                  onRefresh:
+                                                                      () async {},
+                                                                  child: ListView
+                                                                      .builder(
+                                                                    padding:
+                                                                        EdgeInsets
+                                                                            .symmetric(
+                                                                      horizontal:
+                                                                          12,
+                                                                      vertical:
+                                                                          4,
+                                                                    ),
+                                                                    itemCount:
+                                                                        filteredData
+                                                                            .length,
+                                                                    itemBuilder:
+                                                                        (context,
+                                                                            index) {
+                                                                      final historyWpda =
+                                                                          filteredData[
+                                                                              index];
+                                                                      return CardHistoryWpda(
+                                                                        historyWpda:
+                                                                            historyWpda,
+                                                                        profilePictures: (widget.profilePictures != null && widget.profilePictures!.isNotEmpty)
+                                                                            ? urlProfilePictures!
+                                                                            : _image?.path ??
+                                                                                '', // Gunakan null-aware operator untuk mendapatkan path _image jika tidak null
+                                                                      );
+                                                                    },
                                                                   ),
-                                                                  itemCount:
-                                                                      filteredData
-                                                                          .length,
-                                                                  itemBuilder:
-                                                                      (context,
-                                                                          index) {
-                                                                    final historyWpda =
-                                                                        filteredData[
-                                                                            index];
-                                                                    return CardHistoryWpda(
-                                                                      historyWpda:
-                                                                          historyWpda,
-                                                                    );
-                                                                  },
                                                                 )
                                                               : Center(
                                                                   child: Column(
@@ -896,7 +1041,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 : (historyProvider.selectedTanggal ==
                                         '30 Hari Terakhir')
                                     ? history.missedDaysLast30Days.toString()
-                                    : history.missedDaysTotal.toString(),
+                                    : (history.missedDaysTotal == 1)
+                                        ? '0'
+                                        : history.missedDaysTotal.toString(),
                         color: MyColor.colorRed,
                         onTap: () {},
                       ),
@@ -971,10 +1118,12 @@ class CardHeaderHistoryWpda extends StatelessWidget {
 
 class HeaderMonthlyReport extends StatelessWidget {
   MonthlyReport? monthlyReport;
+  final String id;
 
   HeaderMonthlyReport({
     super.key,
     this.monthlyReport,
+    required this.id,
   });
 
   @override
@@ -1024,7 +1173,9 @@ class HeaderMonthlyReport extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context)
                         .push(MaterialPageRoute(builder: (context) {
-                      return DetailHistoryWPDA();
+                      return DetailHistoryWPDA(
+                        id: id,
+                      );
                     }));
                   },
                   child: Row(

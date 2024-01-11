@@ -4,12 +4,15 @@ import 'package:diamond_generation_app/core/models/monthly_data_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
 import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
+import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
+import 'package:diamond_generation_app/features/loading_diamond/loading_diamond.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_register.dart';
 import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
 import 'package:diamond_generation_app/features/register_form/presentation/register_form.dart';
+import 'package:diamond_generation_app/features/verified_email/presentation/verified_email_screen.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
@@ -39,6 +42,24 @@ class UserApi {
     }
   }
 
+  Future verifyUser(
+      BuildContext context, Map<String, dynamic> body, String token) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.verifyUserUrl),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: json.encode(body),
+    );
+
+    if (response.statusCode == 200) {
+      print('Connect API verify user');
+    } else {
+      throw Exception('Failed to verify user');
+    }
+  }
+
   Future<void> loginUser(
       Map<String, dynamic> body, BuildContext context) async {
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
@@ -55,7 +76,7 @@ class UserApi {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-
+      print('RESPONSE : ${data}');
       if (data['success']) {
         Map<String, dynamic> userData = json.decode(response.body)['user'];
         if (userData['profile'] != null) {
@@ -77,7 +98,7 @@ class UserApi {
               context: context,
               builder: (context) {
                 return Center(
-                  child: CircularProgressIndicator(),
+                  child: CoolLoading(),
                 );
               });
           Future.delayed(Duration(seconds: 2), () {
@@ -111,38 +132,56 @@ class UserApi {
               context: context,
               builder: (context) {
                 return Center(
-                  child: CircularProgressIndicator(),
+                  child: CoolLoading(),
                 );
               });
           Future.delayed(Duration(seconds: 2), () {
-            if (userData['profile_completed'] == 0) {
+            if (userData['verified'] == 0) {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) {
-                  return RegisterForm();
+                  return EmailVerificationScreen(
+                    email: userData['email'],
+                  );
                 }),
                 (route) => false,
               );
-              SnackBarWidget.showSnackBar(
-                context: context,
-                message: 'Profil Anda tidak lengkap. Lengkapi profil Anda.',
-                textColor: MyColor.whiteColor,
-                bgColor: MyColor.colorLightBlue,
-              );
+              // SnackBarWidget.showSnackBar(
+              //   context: context,
+              //   message: 'Profil Anda tidak lengkap. Lengkapi profil Anda.',
+              //   textColor: MyColor.whiteColor,
+              //   bgColor: MyColor.colorLightBlue,
+              // );
             } else {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) {
-                  return BottomNavigationPage();
-                }),
-                (route) => false,
-              );
-              SnackBarWidget.showSnackBar(
-                context: context,
-                message: 'Anda telah berhasil masuk ke akun Anda.',
-                textColor: MyColor.whiteColor,
-                bgColor: MyColor.colorGreen,
-              );
+              if (userData['profile_completed'] == 0) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) {
+                    return RegisterForm();
+                  }),
+                  (route) => false,
+                );
+                SnackBarWidget.showSnackBar(
+                  context: context,
+                  message: 'Profil Anda tidak lengkap. Lengkapi profil Anda.',
+                  textColor: MyColor.whiteColor,
+                  bgColor: MyColor.colorLightBlue,
+                );
+              } else {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) {
+                    return BottomNavigationPage();
+                  }),
+                  (route) => false,
+                );
+                SnackBarWidget.showSnackBar(
+                  context: context,
+                  message: 'Anda telah berhasil masuk ke akun Anda.',
+                  textColor: MyColor.whiteColor,
+                  bgColor: MyColor.colorGreen,
+                );
+              }
             }
           });
           TextFieldControllerLogin.emailController.text = '';
@@ -154,7 +193,7 @@ class UserApi {
             context: context,
             builder: (context) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             });
         Future.delayed(Duration(seconds: 2), () {
@@ -181,7 +220,7 @@ class UserApi {
           context: context,
           builder: (context) {
             return Center(
-              child: CircularProgressIndicator(),
+              child: CoolLoading(),
             );
           });
       Future.delayed(Duration(seconds: 2), () {
@@ -222,7 +261,7 @@ class UserApi {
             context: context,
             builder: (context) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             });
         Future.delayed(Duration(seconds: 2), () {
@@ -256,7 +295,7 @@ class UserApi {
             context: context,
             builder: (context) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             });
         Future.delayed(Duration(seconds: 2), () {
@@ -306,7 +345,7 @@ class UserApi {
             context: context,
             builder: (context) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             });
         Future.delayed(Duration(seconds: 2), () {
@@ -342,7 +381,7 @@ class UserApi {
             context: context,
             builder: (context) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             });
         ScaffoldMessenger.of(context).showSnackBar(
@@ -429,7 +468,7 @@ class UserApi {
             context: context,
             builder: (context) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             },
           );
@@ -481,7 +520,7 @@ class UserApi {
           context: context,
           builder: (context) {
             return Center(
-              child: CircularProgressIndicator(),
+              child: CoolLoading(),
             );
           },
         );
@@ -508,7 +547,7 @@ class UserApi {
           context: context,
           builder: (context) {
             return Center(
-              child: CircularProgressIndicator(),
+              child: CoolLoading(),
             );
           },
         );
@@ -559,7 +598,7 @@ class UserApi {
           context: context,
           builder: (context) {
             return Center(
-              child: CircularProgressIndicator(),
+              child: CoolLoading(),
             );
           },
         );
@@ -586,7 +625,7 @@ class UserApi {
           context: context,
           builder: (context) {
             return Center(
-              child: CircularProgressIndicator(),
+              child: CoolLoading(),
             );
           },
         );
@@ -639,12 +678,15 @@ class UserApi {
         "Authorization": "Bearer $token",
       },
     );
+
+    print('Status Respon: ${response.statusCode}');
+    print('Body Respon: ${response.body}');
+
     if (response.statusCode == 200) {
-      print('Get data success');
       final Map<String, dynamic> data = json.decode(response.body);
       return ApiResponse.fromJson(data);
     } else {
-      throw Exception('Failed get data');
+      throw Exception('Gagal mendapatkan data: ${response.body ?? "No data"}');
     }
   }
 }

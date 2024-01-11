@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
@@ -50,13 +51,12 @@ class ProfileAPI {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       if (data['success']) {
-        print(response.body);
         showDialog(
           barrierDismissible: false,
           context: context,
           builder: (context) {
             return Center(
-              child: CircularProgressIndicator(),
+              child: CoolLoading(),
             );
           },
         );
@@ -83,7 +83,7 @@ class ProfileAPI {
           context: context,
           builder: (context) {
             return Center(
-              child: CircularProgressIndicator(),
+              child: CoolLoading(),
             );
           },
         );

@@ -45,13 +45,18 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
 
   TextEditingController _controllerBirthDateAndPlace = TextEditingController();
 
-  String buildImageUrlWithTimestamp(String? profilePicture) {
+  String buildImageUrlWithStaticTimestamp(String? profilePicture) {
     if (profilePicture != null &&
         profilePicture.isNotEmpty &&
         profilePicture != 'null') {
-      return "${ApiConstants.baseUrlImage}/$profilePicture?timestamp=${DateTime.now().millisecondsSinceEpoch}";
+      // Tambahkan timestamp sebagai parameter query string
+      return Uri.https(
+              'gsjasungaikehidupan.com',
+              '/storage/profile_pictures/$profilePicture',
+              {'timestamp': DateTime.now().millisecondsSinceEpoch.toString()})
+          .toString();
     } else {
-      return "${ApiConstants.baseUrlImage}/profile_pictures/dummy.jpg";
+      return "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
     }
   }
 
@@ -63,10 +68,12 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
     if (widget.userData.profile != null &&
         widget.userData.profile!.profile_picture != null &&
         widget.userData.profile!.profile_picture.isNotEmpty) {
-      imgUrl =
-          buildImageUrlWithTimestamp(widget.userData.profile!.profile_picture);
+      imgUrl = buildImageUrlWithStaticTimestamp(
+          widget.userData.profile!.profile_picture);
+      imgUrl = imgUrl!.replaceAll("/public", "");
     } else {
-      imgUrl = "${ApiConstants.baseUrlImage}/profile_pictures/dummy.jpg";
+      imgUrl =
+          "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
     }
   }
 
@@ -130,8 +137,7 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                             radius: 20,
                           )
                         : CircleAvatar(
-                            backgroundImage:
-                                CachedNetworkImageProvider(imgUrl!),
+                            backgroundImage: NetworkImage(imgUrl!),
                             backgroundColor: Colors.white,
                             radius: 20,
                           ),
@@ -293,6 +299,7 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                     return HistoryScreen(
                       id: widget.userData.id,
                       fullName: widget.userData.fullName,
+                      profilePictures: widget.userData.profile!.profile_picture,
                     );
                   }));
                 }

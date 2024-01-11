@@ -37,13 +37,18 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
     });
   }
 
-  String buildImageUrlWithTimestamp(String? profilePicture) {
+  String buildImageUrlWithStaticTimestamp(String? profilePicture) {
+    final staticTimestamp = DateTime.now().millisecondsSinceEpoch;
+
     if (profilePicture != null &&
         profilePicture.isNotEmpty &&
         profilePicture != 'null') {
-      return "${ApiConstants.baseUrlImage}/$profilePicture?timestamp=${DateTime.now().millisecondsSinceEpoch}";
+      // Hilangkan bagian "public" dari URL
+      final imageUrl =
+          "https://gsjasungaikehidupan.com/storage/profile_pictures/${profilePicture}?timestamp=$staticTimestamp";
+      return imageUrl;
     } else {
-      return "${ApiConstants.baseUrlImage}/profile_pictures/dummy.jpg";
+      return "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
     }
   }
 
@@ -182,7 +187,7 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                                   ),
                                                   SizedBox(width: 8),
                                                   Text(
-                                                    'Incomplete user profile data (${dataLength}).',
+                                                    'Data profil belum lengkap (${dataLength}).',
                                                     style:
                                                         MyFonts.customTextStyle(
                                                       14,
@@ -313,8 +318,12 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                   final userData = searchUserProvider
                                       .filteredUserData[index];
 
-                                  String imgUrl = buildImageUrlWithTimestamp(
-                                      userData.profile?.profile_picture ?? '');
+                                  String imgUrl = buildImageUrlWithStaticTimestamp(
+                                      '${userData.profile?.profile_picture}' ??
+                                          '');
+
+                                  imgUrl = imgUrl.replaceAll("/public", "");
+
                                   return Stack(
                                     children: [
                                       ListTile(
@@ -369,8 +378,12 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                                     decoration: BoxDecoration(
                                                       shape: BoxShape.circle,
                                                       border: Border.all(
-                                                        color: Colors
-                                                            .white, // Warna border putih
+                                                        color: (userData.role ==
+                                                                'admin')
+                                                            ? MyColor
+                                                                .primaryColor
+                                                            : Colors
+                                                                .white, // Warna border putih
                                                         width:
                                                             2.0, // Lebar border
                                                       ),
@@ -384,16 +397,19 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                                     decoration: BoxDecoration(
                                                       shape: BoxShape.circle,
                                                       border: Border.all(
-                                                        color: Colors
-                                                            .white, // Warna border putih
+                                                        color: (userData.role ==
+                                                                'admin')
+                                                            ? MyColor
+                                                                .primaryColor
+                                                            : Colors
+                                                                .white, // Warna border putih
                                                         width:
                                                             2.0, // Lebar border
                                                       ),
                                                     ),
                                                     child: CircleAvatar(
                                                       backgroundImage:
-                                                          CachedNetworkImageProvider(
-                                                              imgUrl!),
+                                                          NetworkImage(imgUrl),
                                                     ),
                                                   ),
                                             Positioned(

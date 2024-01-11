@@ -7,11 +7,13 @@ import 'package:diamond_generation_app/features/klasemen/presentation/klasmen_wp
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/presentation/add_wpda.dart';
+import 'package:diamond_generation_app/features/wpda/presentation/bible_app.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
+import 'package:diamond_generation_app/shared/widgets/button.dart';
 import 'package:diamond_generation_app/shared/widgets/card_wpda.dart';
 import 'package:diamond_generation_app/shared/widgets/placeholder_card_wpda.dart';
 import 'package:diamond_generation_app/shared/widgets/placeholder_history.dart';
@@ -110,31 +112,19 @@ class _WPDAScreenState extends State<WPDAScreen> {
     var today = DateTime.now();
     var formatDateResult = DateFormat('EEEE, d MMMM y', 'id').format(today);
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return AddWPDAForm();
-          }));
-        },
-        backgroundColor: MyColor.primaryColor,
-        child: Icon(
-          Icons.add,
-          color: MyColor.whiteColor,
-        ),
-      ),
       appBar: AppBarWidget(
         title: 'WPDA',
-        leading: IconButton(
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return KlasmenWpdaScreen();
-            }));
-          },
-          icon: Icon(
-            FontAwesomeIcons.trophy,
-            color: MyColor.primaryColor,
-          ),
-        ),
+        // leading: IconButton(
+        //   onPressed: () {
+        //     Navigator.push(context, MaterialPageRoute(builder: (context) {
+        //       return KlasmenWpdaScreen();
+        //     }));
+        //   },
+        //   icon: Icon(
+        //     FontAwesomeIcons.trophy,
+        //     color: MyColor.primaryColor,
+        //   ),
+        // ),
       ),
       body: Consumer<LoginProvider>(
         builder: (context, value, _) {
@@ -222,12 +212,7 @@ class _WPDAScreenState extends State<WPDAScreen> {
                   SizedBox(height: 12),
                   Expanded(
                     child: FutureBuilder<List<WPDA>>(
-                      future: Future.delayed(
-                        Duration(
-                            milliseconds:
-                                500), // Tambahkan delay selama 3 detik
-                        () => getWpdaUsecase.getAllWpda("${token}"),
-                      ),
+                      future: getWpdaUsecase.getAllWpda("${token}"),
                       builder: (context, snapshot) {
                         var data = snapshot.data;
                         if (snapshot.connectionState ==
@@ -305,7 +290,10 @@ class _WPDAScreenState extends State<WPDAScreen> {
                                           } else if (snapshot.hasData &&
                                               snapshot.data == false) {
                                             return Container(
-                                              padding: EdgeInsets.all(8),
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 8,
+                                              ),
                                               width: MediaQuery.of(context)
                                                   .size
                                                   .width,
@@ -332,7 +320,10 @@ class _WPDAScreenState extends State<WPDAScreen> {
                                             );
                                           } else {
                                             return Container(
-                                              padding: EdgeInsets.all(8),
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 8,
+                                              ),
                                               width: MediaQuery.of(context)
                                                   .size
                                                   .width,
@@ -431,6 +422,17 @@ class _WPDAScreenState extends State<WPDAScreen> {
                                             12,
                                             FontWeight.w500,
                                             MyColor.greyText,
+                                          ),
+                                        ),
+                                        SizedBox(height: 12),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 20),
+                                          child: ButtonWidget(
+                                            title: 'Coba lagi',
+                                            onPressed: () {
+                                              setState(() {});
+                                            },
                                           ),
                                         ),
                                       ],

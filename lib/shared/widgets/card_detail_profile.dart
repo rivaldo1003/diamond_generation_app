@@ -1,4 +1,5 @@
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
+import 'package:diamond_generation_app/features/whatsapp_launcher/presentation/whatsapp_launcher.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
@@ -152,57 +153,84 @@ class _CardDetailProfileState extends State<CardDetailProfile> {
                                       return GestureDetector(
                                         onTap: () async {
                                           await registerFormProvider.selectDate(
-                                              context,
-                                              initialDate: birthDate);
+                                            context,
+                                            initialDate: birthDate,
+                                          );
+
+                                          DateTime selectedBirthDate =
+                                              registerFormProvider
+                                                  .selectedDateOfBirth;
+
+                                          // Menghitung umur
+                                          DateTime currentDate = DateTime.now();
+                                          int umur = currentDate.year -
+                                              selectedBirthDate.year;
+                                          if (currentDate.month <
+                                                  selectedBirthDate.month ||
+                                              (currentDate.month ==
+                                                      selectedBirthDate.month &&
+                                                  currentDate.day <
+                                                      selectedBirthDate.day)) {
+                                            umur--;
+                                          }
 
                                           String? updatedBirthDate =
                                               registerFormProvider
                                                   .selectedDateOfBirth
-                                                  ?.toIso8601String();
+                                                  .toIso8601String();
 
                                           setState(() {
                                             birthDate = updatedBirthDate;
+                                            print(
+                                                'Umur anda saat ini adalah${umur}');
                                           });
                                         },
-                                        child: Container(
-                                          height: 48,
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          decoration: BoxDecoration(
-                                              // color: MyColor.whiteColor,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              border: Border.all(
-                                                  color: MyColor.greyText)),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 12),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text(
-                                                  (birthDate != null)
-                                                      ? DateFormat('yyyy-MM-dd')
-                                                          .format(
-                                                              DateTime.parse(
-                                                                  birthDate!))
-                                                      : 'Pilih Tanggal',
-                                                  style:
-                                                      MyFonts.customTextStyle(
-                                                    14,
-                                                    FontWeight.w500,
-                                                    MyColor.whiteColor,
-                                                  ),
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              height: 48,
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              decoration: BoxDecoration(
+                                                  // color: MyColor.whiteColor,
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  border: Border.all(
+                                                      color: MyColor.greyText)),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 12),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      (birthDate != null)
+                                                          ? DateFormat(
+                                                                  'yyyy-MM-dd')
+                                                              .format(DateTime
+                                                                  .parse(
+                                                                      birthDate!))
+                                                          : 'Pilih Tanggal',
+                                                      style: MyFonts
+                                                          .customTextStyle(
+                                                        14,
+                                                        FontWeight.w500,
+                                                        MyColor.whiteColor,
+                                                      ),
+                                                    ),
+                                                    Icon(
+                                                      Icons.calendar_month,
+                                                      color: MyColor.whiteColor,
+                                                    ),
+                                                  ],
                                                 ),
-                                                Icon(
-                                                  Icons.calendar_month,
-                                                  color: MyColor.whiteColor,
-                                                ),
-                                              ],
+                                              ),
                                             ),
-                                          ),
+                                          ],
                                         ),
                                       );
                                     },

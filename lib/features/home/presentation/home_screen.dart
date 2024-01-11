@@ -2,23 +2,20 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:diamond_generation_app/core/services/profile/profile_api.dart';
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
-import 'package:diamond_generation_app/features/detail_community/presentation/detail_community.dart';
 import 'package:diamond_generation_app/features/home/data/providers/home_provider.dart';
+import 'package:diamond_generation_app/features/home/widgets/placeholder_home.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
-import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/view_all_data_users/presentation/view_all_data.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
-import 'package:diamond_generation_app/shared/widgets/card_community.dart';
 import 'package:diamond_generation_app/shared/widgets/placeholder_card_wpda.dart';
-import 'package:diamond_generation_app/shared/widgets/textfield.dart';
-import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:map_launcher/map_launcher.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -26,10 +23,13 @@ import 'package:path_provider/path_provider.dart';
 
 final List<String> imgList = [
   'assets/images/diamond.png',
-  'assets/images/diamond.png',
-  'assets/images/diamond.png',
-  'assets/images/diamond.png',
-  'assets/images/diamond.png',
+  'assets/images/sport_ministry.jpg',
+  'assets/images/diamond_generation.jpg',
+];
+final List<String> title = [
+  'Diamond Community',
+  'Sport Ministry',
+  'Diamond Events',
 ];
 
 final List<Widget> imageSliders = imgList
@@ -58,12 +58,15 @@ final List<Widget> imageSliders = imgList
                         ),
                         padding: EdgeInsets.symmetric(
                             vertical: 10.0, horizontal: 20.0),
-                        child: Text('Diamond Generation',
-                            style: MyFonts.customTextStyle(
-                              16,
-                              FontWeight.bold,
-                              MyColor.whiteColor,
-                            )),
+                        child: Text(
+                          title[imgList.indexOf(
+                              item)], // Mengambil teks dari list title berdasarkan indeks gambar
+                          style: MyFonts.customTextStyle(
+                            16,
+                            FontWeight.bold,
+                            MyColor.whiteColor,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -123,9 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? imagePath = prefs.getString(keyImageProfile);
     if (imagePath != null && imagePath.isNotEmpty) {
-      setState(() {
-        _image = File(imagePath);
-      });
+      _image = File(imagePath);
     }
 
     if (userId != null && _image == null) {
@@ -139,9 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> fetchProfilePicture(int userId, String token) async {
     try {
       var response = await http.get(
-        Uri.parse(
-          '${ApiConstants.baseUrl}/users/$userId/profile-picture',
-        ),
+        Uri.parse('${ApiConstants.baseUrl}/users/$userId/profile-picture'),
         headers: {
           "Content-Type": "application/json",
           'Authorization': 'Bearer $token',
@@ -150,13 +149,36 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
-        var profilePictureUrl = jsonResponse['profile_picture_url'];
-        await downloadAndSaveImage(profilePictureUrl, userId);
+        var profilePictureUrl = jsonResponse['profile_picture'];
+
+        // Modifikasi URL dengan menambahkan "profile_pictures"
+        var modifiedUrl = profilePictureUrl.replaceFirst(
+            "storage/", "storage/profile_pictures/");
+
+        print(modifiedUrl);
+
+        // Jika Anda masih ingin menyimpan gambar, Anda dapat memanggil downloadAndSaveImage
+        await downloadAndSaveImage(modifiedUrl, userId);
       } else {
-        print('Gagal mengambil gambar. Status code: ${response.statusCode}');
+        print('Gagal mengambil gambar. Kode status: ${response.statusCode}');
       }
     } catch (e) {
       print('Error: $e');
+    }
+  }
+
+  String buildImageUrlWithStaticTimestamp(String? profilePicture) {
+    if (profilePicture != null &&
+        profilePicture.isNotEmpty &&
+        profilePicture != 'null') {
+      // Tambahkan timestamp sebagai parameter query string
+      return Uri.https(
+              'gsjasungaikehidupan.com',
+              '/storage/profile_pictures/$profilePicture',
+              {'timestamp': DateTime.now().millisecondsSinceEpoch.toString()})
+          .toString();
+    } else {
+      return "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
     }
   }
 
@@ -189,12 +211,33 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   final CarouselController _controller = CarouselController();
+  _openMap() async {
+    final availableMaps = await MapLauncher.installedMaps;
+
+    if (availableMaps.isNotEmpty) {
+      await MapLauncher.showMarker(
+        mapType: MapType.google,
+        title: 'GSJA Sungai Kehidupan',
+        description: 'Deskripsi Lokasi Saya',
+        coords: Coords(-7.270492779872992,
+            112.79339991765231), // Ganti dengan koordinat yang diinginkan
+      );
+    } else {
+      print('Tidak ada aplikasi peta yang terinstal.');
+    }
+  }
+
+  double progressValue = 0.5;
 
   @override
   Widget build(BuildContext context) {
     final getUserUsecase = Provider.of<GetUserUsecase>(context);
+    var today = DateTime.now();
+    var formatDateResult = DateFormat('EEEE, d MMMM y', 'id').format(today);
     return Scaffold(
-      appBar: AppBarWidget(title: 'Beranda'),
+      appBar: AppBarWidget(
+        title: 'Beranda',
+      ),
       body: Column(
         children: [
           Padding(
@@ -229,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             }
                           }),
                           Text(
-                            'Ayo, jadikan semua bangsa muridmu',
+                            'Ayo, jadikan semua bangsa murid-Ku',
                             style: MyFonts.brownText(
                               14,
                               FontWeight.w500,
@@ -424,13 +467,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   SizedBox(height: 16),
                   FutureBuilder<Map<String, dynamic>>(
-                    future: getUserUsecase
-                        .getTotalNewUsers((token != null) ? token! : ''),
+                    future: Future.delayed(Duration(milliseconds: 700), () {
+                      return getUserUsecase
+                          .getTotalNewUsers((token != null) ? token! : '');
+                    }),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
+                        return PlaceholderHome();
                       } else {
                         if (snapshot.hasData) {
                           if (snapshot.data!.isNotEmpty ||
@@ -473,7 +516,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                           ),
                                           Text(
-                                            'Senin, 25 Desember 2023',
+                                            formatDateResult,
                                             style: MyFonts.customTextStyle(
                                               12,
                                               FontWeight.w500,
@@ -513,6 +556,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ],
                                   ),
+
                                   // SizedBox(height: 12),
                                   // Row(
                                   //   children: [
@@ -541,7 +585,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           }
                         } else {
                           return Center(
-                            child: Text('No data'),
+                            child: PlaceholderHome(),
                           );
                         }
                       }

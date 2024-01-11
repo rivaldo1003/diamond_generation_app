@@ -83,29 +83,37 @@ class RegisterFormProvider with ChangeNotifier {
       // Perbarui selectedDateOfBirth sesuai dengan tanggal yang dipilih
       selectedDateOfBirth = selectedDate;
 
-      // Simpan selectedDateOfBirth ke shared preferences
-      await saveBirthDateToPreferences(selectedDate.toIso8601String());
+      // Hitung umur berdasarkan tanggal lahir yang baru
+      int umur = calculateAge(selectedDate);
+
+      // Simpan selectedDateOfBirth dan umur ke shared preferences
+      await saveBirthDateAndAgeToPreferences(
+          selectedDate.toIso8601String(), umur);
 
       // Panggil notifyListeners() untuk memberi tahu widget terkait perubahan
       notifyListeners();
     } else {
-      // Jika pengguna membatalkan, muat ulang selectedDateOfBirth dari shared preferences
-      await loadBirthDateFromPreferences();
+      // Jika pengguna membatalkan, muat ulang selectedDateOfBirth dan umur dari shared preferences
+      await loadBirthDateAndAgeFromPreferences();
     }
   }
 
-  // Metode untuk menyimpan birthDate ke shared preferences
-  Future<void> saveBirthDateToPreferences(String birthDate) async {
+  // Metode untuk menyimpan birthDate dan umur ke shared preferences
+  Future<void> saveBirthDateAndAgeToPreferences(
+      String birthDate, int age) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('birth_date', birthDate);
+    prefs.setInt('age', age);
   }
 
-  Future<void> loadBirthDateFromPreferences() async {
+  Future<void> loadBirthDateAndAgeFromPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? storedBirthDate = prefs.getString('birth_date');
+    int? storedAge = prefs.getInt('age');
 
-    if (storedBirthDate != null) {
+    if (storedBirthDate != null && storedAge != null) {
       selectedDateOfBirth = DateTime.parse(storedBirthDate);
+      // Jika Anda membutuhkan akses ke umur di kelas, Anda dapat menyimpannya di sini.
     }
   }
 

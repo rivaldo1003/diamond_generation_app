@@ -37,7 +37,7 @@ class _RegisterFormState extends State<RegisterForm> {
     final registerFormProvider = Provider.of<RegisterFormProvider>(context);
 
     return Scaffold(
-      appBar: AppBarWidget(title: 'Enter Personal Information'),
+      appBar: AppBarWidget(title: 'Masukkan Data Pribadi'),
       body: Column(
         children: [
           Expanded(
@@ -57,7 +57,7 @@ class _RegisterFormState extends State<RegisterForm> {
                               registerFormProvider.fullNameController.text =
                                   loginProvider.fullName!;
                               return TextFieldWidget(
-                                hintText: 'Full Name',
+                                hintText: 'Nama Lengkap',
                                 readOnly: true,
                                 suffixIcon: Icon(Icons.person),
                                 obscureText: false,
@@ -72,14 +72,14 @@ class _RegisterFormState extends State<RegisterForm> {
                         ),
                         SizedBox(height: 12),
                         TextFieldWidget(
-                          hintText: 'Address',
+                          hintText: 'Alamat Tempat Tinggal',
                           suffixIcon: Icon(Icons.location_on),
                           obscureText: false,
                           focusNode: registerFormProvider.addressFocusNode,
                           controller: registerFormProvider.addressController,
                           errorText:
                               registerFormProvider.showRequiredMessageAddress
-                                  ? 'Address Required'
+                                  ? 'Alamat wajib diisi'
                                   : null,
                           onChanged: (value) {
                             registerFormProvider.showRequiredMessageAddress =
@@ -89,7 +89,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         ),
                         SizedBox(height: 12),
                         TextFieldWidget(
-                          hintText: 'Phone Number',
+                          hintText: 'Nomor Telepon',
                           keyboardType: TextInputType.phone,
                           suffixIcon: Icon(Icons.phone),
                           obscureText: false,
@@ -98,7 +98,7 @@ class _RegisterFormState extends State<RegisterForm> {
                               registerFormProvider.phoneNumberController,
                           errorText: registerFormProvider
                                   .showRequiredMessagePhoneNumber
-                              ? 'Phone Number Required'
+                              ? 'Nomor Telepon wajib diisi'
                               : null,
                           onChanged: (value) {
                             registerFormProvider
@@ -111,7 +111,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Place and Date of Birth',
+                              'Tempat dan Tanggal Lahir',
                               style: MyFonts.customTextStyle(
                                 14,
                                 FontWeight.w500,
@@ -124,7 +124,7 @@ class _RegisterFormState extends State<RegisterForm> {
                               children: [
                                 Expanded(
                                   child: TextFieldWidget(
-                                    hintText: 'Place of Birth',
+                                    hintText: 'Tempat Lahir',
                                     obscureText: false,
                                     focusNode: registerFormProvider
                                         .placeOfBirthFocusNode,
@@ -132,7 +132,7 @@ class _RegisterFormState extends State<RegisterForm> {
                                         .placeOfBirthController,
                                     errorText: registerFormProvider
                                             .showRequiredMessagePlaceOfBirth
-                                        ? 'Place of Birth Required'
+                                        ? 'Tempat Lahir wajib diisi'
                                         : null,
                                     onChanged: (value) {
                                       registerFormProvider
@@ -202,20 +202,24 @@ class _RegisterFormState extends State<RegisterForm> {
                                                 : false,
                                         child: Row(
                                           children: [
-                                            Text(
-                                              'Your Age: ',
-                                              style: MyFonts.customTextStyle(
-                                                14,
-                                                FontWeight.w500,
-                                                MyColor.whiteColor,
+                                            Expanded(
+                                              child: Text(
+                                                'Umur: ',
+                                                style: MyFonts.customTextStyle(
+                                                  12,
+                                                  FontWeight.w500,
+                                                  MyColor.whiteColor,
+                                                ),
                                               ),
                                             ),
-                                            Text(
-                                              '${registerFormProvider.calculateAge(registerFormProvider.selectedDateOfBirth)} Years',
-                                              style: MyFonts.customTextStyle(
-                                                14,
-                                                FontWeight.bold,
-                                                MyColor.whiteColor,
+                                            Expanded(
+                                              child: Text(
+                                                '${registerFormProvider.calculateAge(registerFormProvider.selectedDateOfBirth)} Tahun',
+                                                style: MyFonts.customTextStyle(
+                                                  12,
+                                                  FontWeight.bold,
+                                                  MyColor.whiteColor,
+                                                ),
                                               ),
                                             ),
                                           ],
@@ -233,7 +237,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Gender',
+                              'Jenis Kelamin',
                               style: MyFonts.customTextStyle(
                                 14,
                                 FontWeight.w500,
@@ -242,55 +246,51 @@ class _RegisterFormState extends State<RegisterForm> {
                             ),
                             SizedBox(height: 4),
                             Container(
-                              height: 48,
+                              // height: 80,
                               width: MediaQuery.of(context).size.width,
                               decoration: BoxDecoration(
                                 color: MyColor.whiteColor,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Row(
+                              child: Column(
                                 children: [
-                                  Expanded(
-                                    child: RadioListTile<Gender>(
-                                      title: Text(
-                                        'Male',
-                                        style: MyFonts.customTextStyle(
-                                          15,
-                                          FontWeight.w500,
-                                          MyColor.greyText,
-                                        ),
+                                  RadioListTile<Gender>(
+                                    title: Text(
+                                      'Laki-Laki',
+                                      style: MyFonts.customTextStyle(
+                                        15,
+                                        FontWeight.w500,
+                                        MyColor.greyText,
                                       ),
-                                      value: Gender.Male,
-                                      dense: true,
-                                      groupValue:
-                                          registerFormProvider.selectedGender,
-                                      activeColor: MyColor.primaryColor,
-                                      onChanged: (Gender? value) {
-                                        registerFormProvider.selectedGender =
-                                            value!;
-                                      },
                                     ),
+                                    value: Gender.Male,
+                                    dense: true,
+                                    groupValue:
+                                        registerFormProvider.selectedGender,
+                                    activeColor: MyColor.primaryColor,
+                                    onChanged: (Gender? value) {
+                                      registerFormProvider.selectedGender =
+                                          value!;
+                                    },
                                   ),
-                                  Expanded(
-                                    child: RadioListTile<Gender>(
-                                      title: Text(
-                                        'Female',
-                                        style: MyFonts.customTextStyle(
-                                          15,
-                                          FontWeight.w500,
-                                          MyColor.greyText,
-                                        ),
+                                  RadioListTile<Gender>(
+                                    title: Text(
+                                      'Perempuan',
+                                      style: MyFonts.customTextStyle(
+                                        15,
+                                        FontWeight.w500,
+                                        MyColor.greyText,
                                       ),
-                                      value: Gender.Female,
-                                      dense: true,
-                                      activeColor: MyColor.primaryColor,
-                                      groupValue:
-                                          registerFormProvider.selectedGender,
-                                      onChanged: (Gender? value) {
-                                        registerFormProvider.selectedGender =
-                                            value!;
-                                      },
                                     ),
+                                    value: Gender.Female,
+                                    dense: true,
+                                    activeColor: MyColor.primaryColor,
+                                    groupValue:
+                                        registerFormProvider.selectedGender,
+                                    onChanged: (Gender? value) {
+                                      registerFormProvider.selectedGender =
+                                          value!;
+                                    },
                                   ),
                                 ],
                               ),
@@ -312,7 +312,7 @@ class _RegisterFormState extends State<RegisterForm> {
               return Padding(
                 padding: const EdgeInsets.all(20),
                 child: ButtonWidget(
-                  title: 'Submit',
+                  title: 'Kirim Data',
                   color: (registerFormProvider.addressController.text == '' &&
                           registerFormProvider.phoneNumberController.text ==
                               '' &&
@@ -328,7 +328,8 @@ class _RegisterFormState extends State<RegisterForm> {
                         "address": registerFormProvider.addressController.text,
                         "phone_number":
                             registerFormProvider.phoneNumberController.text,
-                        "gender": dataGender,
+                        "gender":
+                            (dataGender == 'Male') ? 'Laki-Laki' : 'Perempuan',
                         "age": registerFormProvider.calculateAge(
                             registerFormProvider.selectedDateOfBirth),
                         "birth_place":

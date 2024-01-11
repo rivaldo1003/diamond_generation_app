@@ -172,7 +172,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 8),
+                SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

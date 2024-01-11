@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
+import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/widgets/prayer_abbreviation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -45,10 +47,37 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
     }
   }
 
+  String? imageUrl;
+
+  String buildImageUrlWithStaticTimestamp(String? profilePicture) {
+    final staticTimestamp = DateTime.now().millisecondsSinceEpoch;
+
+    if (profilePicture != null &&
+        profilePicture.isNotEmpty &&
+        profilePicture != 'null') {
+      // Hilangkan bagian "public" dari URL
+      final imageUrl =
+          "https://gsjasungaikehidupan.com/storage/profile_pictures/${profilePicture}?timestamp=$staticTimestamp";
+      return imageUrl;
+    } else {
+      return "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
+    }
+  }
+
   @override
   void initState() {
     loadImage();
     super.initState();
+    if (widget.reportData.writer.profilePicture != null &&
+        widget.reportData.writer.profilePicture != null &&
+        widget.reportData.writer.profilePicture.isNotEmpty) {
+      imageUrl = buildImageUrlWithStaticTimestamp(
+          widget.reportData.writer.profilePicture);
+      imageUrl = imageUrl!.replaceAll("/public", "");
+    } else {
+      imageUrl =
+          "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
+    }
   }
 
   @override
@@ -65,19 +94,19 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
     String dateResult = DateFormat('dd MMM yy')
         .format(DateTime.parse(widget.reportData.createdAt));
 
-    // String selectedPrayers = reportData.selectedPrayers;
+    String selectedPrayers = widget.reportData.doaTabernakel;
 
-    // List<String> abbreviations = [];
+    List<String> abbreviations = [];
 
-    // if (selectedPrayers.isEmpty || selectedPrayers == null) {
-    //   abbreviations.add('Tidak Berdoa');
-    // } else {
-    //   List<String> prayersList = selectedPrayers.split(',');
-    //   abbreviations =
-    //       prayersList.map((prayer) => getAbbreviation(prayer)).toList();
-    // }
+    if (selectedPrayers.isEmpty || selectedPrayers == null) {
+      abbreviations.add('Tidak Berdoa');
+    } else {
+      List<String> prayersList = selectedPrayers.split(',');
+      abbreviations =
+          prayersList.map((prayer) => getAbbreviation(prayer)).toList();
+    }
 
-    // String selectedItemsString = abbreviations.join(', ');
+    String selectedItemsString = abbreviations.join(', ');
 
     return GestureDetector(
       onTap: () {
@@ -151,7 +180,8 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
                           ),
                         ),
                         SizedBox(width: 8),
-                        (_image == null)
+                        (widget.reportData.writer.profilePicture.isEmpty ||
+                                widget.reportData.writer.profilePicture == null)
                             ? Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
@@ -175,7 +205,7 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
                                   ),
                                 ),
                                 child: CircleAvatar(
-                                  backgroundImage: FileImage(_image!),
+                                  backgroundImage: NetworkImage(imageUrl!),
                                 ),
                               ),
                       ],
@@ -185,68 +215,70 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
               ),
               content: Container(
                 width: MediaQuery.of(context).size.width,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      widget.reportData.readingBook,
-                      style: MyFonts.customTextStyle(
-                        14,
-                        FontWeight.w500,
-                        MyColor.whiteColor,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        widget.reportData.verseContent,
+                        style: MyFonts.customTextStyle(
+                          14,
+                          FontWeight.w500,
+                          MyColor.whiteColor,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 8),
-                    Divider(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'PT : ',
-                          style: MyFonts.customTextStyle(
-                            14,
-                            FontWeight.bold,
-                            MyColor.colorLightBlue,
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            widget.reportData.messageOfGod,
+                      SizedBox(height: 8),
+                      Divider(),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'PT : ',
                             style: MyFonts.customTextStyle(
                               14,
-                              FontWeight.w500,
-                              MyColor.whiteColor,
+                              FontWeight.bold,
+                              MyColor.colorLightBlue,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'AP : ',
-                          style: MyFonts.customTextStyle(
-                            14,
-                            FontWeight.bold,
-                            MyColor.colorLightBlue,
+                          Expanded(
+                            child: Text(
+                              widget.reportData.messageOfGod,
+                              style: MyFonts.customTextStyle(
+                                14,
+                                FontWeight.w500,
+                                MyColor.whiteColor,
+                              ),
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            widget.reportData.applicationInLife,
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'AP : ',
                             style: MyFonts.customTextStyle(
                               14,
-                              FontWeight.w500,
-                              MyColor.whiteColor,
+                              FontWeight.bold,
+                              MyColor.colorLightBlue,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          Expanded(
+                            child: Text(
+                              widget.reportData.applicationInLife,
+                              style: MyFonts.customTextStyle(
+                                14,
+                                FontWeight.w500,
+                                MyColor.whiteColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               actions: [
@@ -306,7 +338,7 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      (_image == null)
+                      (widget.reportData.writer.profilePicture == null)
                           ? Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
@@ -330,7 +362,7 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
                                 ),
                               ),
                               child: CircleAvatar(
-                                backgroundImage: FileImage(_image!),
+                                backgroundImage: NetworkImage(imageUrl!),
                               ),
                             ),
                       SizedBox(width: 12),
@@ -378,7 +410,7 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
                           child: Text(
                             'Anda',
                             style: MyFonts.customTextStyle(
-                              14,
+                              13,
                               FontWeight.bold,
                               MyColor.whiteColor,
                             ),
@@ -458,8 +490,9 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
                         ),
                       ),
                       Flexible(
+                        flex: 2,
                         child: Text(
-                          '',
+                          selectedItemsString,
                           textAlign: TextAlign.right,
                           style: MyFonts.customTextStyle(
                             12,

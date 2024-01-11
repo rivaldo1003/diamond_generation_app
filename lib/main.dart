@@ -5,6 +5,8 @@ import 'package:diamond_generation_app/core/services/wpda/wpda_api.dart';
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/data/providers/bottom_nav_bar_provider.dart';
+import 'package:diamond_generation_app/features/comment/data/comment_provider.dart';
+import 'package:diamond_generation_app/features/comment/presentation/comment_tes.dart';
 import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
 import 'package:diamond_generation_app/features/history_wpda/data/detail_history_provider.dart';
 import 'package:diamond_generation_app/features/history_wpda/data/history_provider.dart';
@@ -14,9 +16,12 @@ import 'package:diamond_generation_app/features/profile/data/providers/profile_p
 import 'package:diamond_generation_app/features/register/data/providers/register_provider.dart';
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
 import 'package:diamond_generation_app/features/splash_screen/presentation/splash_screen.dart';
+import 'package:diamond_generation_app/features/verified_email/data/providers/verified_email_provider.dart';
 import 'package:diamond_generation_app/features/view_all_data_users/data/providers/view_all_data_user_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/add_wpda_provider.dart';
+import 'package:diamond_generation_app/features/wpda/data/providers/bible_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/edit_wpda_provider.dart';
+import 'package:diamond_generation_app/features/wpda/data/providers/like_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/theme.dart';
@@ -40,7 +45,24 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
+          create: (context) => VerifiedEmailProvider(
+              getUserUsecase: GetUserUsecase(
+                  userRepository: UserRepositoryImpl(
+                      userApi: UserApi(
+            urlApi: ApiConstants.verifyUserUrl,
+          )))),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CommentProvider(),
+        ),
+        ChangeNotifierProvider(
           create: (context) => BottomNaviBarProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => LikeProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => BibleProvider(),
         ),
         ChangeNotifierProvider(
           create: (context) => DetailHistoryProvider(),

@@ -3,6 +3,7 @@ import 'package:diamond_generation_app/features/home/presentation/home_screen.da
 import 'package:diamond_generation_app/features/home/presentation/home_screen_user.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/profile/presentation/profile_screen.dart';
+import 'package:diamond_generation_app/features/wpda/presentation/add_wpda.dart';
 import 'package:diamond_generation_app/features/wpda/presentation/wpda_screen.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
@@ -58,9 +59,13 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: Container(
-        height: MediaQuery.of(context).size.height * 0.08,
+      bottomNavigationBar: BottomAppBar(
+        padding: EdgeInsets.all(0),
+        color: Colors.grey.shade800,
+        shape: CircularNotchedRectangle(),
         child: BottomNavigationBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
           currentIndex: selected,
           onTap: (value) {
             setState(() {
@@ -69,7 +74,6 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
           },
           type: BottomNavigationBarType.fixed,
           selectedItemColor: MyColor.primaryColor,
-          backgroundColor: Colors.grey.shade800,
           selectedLabelStyle: MyFonts.customTextStyle(
             12,
             FontWeight.bold,
@@ -85,7 +89,9 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
                   BottomNavigationBarItem(
                     label: 'Beranda',
                     icon: (selected == 0)
-                        ? SvgPicture.asset('assets/icons/home_active.svg')
+                        ? SvgPicture.asset(
+                            'assets/icons/home_active.svg',
+                          )
                         : SvgPicture.asset('assets/icons/home_nonactive.svg'),
                   ),
                   BottomNavigationBarItem(
@@ -100,7 +106,10 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
                   ),
                   BottomNavigationBarItem(
                     icon: (selected == 3)
-                        ? SvgPicture.asset('assets/icons/profil_active.svg')
+                        ? SvgPicture.asset(
+                            'assets/icons/profil_active.svg',
+                            color: MyColor.primaryColor,
+                          )
                         : SvgPicture.asset('assets/icons/profil_nonactive.svg'),
                     label: 'Akun',
                   ),
@@ -109,22 +118,27 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
                   BottomNavigationBarItem(
                     label: 'Beranda',
                     icon: (selected == 0)
-                        ? SvgPicture.asset('assets/icons/home_active.svg')
+                        ? SvgPicture.asset(
+                            'assets/icons/home_active.svg',
+                          )
                         : SvgPicture.asset('assets/icons/home_nonactive.svg'),
                   ),
                   BottomNavigationBarItem(
                     label: 'WPDA',
-                    icon: (selected == 0) ? Icon(Icons.book) : Icon(Icons.book),
+                    icon: (selected == 1) ? Icon(Icons.book) : Icon(Icons.book),
                   ),
                   BottomNavigationBarItem(
                     label: 'Riwayat',
-                    icon: (selected == 1)
+                    icon: (selected == 2)
                         ? Icon(Icons.history)
                         : Icon(Icons.history),
                   ),
                   BottomNavigationBarItem(
-                    icon: (selected == 2)
-                        ? SvgPicture.asset('assets/icons/profil_active.svg')
+                    icon: (selected == 3)
+                        ? SvgPicture.asset(
+                            'assets/icons/profil_active.svg',
+                            color: MyColor.primaryColor,
+                          )
                         : SvgPicture.asset('assets/icons/profil_nonactive.svg'),
                     label: 'Akun',
                   ),
@@ -134,6 +148,20 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
       body: (role == "admin")
           ? bodyAdmin.elementAt(selected)
           : bodyUser.elementAt(selected),
+      floatingActionButton: (selected == 1)
+          ? FloatingActionButton(
+              backgroundColor: MyColor.primaryColor,
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return AddWPDAForm();
+                }));
+              },
+              child: Icon(Icons.add),
+              shape: CircleBorder(), // Memberikan bentuk lingkaran pada FAB
+            )
+          : SizedBox(),
+      floatingActionButtonLocation:
+          (selected == 1) ? FloatingActionButtonLocation.centerDocked : null,
     );
   }
 }

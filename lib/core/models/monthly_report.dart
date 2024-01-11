@@ -45,6 +45,7 @@ class ReportData {
   String verseContent;
   String messageOfGod;
   String applicationInLife;
+  String doaTabernakel;
   String createdAt;
   int userId;
   Writer writer;
@@ -55,6 +56,7 @@ class ReportData {
     required this.verseContent,
     required this.messageOfGod,
     required this.applicationInLife,
+    required this.doaTabernakel,
     required this.createdAt,
     required this.userId,
     required this.writer,
@@ -67,6 +69,7 @@ class ReportData {
       verseContent: json['verse_content'] ?? '',
       messageOfGod: json['message_of_god'] ?? '',
       applicationInLife: json['application_in_life'] ?? '',
+      doaTabernakel: json['doa_tabernakel'] ?? '',
       createdAt: json['created_at'] ?? '',
       userId: json['user_id'] ?? 0,
       writer: Writer.fromJson(json['writer'] ?? {}),

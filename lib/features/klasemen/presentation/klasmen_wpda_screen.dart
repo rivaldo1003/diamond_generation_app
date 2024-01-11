@@ -42,13 +42,18 @@ class _KlasmenWpdaScreenState extends State<KlasmenWpdaScreen>
     });
   }
 
-  String buildImageUrlWithTimestamp(String? profilePicture) {
+  String buildImageUrlWithStaticTimestamp(String? profilePicture) {
+    final staticTimestamp = DateTime.now().millisecondsSinceEpoch;
+
     if (profilePicture != null &&
         profilePicture.isNotEmpty &&
         profilePicture != 'null') {
-      return "${ApiConstants.baseUrlImage}/$profilePicture?timestamp=${DateTime.now().millisecondsSinceEpoch}";
+      // Hilangkan bagian "public" dari URL
+      final imageUrl =
+          "https://gsjasungaikehidupan.com/storage/profile_pictures/${profilePicture}?timestamp=$staticTimestamp";
+      return imageUrl;
     } else {
-      return "${ApiConstants.baseUrlImage}/profile_pictures/dummy.jpg";
+      return "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
     }
   }
 
@@ -72,9 +77,8 @@ class _KlasmenWpdaScreenState extends State<KlasmenWpdaScreen>
 
   @override
   Widget build(BuildContext context) {
-    final getUserUsecase = Provider.of<GetUserUsecase>(context, listen: false);
-    final searchUserProvider =
-        Provider.of<SearchUserProvider>(context, listen: false);
+    final getUserUsecase = Provider.of<GetUserUsecase>(context);
+
     return Scaffold(
       appBar: AppBarWidget(
         title: 'Klasmen WPDA',
@@ -140,6 +144,7 @@ class _KlasmenWpdaScreenState extends State<KlasmenWpdaScreen>
                     .getMonthlyDataForAllUsers((token == null) ? '' : token!),
               ),
               builder: (context, snapshot) {
+                print(snapshot.data);
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return PlaceholderAllUser();
                 } else {
@@ -187,8 +192,10 @@ class _KlasmenWpdaScreenState extends State<KlasmenWpdaScreen>
                                 ? totalWpda / missedDaysTotal
                                 : 0.0;
 
-                            String imgUrl = buildImageUrlWithTimestamp(
+                            String imgUrl = buildImageUrlWithStaticTimestamp(
                                 data.data[index].profilePicture ?? '');
+
+                            imgUrl = imgUrl.replaceAll("/public", "");
 
                             return ListTile(
                               leading: Row(

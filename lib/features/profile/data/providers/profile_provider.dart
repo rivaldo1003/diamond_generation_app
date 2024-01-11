@@ -1,5 +1,4 @@
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
-import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

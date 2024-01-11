@@ -30,6 +30,15 @@ class WpdaProvider with ChangeNotifier {
     super.dispose();
   }
 
+  List<Comment> _comments = [];
+
+  List<Comment> get comments => _comments;
+
+  void updateComments(List<Comment> newComments) {
+    _comments = newComments;
+    notifyListeners();
+  }
+
   List<WPDA> wpdas = [];
   var history;
   List<HistoryWpda> historyWpda = [];

@@ -60,4 +60,9 @@ class GetUserUsecase {
   Future<ApiResponse> getMonthlyDataForAllUsers(String token) async {
     return await userRepository.getMonthlyDataForAllUsers(token);
   }
+
+  Future<void> verifyUser(
+      BuildContext context, Map<String, dynamic> body, String token) async {
+    return await userRepository.verifyUser(context, body, token);
+  }
 }

@@ -1,10 +1,13 @@
 class ApiConstants {
-  static const baseUrl =
-      'https://ae54-158-140-167-54.ngrok-free.app/diamond-generation-service/public/api';
-  static const baseUrlImage =
-      'https://ae54-158-140-167-54.ngrok-free.app/diamond-generation-service/public/storage';
+  static const baseUrl = 'https://gsjasungaikehidupan.com/api';
+  static const baseUrlImage = 'https://gsjasungaikehidupan.com/storage';
+
+  // static const baseUrl =
+  //     'http://192.168.1.8/diamond-generation-service/public/api';
+  // static const baseUrlImage = 'https://gsjasungaikehidupan.com/storage';
 
   static const loginUrl = baseUrl + '/login';
+  static const loginGoogleUrl = baseUrl + '/google-login';
   static const registerUrl = baseUrl + '/register';
   static const readUserProfileByIdUrl = baseUrl + '/users';
   static const getAllWpdaUrl = baseUrl + '/wpda';
@@ -19,6 +22,8 @@ class ApiConstants {
   static const updateProfile = baseUrl + '/profile/update';
   static const getTotalNewUsers = baseUrl + '/total-new-users';
   static const getMonthlyDataForAllUsers = baseUrl + '/users/monthly-data';
+  static const verifyUserUrl = baseUrl + '/verify-user';
+  static const commentWpda = baseUrl + '/comments';
 
   // OLD API URL
   static const newCreation1Url = baseUrl + 'new_creation_1.php';

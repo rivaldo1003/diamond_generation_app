@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:connectivity/connectivity.dart';
 import 'package:diamond_generation_app/core/services/profile/profile_api.dart';
+import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
+import 'package:diamond_generation_app/features/loading_diamond/loading_diamond.dart';
 import 'package:diamond_generation_app/features/profile/widgets/profile_placeholder.dart';
 import 'package:diamond_generation_app/features/profile/widgets/profile_placeholder_no_connection.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
@@ -120,29 +122,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
       // Tampilkan pesan atau lakukan tindakan yang sesuai
       print('Tidak ada koneksi internet');
       showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          });
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return Center(
+            child: CoolLoading(),
+          );
+        },
+      );
+
       Future.delayed(Duration(seconds: 2), () {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: MyColor.colorRed,
-            content: Text(
-              'Tidak ada koneksi internet',
-              style: MyFonts.customTextStyle(
-                14,
-                FontWeight.w500,
-                MyColor.whiteColor,
+        if (mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorRed,
+              content: Text(
+                'Tidak ada koneksi internet',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
               ),
             ),
-          ),
-        );
+          );
+        }
       });
+
       return;
     }
 
@@ -153,40 +160,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (pickedImage != null &&
           connectivityResult != ConnectivityResult.none) {
-        setState(() {
-          _image = File(pickedImage.path);
-          Navigator.of(context).pop();
-        });
+        // Pastikan widget masih aktif sebelum melakukan operasi selanjutnya
+        if (mounted) {
+          setState(() {
+            _image = File(pickedImage.path);
+            Navigator.of(context).pop();
+          });
+        }
+
+        // Cek ukuran file sebelum melakukan proses upload dan penyimpanan
+        int fileSize = await File(pickedImage.path).length();
+        int maxFileSize = 2048; // Ukuran maksimal dalam KB
+
+        if (fileSize > maxFileSize * 1024) {
+          // Ukuran file melebihi batas
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorRed,
+              content: Text(
+                'Ukuran gambar melebihi batas (2 MB)',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          return;
+        }
 
         // Lanjutkan dengan proses upload hanya jika ada koneksi internet
         await ProfileAPI()
             .uploadProfilePicture(_image!.path, int.parse(userId!), token!)
             .then((value) {
           showDialog(
-              barrierDismissible: false,
-              context: context,
-              builder: (context) {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              });
+            barrierDismissible: false,
+            context: context,
+            builder: (context) {
+              return Center(
+                child: CoolLoading(),
+              );
+            },
+          );
+
           Future.delayed(Duration(seconds: 2), () {
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: MyColor.colorGreen,
-                content: Text(
-                  'Gambar berhasil diunggah',
-                  style: MyFonts.customTextStyle(
-                    14,
-                    FontWeight.w500,
-                    MyColor.whiteColor,
+            if (mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: MyColor.colorGreen,
+                  content: Text(
+                    'Gambar berhasil diunggah',
+                    style: MyFonts.customTextStyle(
+                      14,
+                      FontWeight.w500,
+                      MyColor.whiteColor,
+                    ),
                   ),
                 ),
-              ),
-            );
+              );
+            }
           });
         });
+
         await saveImage(_image!).then((value) {
           print('Save berhasil');
         });
@@ -279,9 +316,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> clearDataProfilePicture() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove(keyImageProfile);
-    setState(() {
-      _image = null;
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() {
+        _image = null;
+      });
     });
+  }
+
+  String capitalizeFirstLetter(String text) {
+    if (text == null || text.isEmpty) {
+      return text;
+    }
+    return text[0].toUpperCase() + text.substring(1);
+  }
+
+  String? capitalizeEachWord(String? text) {
+    if (text == null || text.isEmpty) {
+      return text;
+    }
+
+    List<String> words = text.split(" ");
+    for (int i = 0; i < words.length; i++) {
+      words[i] = capitalizeFirstLetter(words[i]);
+    }
+
+    return words.join(" ");
   }
 
   @override
@@ -385,13 +444,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   _newBirthPlace.text = user_profile['birth_place'];
                   _newPhoneNumber.text = user_profile['phone_number'];
-                  _newGender.text = user_profile['gender'];
+                  _newGender.text = (user_profile['gender'] == 'Male')
+                      ? 'Laki-Laki'
+                      : 'Perempuan';
                   _newAccountNumber.text = user['account_number'];
                   _newEmail.text = user['email'];
                   _newAge.text = user_profile['age'] + ' Tahun';
-
-                  // var data = registerFormProvider.selectedGender;
-                  // var dataGender = data.toString().split('.').last;
 
                   return RefreshIndicator(
                     onRefresh: () async {
@@ -579,7 +637,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       height: 24,
                                       width: 70,
                                       decoration: BoxDecoration(
-                                        color: MyColor.colorLightBlue,
+                                        color: (user['role'] == 'admin')
+                                            ? MyColor.primaryColor
+                                            : MyColor.colorLightBlue,
                                         border: Border.all(
                                             // color: MyColor.primaryColor,
                                             ),
@@ -610,30 +670,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     MyColor.greyText,
                                   ),
                                 ),
-                                SizedBox(height: 12),
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 4,
-                                    horizontal: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: MyColor.primaryColor,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Shimmer.fromColors(
-                                    baseColor: Colors
-                                        .white, // Warna latar belakang shimmer
-                                    highlightColor: MyColor.colorLightBlue,
-                                    child: Text(
-                                      'NEW CREATION 1',
-                                      style: MyFonts.customTextStyle(
-                                        14,
-                                        FontWeight.bold,
-                                        MyColor.whiteColor,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                // SizedBox(height: 12),
+                                // Container(
+                                //   padding: EdgeInsets.symmetric(
+                                //     vertical: 4,
+                                //     horizontal: 12,
+                                //   ),
+                                //   decoration: BoxDecoration(
+                                //     color: MyColor.primaryColor,
+                                //     borderRadius: BorderRadius.circular(8),
+                                //   ),
+                                //   child: Shimmer.fromColors(
+                                //     baseColor: Colors
+                                //         .white, // Warna latar belakang shimmer
+                                //     highlightColor: MyColor.colorLightBlue,
+                                //     child: Text(
+                                //       'NEW CREATION 1',
+                                //       style: MyFonts.customTextStyle(
+                                //         14,
+                                //         FontWeight.bold,
+                                //         MyColor.whiteColor,
+                                //       ),
+                                //     ),
+                                //   ),
+                                // ),
                                 SizedBox(height: 24),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -709,7 +769,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       readOnly: false,
                                       iconData: Icons.home_rounded,
                                       title: 'Alamat',
-                                      value: user_profile['address'],
+                                      value: capitalizeEachWord(
+                                          user_profile['address'])!,
                                       onPressed: () {
                                         profileProvider
                                             .updateProfile(
@@ -762,7 +823,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               iconData: Icons.person,
                                               title: 'Jenis Kelamin',
                                               onPressed: () {
-                                                print(_newGender.text);
                                                 profileProvider
                                                     .updateProfile(
                                                         context,
@@ -802,6 +862,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                           registerFormProvider
                                                               .selectedDateOfBirth
                                                               .toString(),
+                                                      'age': registerFormProvider
+                                                          .calculateAge(
+                                                              registerFormProvider
+                                                                  .selectedDateOfBirth),
                                                     },
                                                     value.userId!,
                                                     token!)
@@ -833,7 +897,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               ),
                                             ),
                                           )
-                                        : CircularProgressIndicator(),
+                                        : CoolLoading(),
                                   ],
                                 ),
                               ],
@@ -890,8 +954,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 context: context,
                                                 builder: (context) {
                                                   return Center(
-                                                    child:
-                                                        CircularProgressIndicator(),
+                                                    child: CoolLoading(),
                                                   );
                                                 });
                                             Future.delayed(Duration(seconds: 2),
