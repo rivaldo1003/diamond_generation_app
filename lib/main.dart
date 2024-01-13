@@ -6,7 +6,7 @@ import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/data/providers/bottom_nav_bar_provider.dart';
 import 'package:diamond_generation_app/features/comment/data/comment_provider.dart';
-import 'package:diamond_generation_app/features/comment/presentation/comment_tes.dart';
+import 'package:diamond_generation_app/features/comment/presentation/comment_wpda.dart';
 import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
 import 'package:diamond_generation_app/features/history_wpda/data/detail_history_provider.dart';
 import 'package:diamond_generation_app/features/history_wpda/data/history_provider.dart';
@@ -29,6 +29,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +37,7 @@ void main() async {
     DeviceOrientation.portraitUp,
   ]);
   await initializeDateFormatting('id_ID', null);
+  timeago.setLocaleMessages('id', timeago.IdMessages());
   runApp(MyApp());
 }
 

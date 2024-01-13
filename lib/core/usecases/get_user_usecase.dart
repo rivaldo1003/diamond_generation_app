@@ -65,4 +65,13 @@ class GetUserUsecase {
       BuildContext context, Map<String, dynamic> body, String token) async {
     return await userRepository.verifyUser(context, body, token);
   }
+
+  Future<Map<String, dynamic>> userGenderTotal(String token) async {
+    return await userRepository.userGenderTotal(token);
+  }
+
+  Future<void> updateFullName(BuildContext context, Map<String, dynamic> body,
+      String userId, String token) async {
+    return await userRepository.updateFullName(context, body, userId, token);
+  }
 }

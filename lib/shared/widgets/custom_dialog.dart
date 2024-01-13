@@ -7,13 +7,15 @@ class CustomDialog extends StatelessWidget {
   final String title;
   final String content;
   final String textColorYes;
+  Color? buttonYesColor;
 
-  const CustomDialog({
+  CustomDialog({
     super.key,
     required this.onApprovePressed,
     required this.title,
     required this.content,
     required this.textColorYes,
+    this.buttonYesColor,
   });
 
   @override
@@ -58,7 +60,7 @@ class CustomDialog extends StatelessWidget {
             style: MyFonts.customTextStyle(
               15,
               FontWeight.bold,
-              Colors.lightBlue,
+              (buttonYesColor == null) ? Colors.lightBlue : buttonYesColor,
             ),
           ),
         ),

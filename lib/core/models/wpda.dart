@@ -74,6 +74,7 @@ class Comment {
   final String commentsContent;
   final String createdAt;
   final Comentator comentator;
+  String? profilePicture;
 
   Comment({
     required this.id,
@@ -100,7 +101,7 @@ class Comentator {
   final int id;
   final String fullName;
   final String email;
-  final String profilePicture;
+  String profilePicture;
 
   Comentator({
     required this.id,

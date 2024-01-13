@@ -265,9 +265,7 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                       title: 'Jenis Kelamin',
                       value: (widget.userData.profile == null)
                           ? '-'
-                          : (widget.userData.profile!.gender == 'Male')
-                              ? 'Laki-Laki'
-                              : 'Perempuan',
+                          : widget.userData.profile!.gender,
                       controller: _controllerGender,
                     ),
                     SizedBox(height: 4),

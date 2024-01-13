@@ -1,12 +1,8 @@
-import 'dart:convert';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
-import 'package:diamond_generation_app/features/comment/presentation/comment_screen.dart';
-import 'package:diamond_generation_app/features/comment/presentation/my_bottom_sheet.dart';
+import 'package:diamond_generation_app/features/comment/presentation/comment_wpda.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
-import 'package:diamond_generation_app/features/wpda/data/providers/like_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/presentation/edit_wpda.screen.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
@@ -446,6 +442,8 @@ class _CardWpdaState extends State<CardWpda> {
                                                 content:
                                                     'Apakah Anda yakin ingin menghapus WPDA ini?',
                                                 textColorYes: 'Hapus',
+                                                buttonYesColor:
+                                                    MyColor.colorRed,
                                               );
                                             });
                                       },
@@ -556,14 +554,6 @@ class _CardWpdaState extends State<CardWpda> {
                                     backgroundColor: Colors.white,
                                     backgroundImage:
                                         CachedNetworkImageProvider(imgUrl!),
-                                    child: ClipOval(
-                                      child: Image(
-                                        image:
-                                            CachedNetworkImageProvider(imgUrl!),
-                                        fit: BoxFit
-                                            .cover, // Sesuaikan dengan kebutuhan Anda
-                                      ),
-                                    ),
                                   ),
                             SizedBox(width: 12),
                             Expanded(
@@ -849,21 +839,36 @@ class _CardWpdaState extends State<CardWpda> {
                               children: [
                                 IconButton(
                                   onPressed: () {
-                                    wpdaProvider.refreshWpdaHistory(
-                                        value.userId!, token!);
+                                    // wpdaProvider.refreshWpdaHistory(
+                                    //     value.userId!, token!);
+                                    // showModalBottomSheet(
+                                    //     shape: RoundedRectangleBorder(
+                                    //       borderRadius: BorderRadius.vertical(
+                                    //         top: Radius.circular(20),
+                                    //       ),
+                                    //     ),
+                                    //     isScrollControlled: true,
+                                    //     context: context,
+                                    //     builder: (context) {
+                                    //       return PartialCommentScreen(
+                                    //         wpda: widget.wpda,
+                                    //         profilePicture: imgUrl!,
+                                    //       );
+                                    //     });
                                     showModalBottomSheet(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(
-                                            top: Radius.circular(20),
-                                          ),
+                                      context: context,
+                                      isScrollControlled: true,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.vertical(
+                                          top: Radius.circular(20),
                                         ),
-                                        isScrollControlled: true,
-                                        context: context,
-                                        builder: (context) {
-                                          return PartialCommentScreen(
-                                            wpda: widget.wpda,
-                                          );
-                                        });
+                                      ),
+                                      builder: (context) {
+                                        return PartialCommentWpda(
+                                          wpda: widget.wpda,
+                                        );
+                                      },
+                                    );
                                   },
                                   icon: Icon(
                                     Icons.comment,

@@ -20,10 +20,12 @@ import '../../../shared/widgets/placeholder_all_user.dart';
 
 class CommentScreen extends StatefulWidget {
   final WPDA wpda;
+  final String profilePicture;
 
   const CommentScreen({
     Key? key,
     required this.wpda,
+    required this.profilePicture,
   }) : super(key: key);
 
   @override
@@ -66,6 +68,7 @@ class _CommentScreenState extends State<CommentScreen>
           buildImageUrlWithStaticTimestamp(comment.comentator.profilePicture);
       print('IMG DATA : ${imgData}');
       return Comment(
+          id: comment.id.toString(),
           commentsContent: comment.commentsContent,
           commentator: comment.comentator.fullName,
           fullName: comment.comentator.fullName,
@@ -328,11 +331,12 @@ class _CommentScreenState extends State<CommentScreen>
 
     // Setelah sukses, tambahkan komentar ke daftar dan perbarui data
     Comment newCommentObject = Comment(
+      id: '1',
       commentsContent: newComment,
       commentator: '', // Gantilah dengan nama pengguna yang sesuai
       fullName: fullName!, // Gantilah dengan nama pengguna yang sesuai
       createdAt: DateTime.now().toIso8601String(),
-      profilePicture: '$path',
+      profilePicture: widget.profilePicture,
     );
 
     commentsWpda.add(newCommentObject);
@@ -391,7 +395,7 @@ class _CommentScreenState extends State<CommentScreen>
   }
 }
 
-class CommentList extends StatelessWidget {
+class CommentList extends StatefulWidget {
   final WPDA wpda;
   List<Comment> commentsWpda;
 
@@ -401,16 +405,70 @@ class CommentList extends StatelessWidget {
     required this.commentsWpda,
   }) : super(key: key);
 
+  @override
+  State<CommentList> createState() => _CommentListState();
+}
+
+class _CommentListState extends State<CommentList> {
   String? imgUrl;
+
+  Future<void> deleteComment(String id, String token) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('${ApiConstants.deleteCommentWpda}/$id'),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Delete successfully');
+
+        // Tambahkan logika pembaruan data setelah menghapus komentar
+        await getWpdaUsecase.getAllWpda(token);
+
+        // Perbarui tampilan
+        if (mounted) {
+          setState(() {});
+        }
+        getWpdaUsecase.getAllWpda(token);
+      } else {
+        throw Exception('Failed to delete comment');
+      }
+    } catch (e) {
+      print('Error in deleteComment: $e');
+      // Handle error, tampilkan pesan atau notifikasi jika diperlukan
+    }
+  }
+
+  String? token;
+
+  Future getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      token = prefs.getString(SharedPreferencesManager.keyToken);
+      print(token);
+    });
+  }
+
+  late GetWpdaUsecase getWpdaUsecase;
+
+  @override
+  void initState() {
+    getWpdaUsecase = Provider.of<GetWpdaUsecase>(context, listen: false);
+    getToken().then((value) => print('token didapat'));
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return StatefulBuilder(builder: (context, setState) {
       return ListView.builder(
-        itemCount: commentsWpda.length,
+        itemCount: widget.commentsWpda.length,
         itemBuilder: (context, index) {
           final Duration timeDifference = DateTime.now()
-              .difference(DateTime.parse(commentsWpda[index].createdAt));
+              .difference(DateTime.parse(widget.commentsWpda[index].createdAt));
           final resultTime =
               timeago.format(DateTime.now().subtract(timeDifference));
           String buildImageUrlWithStaticTimestamp(String? profilePicture) {
@@ -427,13 +485,78 @@ class CommentList extends StatelessWidget {
             }
           }
 
-          imgUrl = commentsWpda[index].profilePicture;
+          imgUrl = widget.commentsWpda[index].profilePicture;
           return ListTile(
+            onLongPress: () async {
+              await showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text(
+                      'Konfirmasi hapus komentar',
+                      style: MyFonts.customTextStyle(
+                        14,
+                        FontWeight.bold,
+                        MyColor.whiteColor,
+                      ),
+                    ),
+                    content:
+                        Text('Apakah anda yakin ingin menghapus komentar ini?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context, false);
+                        },
+                        child: Text('Batal'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          try {
+                            String commentId = widget.commentsWpda[index].id!;
+                            await deleteComment(commentId, token!);
+                            Navigator.pop(context, false);
+
+                            setState(() {
+                              widget.commentsWpda.removeAt(index);
+                            });
+
+                            // Show a snackbar or perform any other actions after successful deletion
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: MyColor.colorGreen,
+                                content: Text(
+                                  'Komentar berhasil dihapus',
+                                  style: MyFonts.customTextStyle(
+                                      14, FontWeight.w500, MyColor.whiteColor),
+                                ),
+                              ),
+                            );
+                          } catch (e) {
+                            // Handle errors or show a snackbar in case of failure
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: MyColor.colorRed,
+                                content: Text(
+                                  'Gagal menghapus komentar',
+                                  style: MyFonts.customTextStyle(
+                                      14, FontWeight.w500, MyColor.whiteColor),
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        child: Text('Hapus'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
             title: Row(
               children: [
                 Expanded(
                   child: Text(
-                    commentsWpda[index].fullName,
+                    widget.commentsWpda[index].fullName,
                     style: MyFonts.customTextStyle(
                       10,
                       FontWeight.w500,
@@ -453,7 +576,7 @@ class CommentList extends StatelessWidget {
               ],
             ),
             subtitle: Text(
-              commentsWpda[index].commentsContent,
+              widget.commentsWpda[index].commentsContent,
               style: MyFonts.customTextStyle(
                 12,
                 FontWeight.w500,
@@ -468,7 +591,7 @@ class CommentList extends StatelessWidget {
                     radius: 20,
                     backgroundColor: Colors.white,
                     backgroundImage: NetworkImage(
-                        'https://gsjasungaikehidupan.com/storage/profile_pictures/${commentsWpda[index].profilePicture}'),
+                        'https://gsjasungaikehidupan.com/storage/profile_pictures/${widget.commentsWpda[index].profilePicture}'),
                   ),
           );
         },
@@ -479,10 +602,12 @@ class CommentList extends StatelessWidget {
 
 class PartialCommentScreen extends StatelessWidget {
   final WPDA wpda;
+  final String profilePicture;
 
   PartialCommentScreen({
     Key? key,
     required this.wpda,
+    required this.profilePicture,
   }) : super(key: key);
 
   @override
@@ -492,12 +617,16 @@ class PartialCommentScreen extends StatelessWidget {
 
     return Container(
       height: partialScreenHeight,
-      child: CommentScreen(wpda: wpda),
+      child: CommentScreen(
+        wpda: wpda,
+        profilePicture: profilePicture,
+      ),
     );
   }
 }
 
 class Comment {
+  String? id;
   final String commentsContent;
   final String commentator;
   final String fullName; // tambahkan field fullName
@@ -505,6 +634,7 @@ class Comment {
   final String profilePicture; // tambahkan field createdAt
 
   Comment({
+    this.id,
     required this.commentsContent,
     required this.commentator,
     required this.fullName,

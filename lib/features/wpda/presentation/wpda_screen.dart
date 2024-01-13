@@ -22,6 +22,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 
 class WPDAScreen extends StatefulWidget {
   @override
@@ -78,6 +80,71 @@ class _WPDAScreenState extends State<WPDAScreen> {
         _image = File(imagePath);
       });
     }
+
+    if (userId != null && _image == null) {
+      await fetchProfilePicture(int.parse(userId!), token!);
+    } else {
+      print('Halo');
+      // Tindakan yang sesuai jika userId null
+    }
+  }
+
+  Future<void> fetchProfilePicture(int userId, String token) async {
+    try {
+      var response = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}/users/$userId/profile-picture'),
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        var profilePictureUrl = jsonResponse['profile_picture'];
+
+        // Modifikasi URL dengan menambahkan "profile_pictures"
+        var modifiedUrl = profilePictureUrl.replaceFirst(
+            "storage/", "storage/profile_pictures/");
+
+        print(modifiedUrl);
+
+        // Jika Anda masih ingin menyimpan gambar, Anda dapat memanggil downloadAndSaveImage
+        await downloadAndSaveImage(modifiedUrl, userId);
+      } else {
+        print('Gagal mengambil gambar. Kode status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> saveImage(File imageFile) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove(keyImageProfile);
+    prefs.setString(keyImageProfile, imageFile.path);
+  }
+
+  Future<void> downloadAndSaveImage(String imageUrl, int userId) async {
+    final response = await http.get(Uri.parse(imageUrl));
+
+    if (response.statusCode == 200) {
+      final appDir = await getApplicationDocumentsDirectory();
+      final extension =
+          imageUrl.split('.').last; // Ambil ekstensi gambar dari URL
+      final localPath = appDir.path + '/user_$userId.$extension';
+
+      final file = File(localPath);
+      await file.writeAsBytes(response.bodyBytes);
+
+      print('Gambar berhasil diunduh dan disimpan di: $localPath');
+      _image = File(localPath);
+      saveImage(_image!).then((value) {
+        print('Berhasil di download dari server dan di save di SP');
+      });
+    } else {
+      print('Gagal mengunduh gambar. Status code: ${response.statusCode}');
+    }
   }
 
   Future<void> viewAllSharedPreferences() async {
@@ -93,12 +160,21 @@ class _WPDAScreenState extends State<WPDAScreen> {
     print('All SharedPreferences Data: $allData');
   }
 
+  Future loading() async {
+    Future.delayed(Duration(seconds: 2), () {
+      return PlaceholderCardWpda();
+    });
+  }
+
   @override
   void initState() {
-    viewAllSharedPreferences();
+    loading().then((value) => print('Dijalankan'));
     getUserId().then((userId) {
       if (userId != null) {
-        loadImage();
+        loadImage().then((value) {
+          loadImage();
+          setState(() {});
+        });
       }
     });
     getToken();
@@ -180,30 +256,90 @@ class _WPDAScreenState extends State<WPDAScreen> {
                           ),
                         ),
                         (_image == null)
-                            ? Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white, // Warna border putih
-                                    width: 2.0, // Lebar border
+                            ? GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        backgroundColor: Colors.transparent,
+                                        content: InkWell(
+                                          onTap: () {
+                                            // Close the dialog when the image is tapped
+                                          },
+                                          child: Container(
+                                            height: 300,
+                                            width: 300,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: CircleAvatar(
+                                              backgroundImage: AssetImage(
+                                                'assets/images/profile_empty.jpg',
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white, // Warna border putih
+                                      width: 2.0, // Lebar border
+                                    ),
                                   ),
-                                ),
-                                child: CircleAvatar(
-                                  backgroundImage: AssetImage(
-                                    'assets/images/profile_empty.jpg',
+                                  child: CircleAvatar(
+                                    backgroundImage: AssetImage(
+                                      'assets/images/profile_empty.jpg',
+                                    ),
                                   ),
                                 ),
                               )
-                            : Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white, // Warna border putih
-                                    width: 2.0, // Lebar border
+                            : GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        backgroundColor: Colors.transparent,
+                                        content: InkWell(
+                                          onTap: () {
+                                            // Close the dialog when the image is tapped
+                                          },
+                                          child: Container(
+                                            height: 300,
+                                            width: 300,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: CircleAvatar(
+                                              backgroundImage:
+                                                  FileImage(_image!),
+                                              radius: 150,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white, // Warna border putih
+                                      width: 2.0, // Lebar border
+                                    ),
                                   ),
-                                ),
-                                child: CircleAvatar(
-                                  backgroundImage: FileImage(_image!),
+                                  child: CircleAvatar(
+                                    backgroundImage: FileImage(_image!),
+                                  ),
                                 ),
                               ),
                       ],
@@ -382,6 +518,7 @@ class _WPDAScreenState extends State<WPDAScreen> {
                                           itemCount: data!.length,
                                           itemBuilder: (context, index) {
                                             var wpda = data![index];
+
                                             return CardWpda(
                                               wpda: wpda,
                                             );

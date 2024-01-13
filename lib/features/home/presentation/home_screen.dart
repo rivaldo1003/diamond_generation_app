@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/home/data/providers/home_provider.dart';
@@ -382,12 +381,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 // ),
                 SizedBox(height: 24),
                 Row(
-                  // crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width / 2.5,
-                      child: Image.asset('assets/images/title.png'),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Container(
+                            child: Image.asset(
+                              'assets/images/logo_diamond.png',
+                              height: 65,
+                              width: 65,
+                            ),
+                          ),
+                          Container(
+                            width: MediaQuery.of(context).size.width / 2.7,
+                            child:
+                                Image.asset('assets/images/diamond_title.png'),
+                          ),
+                        ],
+                      ),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -398,8 +410,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       child: Text(
                         'Lihat semua\n pengguna',
+                        textAlign: TextAlign.right,
                         style: MyFonts.customTextStyle(
-                          12,
+                          11,
                           FontWeight.bold,
                           MyColor.colorLightBlue,
                         ),
@@ -488,7 +501,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 top: 20,
                                 left: 20,
                                 right: 20,
-                                bottom: 30,
+                                bottom: 12,
                               ),
                               decoration: BoxDecoration(
                                 // color: MyColor.colorLightBlue.withOpacity(0.7),
@@ -527,6 +540,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                       Text(
                                         'DIAMOND \nCOMMUNITY',
+                                        textAlign: TextAlign.right,
                                         style: MyFonts.customTextStyle(
                                           10,
                                           FontWeight.bold,
@@ -544,6 +558,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         subtitle2: ' / ${totalUser} ',
                                         textColorSub2: Colors.grey[300],
                                         description: 'Orang',
+                                        colorBg: MyColor.colorGreen,
                                       ),
                                       SizedBox(width: 12),
                                       CardBeranda(
@@ -556,25 +571,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ],
                                   ),
-
-                                  // SizedBox(height: 12),
-                                  // Row(
-                                  //   children: [
-                                  //     CardBeranda(
-                                  //       title: 'Komunitas',
-                                  //       subtitle1: '200',
-                                  //       subtitle2: ' / 260',
-                                  //       description: 'Orang',
-                                  //     ),
-                                  //     SizedBox(width: 12),
-                                  //     CardBeranda(
-                                  //       title: 'WPDA',
-                                  //       subtitle1: '240',
-                                  //       subtitle2: ' / 260',
-                                  //       description: 'Orang',
-                                  //     ),
-                                  //   ],
-                                  // ),
                                 ],
                               ),
                             );
@@ -591,6 +587,58 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
                     },
                   ),
+                  FutureBuilder(
+                    future: Future.delayed(
+                      Duration(milliseconds: 700),
+                      () => getUserUsecase
+                          .userGenderTotal((token == null) ? '' : token!),
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return PlaceholderHome();
+                      } else {
+                        if (snapshot.hasData) {
+                          if (snapshot.data!.isNotEmpty ||
+                              snapshot.data != null) {
+                            final maleData = snapshot.data!['total_male_users'];
+                            final femaleData =
+                                snapshot.data!['total_female_users'];
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child: Row(
+                                children: [
+                                  CardBeranda(
+                                    title: 'Laki-Laki',
+                                    subtitle1: maleData.toString(),
+                                    subtitle2: ' Orang',
+                                    textColorSub2: Colors.grey[300],
+                                    description: 'Total',
+                                    colorBg: MyColor.primaryColor,
+                                  ),
+                                  SizedBox(width: 12),
+                                  CardBeranda(
+                                    title: 'Perempuan',
+                                    subtitle1: femaleData.toString(),
+                                    subtitle2: ' Orang',
+                                    textColorSub2: Colors.grey[300],
+                                    description: 'Total',
+                                    colorBg: Colors.pink,
+                                  ),
+                                ],
+                              ),
+                            );
+                          } else {
+                            return Center(
+                              child: Text('Data masih kosong'),
+                            );
+                          }
+                        } else {
+                          return PlaceholderHome();
+                        }
+                      }
+                    },
+                  )
                 ],
               ),
             ),
@@ -607,6 +655,7 @@ class CardBeranda extends StatelessWidget {
   final String subtitle2;
   final String description;
   Color? textColorSub2;
+  Color? colorBg;
 
   CardBeranda({
     Key? key,
@@ -615,6 +664,7 @@ class CardBeranda extends StatelessWidget {
     required this.subtitle2,
     required this.description,
     this.textColorSub2,
+    this.colorBg,
   }) : super(key: key);
 
   @override
@@ -623,7 +673,9 @@ class CardBeranda extends StatelessWidget {
       child: Container(
         height: 130,
         decoration: BoxDecoration(
-          color: MyColor.colorLightBlue.withOpacity(0.9),
+          color: (colorBg == null)
+              ? MyColor.colorLightBlue.withOpacity(0.9)
+              : colorBg,
           // color: Colors.black,
           borderRadius: BorderRadius.circular(12),
         ),

@@ -23,6 +23,15 @@ class ProfileProvider with ChangeNotifier {
     // }
   }
 
+  Future updateFullName(
+    BuildContext context,
+    Map<String, dynamic> body,
+    String userId,
+    String token,
+  ) async {
+    await _getUserUsecase.updateFullName(context, body, userId, token);
+  }
+
   Future updateProfile(
     BuildContext context,
     Map<String, dynamic> body,

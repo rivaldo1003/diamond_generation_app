@@ -28,12 +28,21 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
   bool isKeyboardVisible = false;
 
   String? token;
+  String? role;
 
   Future getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       token = prefs.getString(SharedPreferencesManager.keyToken);
       print(token);
+    });
+  }
+
+  Future getRole() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      role = prefs.getString(SharedPreferencesManager.keyRole);
+      print(role);
     });
   }
 
@@ -55,6 +64,7 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
   @override
   void initState() {
     getToken();
+    getRole();
     super.initState();
   }
 
@@ -379,7 +389,9 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                                       shape: BoxShape.circle,
                                                       border: Border.all(
                                                         color: (userData.role ==
-                                                                'admin')
+                                                                    'admin' ||
+                                                                userData.role ==
+                                                                    'super_admin')
                                                             ? MyColor
                                                                 .primaryColor
                                                             : Colors
@@ -398,7 +410,9 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                                       shape: BoxShape.circle,
                                                       border: Border.all(
                                                         color: (userData.role ==
-                                                                'admin')
+                                                                    'admin' ||
+                                                                userData.role ==
+                                                                    'super_admin')
                                                             ? MyColor
                                                                 .primaryColor
                                                             : Colors
@@ -504,55 +518,50 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                                                   )
                                                                 : Container(),
                                                             SizedBox(width: 12),
-                                                            ButtonApproveUser(
-                                                              iconData:
-                                                                  Icons.delete,
-                                                              onTap: () {
-                                                                showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  barrierDismissible:
-                                                                      false,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return CustomDialog(
-                                                                      onApprovePressed:
-                                                                          (context) async {
-                                                                        Future.delayed(
-                                                                            Duration(seconds: 2),
-                                                                            () {
-                                                                          CircularProgressIndicator();
-                                                                        });
-                                                                        viewValue
-                                                                            .deleteData(
-                                                                                userData.id,
-                                                                                context,
-                                                                                (token == null) ? '' : token!)
-                                                                            .then((value) {
-                                                                          Future.delayed(
-                                                                              Duration(seconds: 2),
-                                                                              () {
-                                                                            setState(() {});
-                                                                          });
-                                                                        });
-                                                                        ;
-                                                                      },
-                                                                      title:
-                                                                          'Hapus konfirmasi',
-                                                                      content:
-                                                                          'Apakah anda yakin ingin menghapus user ini? semua data WPDA juga akan ikut terhapus. Mohon diperhatikan!',
-                                                                      textColorYes:
-                                                                          'Hapus',
-                                                                    );
-                                                                  },
-                                                                );
-                                                              },
-                                                              background:
-                                                                  MyColor
-                                                                      .colorRed,
-                                                              iconColor: MyColor
-                                                                  .whiteColor,
-                                                            ),
+                                                            (role ==
+                                                                    'super_admin')
+                                                                ? ButtonApproveUser(
+                                                                    iconData: Icons
+                                                                        .delete,
+                                                                    onTap: () {
+                                                                      showDialog(
+                                                                        context:
+                                                                            context,
+                                                                        barrierDismissible:
+                                                                            false,
+                                                                        builder:
+                                                                            (context) {
+                                                                          return CustomDialog(
+                                                                            onApprovePressed:
+                                                                                (context) async {
+                                                                              Future.delayed(Duration(seconds: 2), () {
+                                                                                CircularProgressIndicator();
+                                                                              });
+                                                                              viewValue.deleteData(userData.id, context, (token == null) ? '' : token!).then((value) {
+                                                                                Future.delayed(Duration(seconds: 2), () {
+                                                                                  setState(() {});
+                                                                                });
+                                                                              });
+                                                                              ;
+                                                                            },
+                                                                            title:
+                                                                                'Hapus konfirmasi',
+                                                                            content:
+                                                                                'Apakah anda yakin ingin menghapus user ini? semua data WPDA juga akan ikut terhapus. Mohon diperhatikan!',
+                                                                            textColorYes:
+                                                                                'Hapus',
+                                                                          );
+                                                                        },
+                                                                      );
+                                                                    },
+                                                                    background:
+                                                                        MyColor
+                                                                            .colorRed,
+                                                                    iconColor:
+                                                                        MyColor
+                                                                            .whiteColor,
+                                                                  )
+                                                                : SizedBox(),
                                                           ],
                                                         )
                                                       : Container(),

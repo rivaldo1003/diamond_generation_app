@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CardDetailProfile extends StatefulWidget {
-  final IconData iconData;
+  final Widget iconData;
   final String title;
   final String value;
   final bool? readOnly;
@@ -46,7 +46,7 @@ class _CardDetailProfileState extends State<CardDetailProfile> {
     String? gender = prefs.getString(SharedPreferencesManager.keyGender);
 
     if (gender != null) {
-      if (gender == 'Male') {
+      if (gender == 'Laki-Laki') {
         formProv.selectedGender = Gender.Male;
       } else {
         formProv.selectedGender = Gender.Female;
@@ -55,7 +55,7 @@ class _CardDetailProfileState extends State<CardDetailProfile> {
       if (widget.title == 'Jenis Kelamin') {
         if (widget.controller != null) {
           widget.controller!.text =
-              (gender == 'Male') ? 'Laki-Laki' : 'Perempuan';
+              (gender == 'Laki-Laki') ? 'Laki-Laki' : 'Perempuan';
         }
       }
     } else {
@@ -361,8 +361,8 @@ class _CardDetailProfileState extends State<CardDetailProfile> {
                     child: Row(
                       children: [
                         SizedBox(width: 12),
-                        Icon(widget.iconData),
-                        SizedBox(width: 12),
+                        widget.iconData,
+                        SizedBox(width: 16),
                         Expanded(
                           child: Text(
                             widget.title,

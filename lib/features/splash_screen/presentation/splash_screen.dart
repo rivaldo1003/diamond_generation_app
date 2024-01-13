@@ -24,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
     print(profileCompleted);
     Future.delayed(Duration(seconds: 3), () {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-        if (token != null && role == 'admin') {
+        if (token != null && role == 'admin' || role == 'super_admin') {
           return BottomNavigationPage();
         } else if (token != null && role == 'user' && profileCompleted == '1') {
           return BottomNavigationPage();
@@ -61,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 baseColor: Colors.amber, // Warna latar belakang shimmer
                 highlightColor: Colors.grey.shade300,
                 child: Image.asset(
-                  'assets/images/title.png',
+                  'assets/images/diamond_title.png',
                 ),
               ),
             ),

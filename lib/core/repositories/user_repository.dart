@@ -20,6 +20,9 @@ abstract class UserRepository {
   Future<ApiResponse> getMonthlyDataForAllUsers(String token);
   Future<void> verifyUser(
       BuildContext context, Map<String, dynamic> body, String token);
+  Future<Map<String, dynamic>> userGenderTotal(String token);
+  Future<void> updateFullName(BuildContext context, Map<String, dynamic> body,
+      String userId, String token);
 }
 
 class UserRepositoryImpl implements UserRepository {
@@ -96,5 +99,16 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> verifyUser(
       BuildContext context, Map<String, dynamic> body, String token) async {
     await userApi.verifyUser(context, body, token);
+  }
+
+  @override
+  Future<Map<String, dynamic>> userGenderTotal(String token) async {
+    return await userApi.userGenderTotal(token);
+  }
+
+  @override
+  Future<void> updateFullName(BuildContext context, Map<String, dynamic> body,
+      String userId, String token) async {
+    return await userApi.updateFullName(context, body, userId, token);
   }
 }

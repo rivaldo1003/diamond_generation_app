@@ -3,12 +3,13 @@ import 'dart:io';
 import 'package:connectivity/connectivity.dart';
 import 'package:diamond_generation_app/core/services/profile/profile_api.dart';
 import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
-import 'package:diamond_generation_app/features/loading_diamond/loading_diamond.dart';
 import 'package:diamond_generation_app/features/profile/widgets/profile_placeholder.dart';
 import 'package:diamond_generation_app/features/profile/widgets/profile_placeholder_no_connection.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/widgets/bottom_dialog_profile_screen.dart';
 import 'package:diamond_generation_app/shared/widgets/placeholder.dart';
+import 'package:diamond_generation_app/shared/widgets/textfield.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
@@ -70,6 +71,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _newAccountNumber = TextEditingController();
   final TextEditingController _newEmail = TextEditingController();
   final TextEditingController _newBirthPlace = TextEditingController();
+  final TextEditingController _newNameController = TextEditingController();
 
   late SharedPreferences _prefs;
   final String key = 'birth_date';
@@ -449,6 +451,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       : 'Perempuan';
                   _newAccountNumber.text = user['account_number'];
                   _newEmail.text = user['email'];
+                  _newNameController.text = user['full_name'];
                   _newAge.text = user_profile['age'] + ' Tahun';
 
                   return RefreshIndicator(
@@ -617,12 +620,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ],
                                 ),
-                                Text(
-                                  '${user['full_name']}',
-                                  style: MyFonts.customTextStyle(
-                                    18,
-                                    FontWeight.bold,
-                                    MyColor.whiteColor,
+
+                                GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: Text(
+                                            'Ubah Nama Anda',
+                                            style: MyFonts.customTextStyle(
+                                                14,
+                                                FontWeight.bold,
+                                                MyColor.whiteColor),
+                                          ),
+                                          content: Container(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                TextFieldWidget(
+                                                  hintText: 'Nama Lengkap',
+                                                  obscureText: false,
+                                                  controller:
+                                                      _newNameController,
+                                                ),
+                                                SizedBox(height: 12),
+                                                ButtonWidget(
+                                                  title: 'Simpan',
+                                                  color: MyColor.primaryColor,
+                                                  onPressed: () {
+                                                    profileProvider
+                                                        .updateFullName(
+                                                            context,
+                                                            {
+                                                              'full_name':
+                                                                  _newNameController
+                                                                      .text
+                                                            },
+                                                            userId!,
+                                                            token!)
+                                                        .then((value) {
+                                                      Future.delayed(
+                                                          Duration(seconds: 2),
+                                                          () {
+                                                        setState(() {});
+                                                      });
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Text(
+                                    '${user['full_name']}',
+                                    style: MyFonts.customTextStyle(
+                                      18,
+                                      FontWeight.bold,
+                                      MyColor.whiteColor,
+                                    ),
                                   ),
                                 ),
                                 SizedBox(height: 8),
@@ -635,9 +694,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       margin:
                                           EdgeInsets.symmetric(horizontal: 10),
                                       height: 24,
-                                      width: 70,
+                                      width: (user['role'] == 'super_admin')
+                                          ? 120
+                                          : 70,
                                       decoration: BoxDecoration(
-                                        color: (user['role'] == 'admin')
+                                        color: (user['role'] == 'admin' ||
+                                                user['role'] == 'super_admin')
                                             ? MyColor.primaryColor
                                             : MyColor.colorLightBlue,
                                         border: Border.all(
@@ -647,7 +709,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                       child: Center(
                                         child: Text(
-                                          '${user['role']}',
+                                          (user['role'] == 'super_admin')
+                                              ? 'Super Admin'
+                                              : (user['role'] == 'admin')
+                                                  ? 'Admin'
+                                                  : 'User',
                                           style: MyFonts.customTextStyle(
                                             14,
                                             FontWeight.bold,
@@ -741,7 +807,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     CardDetailProfile(
                                       readOnly: true,
                                       controller: _newAccountNumber,
-                                      iconData: Icons.numbers,
+                                      iconData: SvgPicture.asset(
+                                        'assets/icons/account_number.svg',
+                                        color: MyColor.primaryColor
+                                            .withOpacity(0.7),
+                                      ),
                                       title: 'Nomor Akun',
                                       value: (user['account_number'] == null)
                                           ? 'Null'
@@ -751,7 +821,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     CardDetailProfile(
                                       readOnly: true,
                                       controller: _newAge,
-                                      iconData: Icons.campaign,
+                                      iconData: SvgPicture.asset(
+                                        'assets/icons/age.svg',
+                                        color: MyColor.primaryColor
+                                            .withOpacity(0.7),
+                                      ),
                                       title: 'Umur',
                                       value: user_profile['age'] + ' Tahun',
                                     ),
@@ -759,7 +833,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     CardDetailProfile(
                                       controller: _newEmail,
                                       readOnly: true,
-                                      iconData: Icons.email,
+                                      iconData: SvgPicture.asset(
+                                        'assets/icons/email.svg',
+                                        color: MyColor.primaryColor
+                                            .withOpacity(0.7),
+                                      ),
                                       title: 'Email',
                                       value: user['email'],
                                     ),
@@ -767,7 +845,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     CardDetailProfile(
                                       controller: _newAddress,
                                       readOnly: false,
-                                      iconData: Icons.home_rounded,
+                                      iconData: SvgPicture.asset(
+                                        'assets/icons/address.svg',
+                                        color: MyColor.primaryColor
+                                            .withOpacity(0.7),
+                                      ),
                                       title: 'Alamat',
                                       value: capitalizeEachWord(
                                           user_profile['address'])!,
@@ -810,7 +892,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           });
                                         });
                                       },
-                                      iconData: Icons.phone,
+                                      iconData: SvgPicture.asset(
+                                        'assets/icons/phone_number.svg',
+                                        color: MyColor.primaryColor
+                                            .withOpacity(0.7),
+                                      ),
                                       title: 'No Telepon',
                                       value: user_profile['phone_number'],
                                     ),
@@ -820,7 +906,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           CardDetailProfile(
                                               controller: _newGender,
                                               readOnly: true,
-                                              iconData: Icons.person,
+                                              iconData: SvgPicture.asset(
+                                                'assets/icons/gender.svg',
+                                                color: MyColor.primaryColor
+                                                    .withOpacity(0.7),
+                                              ),
                                               title: 'Jenis Kelamin',
                                               onPressed: () {
                                                 profileProvider
@@ -877,7 +967,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             });
                                           },
                                           readOnly: false,
-                                          iconData: Icons.add_location_alt,
+                                          iconData: SvgPicture.asset(
+                                            'assets/icons/born.svg',
+                                            color: MyColor.primaryColor
+                                                .withOpacity(0.7),
+                                          ),
                                           title: 'Tempat/Tanggal Lahir',
                                           value: user_profile['birth_place'] +
                                               ', ' +

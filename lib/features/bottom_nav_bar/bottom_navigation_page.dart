@@ -41,7 +41,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
     ProfileScreen(),
   ];
   List<Widget> bodyUser = [
-    HomeScreenUser(),
+    // HomeScreenUser(),
     WPDAScreen(),
     HistoryScreen(),
     ProfileScreen(),
@@ -84,7 +84,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
             FontWeight.w500,
             MyColor.blackColor,
           ),
-          items: (role == 'admin')
+          items: (role == 'admin' || role == 'super_admin')
               ? [
                   BottomNavigationBarItem(
                     label: 'Beranda',
@@ -115,14 +115,14 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
                   ),
                 ]
               : [
-                  BottomNavigationBarItem(
-                    label: 'Beranda',
-                    icon: (selected == 0)
-                        ? SvgPicture.asset(
-                            'assets/icons/home_active.svg',
-                          )
-                        : SvgPicture.asset('assets/icons/home_nonactive.svg'),
-                  ),
+                  // BottomNavigationBarItem(
+                  //   label: 'Beranda',
+                  //   icon: (selected == 0)
+                  //       ? SvgPicture.asset(
+                  //           'assets/icons/home_active.svg',
+                  //         )
+                  //       : SvgPicture.asset('assets/icons/home_nonactive.svg'),
+                  // ),
                   BottomNavigationBarItem(
                     label: 'WPDA',
                     icon: (selected == 1) ? Icon(Icons.book) : Icon(Icons.book),
@@ -145,10 +145,12 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
                 ],
         ),
       ),
-      body: (role == "admin")
+      body: (role == "admin" || role == 'super_admin')
           ? bodyAdmin.elementAt(selected)
           : bodyUser.elementAt(selected),
-      floatingActionButton: (selected == 1)
+      floatingActionButton: (role == 'admin' || role == 'super_admin'
+              ? selected == 1
+              : selected == 0)
           ? FloatingActionButton(
               backgroundColor: MyColor.primaryColor,
               onPressed: () {
@@ -161,7 +163,9 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
             )
           : SizedBox(),
       floatingActionButtonLocation:
-          (selected == 1) ? FloatingActionButtonLocation.centerDocked : null,
+          ((role == 'admin' || role == 'super_admin') && selected == 1)
+              ? FloatingActionButtonLocation.centerDocked
+              : null,
     );
   }
 }

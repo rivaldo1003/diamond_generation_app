@@ -82,6 +82,7 @@ class UserApi {
         if (userData['profile'] != null) {
           Map<String, dynamic> profile = userData['profile'];
           loginProvider.saveBirthDate(profile['birth_date']);
+          loginProvider.saveGender(profile['gender']);
         }
 
         loginProvider.saveFullName(userData['full_name']);
@@ -687,6 +688,100 @@ class UserApi {
       return ApiResponse.fromJson(data);
     } else {
       throw Exception('Gagal mendapatkan data: ${response.body ?? "No data"}');
+    }
+  }
+
+  Future<Map<String, dynamic>> userGenderTotal(String token) async {
+    try {
+      final response =
+          await http.get(Uri.parse(ApiConstants.userGenderTotal), headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      });
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body)['data'];
+        return data; // Sesuaikan dengan struktur respons API Anda
+      } else {
+        throw Exception(
+            'Failed to load data user total gender. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw e; // Rethrow exception untuk menangkapnya di FutureBuilder
+    }
+  }
+
+  Future<void> updateFullName(BuildContext context, Map<String, dynamic> body,
+      String userId, String token) async {
+    final response = await http.put(
+      Uri.parse('${ApiConstants.baseUrl}/users/$userId/update-full-name'),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: jsonEncode(body), // Mengonversi body ke format JSON
+    );
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['success']) {
+        print(response.body);
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CoolLoading(),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorGreen,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          Navigator.pop(context);
+        });
+      } else {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CoolLoading(),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorGreen,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          Navigator.pop(context);
+        });
+      }
+    } else {
+      throw Exception('Failed to update full name');
     }
   }
 }

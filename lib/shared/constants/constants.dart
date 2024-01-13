@@ -24,6 +24,9 @@ class ApiConstants {
   static const getMonthlyDataForAllUsers = baseUrl + '/users/monthly-data';
   static const verifyUserUrl = baseUrl + '/verify-user';
   static const commentWpda = baseUrl + '/comments';
+  static const deleteCommentWpda = baseUrl + '/comments/delete';
+  static const userGenderTotal = baseUrl + '/user-gender-total';
+  static const updateFullName = baseUrl + '/update-full-name';
 
   // OLD API URL
   static const newCreation1Url = baseUrl + 'new_creation_1.php';

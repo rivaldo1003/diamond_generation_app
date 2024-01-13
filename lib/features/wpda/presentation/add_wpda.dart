@@ -315,147 +315,356 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                         maxLines: 4,
                       ),
                       SizedBox(height: 12),
-                      Text(
-                        'Doa Tabernakel',
-                        style: MyFonts.customTextStyle(
-                          15,
-                          FontWeight.bold,
-                          MyColor.whiteColor,
-                        ),
-                      ),
-                      Consumer<AddWpdaWProvider>(
-                          builder: (context, checkBoxState, _) {
-                        return Container(
-                          height: 200,
-                          // color: Colors.white,
-                          child: ListView(
-                            padding: EdgeInsets.only(
-                              top: 0,
-                              bottom: 20,
-                            ),
-                            shrinkWrap: true,
-                            children: [
-                              CheckboxListTile(
-                                dense: true,
-                                title: Text('Mesbah Bakaran',
-                                    style: MyFonts.customTextStyle(
-                                      15,
-                                      FontWeight.w500,
-                                      MyColor.whiteColor,
-                                    )),
-                                value: !checkBoxState.selectedItems
-                                        .contains('Tidak Berdoa') &&
-                                    checkBoxState.selectedItems
-                                        .contains('Mesbah Bakaran'),
-                                onChanged: checkBoxState.selectedItems
-                                        .contains('Tidak Berdoa')
-                                    ? null
-                                    : (value) {
-                                        checkBoxState.editSelectedItems(
-                                            value!, 'Mesbah Bakaran');
-                                      },
+                      TextButton(
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStatePropertyAll(
+                                MyColor.colorLightBlue),
+                            shape: MaterialStatePropertyAll(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              CheckboxListTile(
-                                  dense: true,
-                                  title: Text('Bejana Pembasuhan',
-                                      style: MyFonts.customTextStyle(
-                                        15,
-                                        FontWeight.w500,
-                                        MyColor.whiteColor,
-                                      )),
-                                  value: !checkBoxState.selectedItems
-                                          .contains('Tidak Berdoa') &&
-                                      checkBoxState.selectedItems
-                                          .contains('Bejana Pembasuhan'),
-                                  onChanged: checkBoxState.selectedItems
-                                          .contains('Tidak Berdoa')
-                                      ? null
-                                      : (value) {
-                                          checkBoxState.editSelectedItems(
-                                              value!, 'Bejana Pembasuhan');
-                                        }),
-                              CheckboxListTile(
-                                  dense: true,
-                                  title: Text('Ruang Kudus',
-                                      style: MyFonts.customTextStyle(
-                                        15,
-                                        FontWeight.w500,
-                                        MyColor.whiteColor,
-                                      )),
-                                  value: !checkBoxState.selectedItems
-                                          .contains('Tidak Berdoa') &&
-                                      checkBoxState.selectedItems
-                                          .contains('Ruang Kudus'),
-                                  onChanged: checkBoxState.selectedItems
-                                          .contains('Tidak Berdoa')
-                                      ? null
-                                      : (value) {
-                                          checkBoxState.editSelectedItems(
-                                              value!, 'Ruang Kudus');
-                                        }),
-                              CheckboxListTile(
-                                  dense: true,
-                                  title: Text('Ruang Maha Kudus',
-                                      style: MyFonts.customTextStyle(
-                                        15,
-                                        FontWeight.w500,
-                                        MyColor.whiteColor,
-                                      )),
-                                  value: !checkBoxState.selectedItems
-                                          .contains('Tidak Berdoa') &&
-                                      checkBoxState.selectedItems
-                                          .contains('Ruang Maha Kudus'),
-                                  onChanged: checkBoxState.selectedItems
-                                          .contains('Tidak Berdoa')
-                                      ? null
-                                      : (value) {
-                                          checkBoxState.editSelectedItems(
-                                              value!, 'Ruang Maha Kudus');
-                                        }),
-                              CheckboxListTile(
-                                  dense: true,
-                                  title: Text('Nila-Nilai GSJA SK',
-                                      style: MyFonts.customTextStyle(
-                                        15,
-                                        FontWeight.w500,
-                                        MyColor.whiteColor,
-                                      )),
-                                  value: !checkBoxState.selectedItems
-                                          .contains('Tidak Berdoa') &&
-                                      checkBoxState.selectedItems
-                                          .contains('Nilai-Nilai GSJA SK'),
-                                  onChanged: checkBoxState.selectedItems
-                                          .contains('Tidak Berdoa')
-                                      ? null
-                                      : (value) {
-                                          checkBoxState.editSelectedItems(
-                                              value!, 'Nilai-Nilai GSJA SK');
-                                        }),
-                              CheckboxListTile(
-                                  dense: true,
-                                  title: Text('Tidak Berdoa',
-                                      style: MyFonts.customTextStyle(
-                                        15,
-                                        FontWeight.w500,
-                                        MyColor.whiteColor,
-                                      )),
-                                  value: checkBoxState.selectedItems
-                                      .contains('Tidak Berdoa'),
-                                  onChanged: (value) {
-                                    if (value!) {
-                                      checkBoxState.selectedItems.clear();
-                                      checkBoxState.selectedItems
-                                          .add('Tidak Berdoa');
-                                    } else {
-                                      checkBoxState.selectedItems
-                                          .remove('Tidak Berdoa');
-                                    }
-                                    checkBoxState.notifyListeners();
-                                  }),
-                            ],
+                            ),
                           ),
-                        );
-                      }),
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (context) {
+                                return Container(
+                                  child: Stack(
+                                    alignment: Alignment.topCenter,
+                                    children: [
+                                      Container(
+                                        margin: EdgeInsets.all(12),
+                                        height: 5,
+                                        width: 40,
+                                        decoration: BoxDecoration(
+                                          color: MyColor.greyText,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      Column(
+                                        children: [
+                                          SizedBox(height: 32),
+                                          Text(
+                                            'Doa Tabernakel',
+                                            style: MyFonts.customTextStyle(
+                                              15,
+                                              FontWeight.bold,
+                                              MyColor.whiteColor,
+                                            ),
+                                          ),
+                                          SizedBox(height: 24),
+                                          Consumer<AddWpdaWProvider>(builder:
+                                              (context, checkBoxState, _) {
+                                            return Container(
+                                              height: 400,
+                                              // color: Colors.white,
+                                              child: ListView(
+                                                padding: EdgeInsets.only(
+                                                  top: 0,
+                                                  bottom: 20,
+                                                ),
+                                                shrinkWrap: true,
+                                                children: [
+                                                  Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Expanded(
+                                                        child: CheckboxListTile(
+                                                          activeColor: MyColor
+                                                              .primaryColor,
+                                                          dense: true,
+                                                          title: Text(
+                                                              'Mesbah Bakaran',
+                                                              style: MyFonts
+                                                                  .customTextStyle(
+                                                                12,
+                                                                FontWeight.w500,
+                                                                MyColor
+                                                                    .whiteColor,
+                                                              )),
+                                                          value: !checkBoxState
+                                                                  .selectedItems
+                                                                  .contains(
+                                                                      'Tidak Berdoa') &&
+                                                              checkBoxState
+                                                                  .selectedItems
+                                                                  .contains(
+                                                                      'Mesbah Bakaran'),
+                                                          onChanged: checkBoxState
+                                                                  .selectedItems
+                                                                  .contains(
+                                                                      'Tidak Berdoa')
+                                                              ? null
+                                                              : (value) {
+                                                                  checkBoxState
+                                                                      .editSelectedItems(
+                                                                          value!,
+                                                                          'Mesbah Bakaran');
+                                                                },
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: CheckboxListTile(
+                                                            activeColor: MyColor
+                                                                .primaryColor,
+                                                            dense: true,
+                                                            title: Text(
+                                                                'Bejana Pembasuhan',
+                                                                style: MyFonts
+                                                                    .customTextStyle(
+                                                                  12,
+                                                                  FontWeight
+                                                                      .w500,
+                                                                  MyColor
+                                                                      .whiteColor,
+                                                                )),
+                                                            value: !checkBoxState
+                                                                    .selectedItems
+                                                                    .contains(
+                                                                        'Tidak Berdoa') &&
+                                                                checkBoxState
+                                                                    .selectedItems
+                                                                    .contains(
+                                                                        'Bejana Pembasuhan'),
+                                                            onChanged: checkBoxState
+                                                                    .selectedItems
+                                                                    .contains(
+                                                                        'Tidak Berdoa')
+                                                                ? null
+                                                                : (value) {
+                                                                    checkBoxState
+                                                                        .editSelectedItems(
+                                                                            value!,
+                                                                            'Bejana Pembasuhan');
+                                                                  }),
+                                                      )
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: CheckboxListTile(
+                                                            activeColor: MyColor
+                                                                .primaryColor,
+                                                            dense: true,
+                                                            title: Text(
+                                                                'Ruang Maha Kudus',
+                                                                style: MyFonts
+                                                                    .customTextStyle(
+                                                                  12,
+                                                                  FontWeight
+                                                                      .w500,
+                                                                  MyColor
+                                                                      .whiteColor,
+                                                                )),
+                                                            value: !checkBoxState
+                                                                    .selectedItems
+                                                                    .contains(
+                                                                        'Tidak Berdoa') &&
+                                                                checkBoxState
+                                                                    .selectedItems
+                                                                    .contains(
+                                                                        'Ruang Maha Kudus'),
+                                                            onChanged: checkBoxState
+                                                                    .selectedItems
+                                                                    .contains(
+                                                                        'Tidak Berdoa')
+                                                                ? null
+                                                                : (value) {
+                                                                    checkBoxState
+                                                                        .editSelectedItems(
+                                                                            value!,
+                                                                            'Ruang Maha Kudus');
+                                                                  }),
+                                                      ),
+                                                      Expanded(
+                                                        child: CheckboxListTile(
+                                                            activeColor: MyColor
+                                                                .primaryColor,
+                                                            dense: true,
+                                                            title: Text(
+                                                                'Ruang Kudus',
+                                                                style: MyFonts
+                                                                    .customTextStyle(
+                                                                  12,
+                                                                  FontWeight
+                                                                      .w500,
+                                                                  MyColor
+                                                                      .whiteColor,
+                                                                )),
+                                                            value: !checkBoxState
+                                                                    .selectedItems
+                                                                    .contains(
+                                                                        'Tidak Berdoa') &&
+                                                                checkBoxState
+                                                                    .selectedItems
+                                                                    .contains(
+                                                                        'Ruang Kudus'),
+                                                            onChanged: checkBoxState
+                                                                    .selectedItems
+                                                                    .contains(
+                                                                        'Tidak Berdoa')
+                                                                ? null
+                                                                : (value) {
+                                                                    checkBoxState
+                                                                        .editSelectedItems(
+                                                                            value!,
+                                                                            'Ruang Kudus');
+                                                                  }),
+                                                      )
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: CheckboxListTile(
+                                                            activeColor: MyColor
+                                                                .primaryColor,
+                                                            dense: true,
+                                                            title: Text(
+                                                                'Doa Rantai',
+                                                                style: MyFonts
+                                                                    .customTextStyle(
+                                                                  12,
+                                                                  FontWeight
+                                                                      .w500,
+                                                                  MyColor
+                                                                      .whiteColor,
+                                                                )),
+                                                            value: !checkBoxState
+                                                                    .selectedItems
+                                                                    .contains(
+                                                                        'Tidak Berdoa') &&
+                                                                checkBoxState
+                                                                    .selectedItems
+                                                                    .contains(
+                                                                        'Doa Rantai'),
+                                                            onChanged: checkBoxState
+                                                                    .selectedItems
+                                                                    .contains(
+                                                                        'Tidak Berdoa')
+                                                                ? null
+                                                                : (value) {
+                                                                    checkBoxState
+                                                                        .editSelectedItems(
+                                                                            value!,
+                                                                            'Doa Rantai');
+                                                                  }),
+                                                      ),
+                                                      Expanded(
+                                                        child: CheckboxListTile(
+                                                            activeColor: MyColor
+                                                                .primaryColor,
+                                                            dense: true,
+                                                            title: Text(
+                                                                'Nila-Nilai GSJA SK',
+                                                                style: MyFonts
+                                                                    .customTextStyle(
+                                                                  12,
+                                                                  FontWeight
+                                                                      .w500,
+                                                                  MyColor
+                                                                      .whiteColor,
+                                                                )),
+                                                            value: !checkBoxState
+                                                                    .selectedItems
+                                                                    .contains(
+                                                                        'Tidak Berdoa') &&
+                                                                checkBoxState
+                                                                    .selectedItems
+                                                                    .contains(
+                                                                        'Nilai-Nilai GSJA SK'),
+                                                            onChanged: checkBoxState
+                                                                    .selectedItems
+                                                                    .contains(
+                                                                        'Tidak Berdoa')
+                                                                ? null
+                                                                : (value) {
+                                                                    checkBoxState
+                                                                        .editSelectedItems(
+                                                                            value!,
+                                                                            'Nilai-Nilai GSJA SK');
+                                                                  }),
+                                                      )
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: CheckboxListTile(
+                                                            activeColor: MyColor
+                                                                .primaryColor,
+                                                            dense: true,
+                                                            title: Text(
+                                                                'Tidak Berdoa',
+                                                                style: MyFonts
+                                                                    .customTextStyle(
+                                                                  12,
+                                                                  FontWeight
+                                                                      .w500,
+                                                                  MyColor
+                                                                      .whiteColor,
+                                                                )),
+                                                            value: checkBoxState
+                                                                .selectedItems
+                                                                .contains(
+                                                                    'Tidak Berdoa'),
+                                                            onChanged: (value) {
+                                                              if (value!) {
+                                                                checkBoxState
+                                                                    .selectedItems
+                                                                    .clear();
+                                                                checkBoxState
+                                                                    .selectedItems
+                                                                    .add(
+                                                                        'Tidak Berdoa');
+                                                              } else {
+                                                                checkBoxState
+                                                                    .selectedItems
+                                                                    .remove(
+                                                                        'Tidak Berdoa');
+                                                              }
+                                                              checkBoxState
+                                                                  .notifyListeners();
+                                                            }),
+                                                      ),
+                                                      Expanded(
+                                                        child: Text(''),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Pilih Doa Tabernakel',
+                                style: MyFonts.customTextStyle(
+                                  14,
+                                  FontWeight.bold,
+                                  MyColor.whiteColor,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_drop_down,
+                                color: MyColor.whiteColor,
+                              )
+                            ],
+                          )),
                     ],
                   ),
                 ),
@@ -497,7 +706,7 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                                     14, FontWeight.bold, MyColor.whiteColor),
                               ),
                               content: Text(
-                                'Minimal satu item harus dipilih!',
+                                'Minimal satu item di dalam list doa tabernakel harus dipilih!',
                                 style: MyFonts.customTextStyle(
                                     14, FontWeight.w500, MyColor.whiteColor),
                               ),
@@ -507,8 +716,11 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                                     Navigator.of(context).pop();
                                   },
                                   child: Text('OK',
-                                      style: MyFonts.customTextStyle(14,
-                                          FontWeight.bold, MyColor.whiteColor)),
+                                      style: MyFonts.customTextStyle(
+                                        14,
+                                        FontWeight.bold,
+                                        MyColor.whiteColor,
+                                      )),
                                 ),
                               ],
                             );
