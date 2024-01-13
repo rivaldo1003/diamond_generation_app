@@ -74,8 +74,8 @@ android {
         }
          release {
             signingConfig signingConfigs.release
-            minifyEnabled true
-            shrinkResources true
+            // minifyEnabled true
+            // shrinkResources true
         }
     }
   

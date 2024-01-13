@@ -1,5 +1,4 @@
 import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
-import 'package:diamond_generation_app/features/loading_diamond/loading_diamond.dart';
 import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/verified_email/presentation/otp_screen.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
@@ -61,47 +60,47 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                               child: CoolLoading(),
                             );
                           });
-                      Future.delayed(Duration(seconds: 2), () {
+                      Future.delayed(Duration(seconds: 2), () async {
                         Navigator.pop(context);
-                      });
-                      myauth.setConfig(
-                          appEmail: "contact@gsjasungaikehidupan.com",
-                          appName: "Email OTP",
-                          userEmail: email.text,
-                          otpLength: 4,
-                          otpType: OTPType.digitsOnly);
-                      if (await myauth.sendOTP() == true) {
-                        Future.delayed(Duration(seconds: 2), () {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            backgroundColor: MyColor.colorGreen,
-                            content: Text(
-                              "OTP sudah dikirim. Cek email Anda!",
-                              style: MyFonts.customTextStyle(
-                                14,
-                                FontWeight.w500,
-                                MyColor.whiteColor,
+                        myauth.setConfig(
+                            appEmail: "me@rohitchouhan.com",
+                            appName: "Email OTP",
+                            userEmail: email.text,
+                            otpLength: 4,
+                            otpType: OTPType.digitsOnly);
+                        if (await myauth.sendOTP() == true) {
+                          Future.delayed(Duration(seconds: 2), () {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              backgroundColor: MyColor.colorGreen,
+                              content: Text(
+                                "OTP sudah dikirim. Cek email Anda!",
+                                style: MyFonts.customTextStyle(
+                                  14,
+                                  FontWeight.w500,
+                                  MyColor.whiteColor,
+                                ),
                               ),
+                            ));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => OtpScreen(
+                                          myauth: myauth,
+                                          email: widget.email,
+                                        )));
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            backgroundColor: MyColor.colorRed,
+                            content: Text(
+                              "Oops, OTP send failed",
+                              style: MyFonts.customTextStyle(
+                                  14, FontWeight.w500, MyColor.whiteColor),
                             ),
                           ));
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => OtpScreen(
-                                        myauth: myauth,
-                                        email: widget.email,
-                                      )));
-                        });
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          backgroundColor: MyColor.colorRed,
-                          content: Text(
-                            "Oops, OTP send failed",
-                            style: MyFonts.customTextStyle(
-                                14, FontWeight.w500, MyColor.whiteColor),
-                          ),
-                        ));
-                      }
+                        }
+                      });
                     },
                     icon: const Icon(
                       Icons.send_rounded,

@@ -137,52 +137,34 @@ class UserApi {
                 );
               });
           Future.delayed(Duration(seconds: 2), () {
-            if (userData['verified'] == 0) {
+            if (userData['profile_completed'] == 0) {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) {
-                  return EmailVerificationScreen(
-                    email: userData['email'],
-                  );
+                  return RegisterForm();
                 }),
                 (route) => false,
               );
-              // SnackBarWidget.showSnackBar(
-              //   context: context,
-              //   message: 'Profil Anda tidak lengkap. Lengkapi profil Anda.',
-              //   textColor: MyColor.whiteColor,
-              //   bgColor: MyColor.colorLightBlue,
-              // );
+              SnackBarWidget.showSnackBar(
+                context: context,
+                message: 'Profil Anda tidak lengkap. Lengkapi profil Anda.',
+                textColor: MyColor.whiteColor,
+                bgColor: MyColor.colorLightBlue,
+              );
             } else {
-              if (userData['profile_completed'] == 0) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) {
-                    return RegisterForm();
-                  }),
-                  (route) => false,
-                );
-                SnackBarWidget.showSnackBar(
-                  context: context,
-                  message: 'Profil Anda tidak lengkap. Lengkapi profil Anda.',
-                  textColor: MyColor.whiteColor,
-                  bgColor: MyColor.colorLightBlue,
-                );
-              } else {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) {
-                    return BottomNavigationPage();
-                  }),
-                  (route) => false,
-                );
-                SnackBarWidget.showSnackBar(
-                  context: context,
-                  message: 'Anda telah berhasil masuk ke akun Anda.',
-                  textColor: MyColor.whiteColor,
-                  bgColor: MyColor.colorGreen,
-                );
-              }
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) {
+                  return BottomNavigationPage();
+                }),
+                (route) => false,
+              );
+              SnackBarWidget.showSnackBar(
+                context: context,
+                message: 'Anda telah berhasil masuk ke akun Anda.',
+                textColor: MyColor.whiteColor,
+                bgColor: MyColor.colorGreen,
+              );
             }
           });
           TextFieldControllerLogin.emailController.text = '';
