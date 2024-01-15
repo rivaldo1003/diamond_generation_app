@@ -1,6 +1,9 @@
 import 'package:diamond_generation_app/features/history_wpda/presentation/history_screen.dart';
 import 'package:diamond_generation_app/features/home/presentation/home_screen.dart';
+import 'package:diamond_generation_app/features/home/presentation/home_screen_user.dart';
+import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/profile/presentation/profile_screen.dart';
+import 'package:diamond_generation_app/features/wpda/presentation/add_wpda.dart';
 import 'package:diamond_generation_app/features/wpda/presentation/wpda_screen.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
@@ -38,6 +41,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
     ProfileScreen(),
   ];
   List<Widget> bodyUser = [
+    // HomeScreenUser(),
     WPDAScreen(),
     HistoryScreen(),
     ProfileScreen(),
@@ -55,73 +59,113 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selected,
-        onTap: (value) {
-          setState(() {
-            selected = value;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: MyColor.primaryColor,
-        backgroundColor: Colors.grey.shade800,
-        selectedLabelStyle: MyFonts.customTextStyle(
-          12,
-          FontWeight.bold,
-          MyColor.blackColor,
+      bottomNavigationBar: BottomAppBar(
+        padding: EdgeInsets.all(0),
+        color: Colors.grey.shade800,
+        shape: CircularNotchedRectangle(),
+        child: BottomNavigationBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          currentIndex: selected,
+          onTap: (value) {
+            setState(() {
+              selected = value;
+            });
+          },
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: MyColor.primaryColor,
+          selectedLabelStyle: MyFonts.customTextStyle(
+            12,
+            FontWeight.bold,
+            MyColor.blackColor,
+          ),
+          unselectedLabelStyle: MyFonts.customTextStyle(
+            12,
+            FontWeight.w500,
+            MyColor.blackColor,
+          ),
+          items: (role == 'admin' || role == 'super_admin')
+              ? [
+                  BottomNavigationBarItem(
+                    label: 'Beranda',
+                    icon: (selected == 0)
+                        ? SvgPicture.asset(
+                            'assets/icons/home_active.svg',
+                          )
+                        : SvgPicture.asset('assets/icons/home_nonactive.svg'),
+                  ),
+                  BottomNavigationBarItem(
+                    label: 'WPDA',
+                    icon: (selected == 1) ? Icon(Icons.book) : Icon(Icons.book),
+                  ),
+                  BottomNavigationBarItem(
+                    label: 'Riwayat',
+                    icon: (selected == 2)
+                        ? Icon(Icons.history)
+                        : Icon(Icons.history),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: (selected == 3)
+                        ? SvgPicture.asset(
+                            'assets/icons/profil_active.svg',
+                            color: MyColor.primaryColor,
+                          )
+                        : SvgPicture.asset('assets/icons/profil_nonactive.svg'),
+                    label: 'Akun',
+                  ),
+                ]
+              : [
+                  // BottomNavigationBarItem(
+                  //   label: 'Beranda',
+                  //   icon: (selected == 0)
+                  //       ? SvgPicture.asset(
+                  //           'assets/icons/home_active.svg',
+                  //         )
+                  //       : SvgPicture.asset('assets/icons/home_nonactive.svg'),
+                  // ),
+                  BottomNavigationBarItem(
+                    label: 'WPDA',
+                    icon: (selected == 1) ? Icon(Icons.book) : Icon(Icons.book),
+                  ),
+                  BottomNavigationBarItem(
+                    label: 'Riwayat',
+                    icon: (selected == 2)
+                        ? Icon(Icons.history)
+                        : Icon(Icons.history),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: (selected == 3)
+                        ? SvgPicture.asset(
+                            'assets/icons/profil_active.svg',
+                            color: MyColor.primaryColor,
+                          )
+                        : SvgPicture.asset('assets/icons/profil_nonactive.svg'),
+                    label: 'Akun',
+                  ),
+                ],
         ),
-        unselectedLabelStyle: MyFonts.customTextStyle(
-          12,
-          FontWeight.w500,
-          MyColor.blackColor,
-        ),
-        items: (role == 'admin')
-            ? [
-                BottomNavigationBarItem(
-                  label: 'Beranda',
-                  icon: (selected == 0)
-                      ? SvgPicture.asset('assets/icons/home_active.svg')
-                      : SvgPicture.asset('assets/icons/home_nonactive.svg'),
-                ),
-                BottomNavigationBarItem(
-                  label: 'WPDA',
-                  icon: (selected == 1) ? Icon(Icons.book) : Icon(Icons.book),
-                ),
-                BottomNavigationBarItem(
-                  label: 'Riwayat',
-                  icon: (selected == 2)
-                      ? Icon(Icons.history)
-                      : Icon(Icons.history),
-                ),
-                BottomNavigationBarItem(
-                  icon: (selected == 3)
-                      ? SvgPicture.asset('assets/icons/profil_active.svg')
-                      : SvgPicture.asset('assets/icons/profil_nonactive.svg'),
-                  label: 'Akun',
-                ),
-              ]
-            : [
-                BottomNavigationBarItem(
-                  label: 'WPDA',
-                  icon: (selected == 0) ? Icon(Icons.book) : Icon(Icons.book),
-                ),
-                BottomNavigationBarItem(
-                  label: 'Riwayat',
-                  icon: (selected == 1)
-                      ? Icon(Icons.history)
-                      : Icon(Icons.history),
-                ),
-                BottomNavigationBarItem(
-                  icon: (selected == 2)
-                      ? SvgPicture.asset('assets/icons/profil_active.svg')
-                      : SvgPicture.asset('assets/icons/profil_nonactive.svg'),
-                  label: 'Akun',
-                ),
-              ],
       ),
-      body: (role == "admin")
+      body: (role == "admin" || role == 'super_admin')
           ? bodyAdmin.elementAt(selected)
           : bodyUser.elementAt(selected),
+      floatingActionButton: (role == 'admin' || role == 'super_admin'
+              ? selected == 1
+              : selected == 0)
+          ? FloatingActionButton(
+              backgroundColor: MyColor.primaryColor,
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return AddWPDAForm();
+                }));
+              },
+              child: Icon(Icons.add),
+              shape: CircleBorder(), // Memberikan bentuk lingkaran pada FAB
+            )
+          : SizedBox(),
+      floatingActionButtonLocation:
+          ((role == 'admin' || role == 'super_admin') && selected == 1)
+              ? FloatingActionButtonLocation.centerDocked
+              : null,
     );
   }
 }

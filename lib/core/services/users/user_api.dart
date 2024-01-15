@@ -1,14 +1,18 @@
 import 'dart:convert';
 import 'package:diamond_generation_app/core/models/all_users.dart';
+import 'package:diamond_generation_app/core/models/monthly_data_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
 import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
+import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
+import 'package:diamond_generation_app/features/loading_diamond/loading_diamond.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_register.dart';
 import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
 import 'package:diamond_generation_app/features/register_form/presentation/register_form.dart';
+import 'package:diamond_generation_app/features/verified_email/presentation/verified_email_screen.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
@@ -38,6 +42,24 @@ class UserApi {
     }
   }
 
+  Future verifyUser(
+      BuildContext context, Map<String, dynamic> body, String token) async {
+    final response = await http.post(
+      Uri.parse(ApiConstants.verifyUserUrl),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: json.encode(body),
+    );
+
+    if (response.statusCode == 200) {
+      print('Connect API verify user');
+    } else {
+      throw Exception('Failed to verify user');
+    }
+  }
+
   Future<void> loginUser(
       Map<String, dynamic> body, BuildContext context) async {
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
@@ -45,24 +67,39 @@ class UserApi {
     final response = await http.post(
       url,
       body: json.encode(body),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     );
+
+    print(response.body);
+
     if (response.statusCode == 200) {
-      var data = json.decode(response.body);
-      if (data['success'] == true) {
-        loginProvider.saveFullName(data['full_name']);
+      Map<String, dynamic> data = json.decode(response.body);
+      print('RESPONSE : ${data}');
+      if (data['success']) {
+        Map<String, dynamic> userData = json.decode(response.body)['user'];
+        if (userData['profile'] != null) {
+          Map<String, dynamic> profile = userData['profile'];
+          loginProvider.saveBirthDate(profile['birth_date']);
+          loginProvider.saveGender(profile['gender']);
+        }
+
+        loginProvider.saveFullName(userData['full_name']);
         loginProvider.saveToken(data['token']);
-        loginProvider.saveRole(data['role']);
-        loginProvider.saveAccountNumber(data['account_number']);
-        loginProvider.saveUserId(data['user_id']);
-        loginProvider.saveProfileCompleted(data['profile_completed']);
-        print(data);
+        loginProvider.saveRole(userData['role']);
+        loginProvider.saveUserId(userData['id'].toString());
+        loginProvider
+            .saveProfileCompleted(userData['profile_completed'].toString());
+        print('DATA : $data');
+        print('Token : ${data['token']}');
         if (data['role'] == 'admin') {
           showDialog(
               barrierDismissible: false,
               context: context,
               builder: (context) {
                 return Center(
-                  child: CircularProgressIndicator(),
+                  child: CoolLoading(),
                 );
               });
           Future.delayed(Duration(seconds: 2), () {
@@ -87,26 +124,24 @@ class UserApi {
                 ),
               ),
             );
-            TextFieldControllerLogin.emailController.text = '';
-            TextFieldControllerLogin.passwordController.text = '';
           });
+          TextFieldControllerLogin.emailController.text = '';
+          TextFieldControllerLogin.passwordController.text = '';
         } else {
           showDialog(
               barrierDismissible: false,
               context: context,
               builder: (context) {
                 return Center(
-                  child: CircularProgressIndicator(),
+                  child: CoolLoading(),
                 );
               });
           Future.delayed(Duration(seconds: 2), () {
-            if (data['profile_completed'] == "0") {
+            if (userData['profile_completed'] == 0) {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) {
-                  return RegisterForm(
-                    token: data['token'],
-                  );
+                  return RegisterForm();
                 }),
                 (route) => false,
               );
@@ -132,7 +167,6 @@ class UserApi {
               );
             }
           });
-
           TextFieldControllerLogin.emailController.text = '';
           TextFieldControllerLogin.passwordController.text = '';
         }
@@ -142,7 +176,7 @@ class UserApi {
             context: context,
             builder: (context) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             });
         Future.delayed(Duration(seconds: 2), () {
@@ -163,13 +197,39 @@ class UserApi {
         });
       }
     } else {
-      throw Exception('Gagal masuk');
+      final data = json.decode(response.body);
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CoolLoading(),
+            );
+          });
+      Future.delayed(Duration(seconds: 2), () {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: MyColor.colorRed,
+            content: Text(
+              '${data['message']}',
+              style: MyFonts.customTextStyle(
+                14,
+                FontWeight.w500,
+                MyColor.whiteColor,
+              ),
+            ),
+          ),
+        );
+      });
     }
   }
 
   Future<void> registerUser(
       Map<String, dynamic> body, BuildContext context) async {
-    final headers = {"Content-Type": "application/json"};
+    final headers = {
+      "Content-Type": "application/json",
+    };
     final response = await http.post(
       Uri.parse(ApiConstants.registerUrl),
       headers: headers,
@@ -177,13 +237,14 @@ class UserApi {
     );
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      if (data['status'] == 'success') {
+      print('DATA REGISTER :${data}');
+      if (data['success']) {
         showDialog(
             barrierDismissible: false,
             context: context,
             builder: (context) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             });
         Future.delayed(Duration(seconds: 2), () {
@@ -217,7 +278,7 @@ class UserApi {
             context: context,
             builder: (context) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             });
         Future.delayed(Duration(seconds: 2), () {
@@ -234,34 +295,40 @@ class UserApi {
           );
         });
       }
-    } else {
-      throw Exception('Gagal mendaftarkan pengguna!');
     }
   }
 
   Future<void> submitDataUser(
-      Map<String, dynamic> body, BuildContext context) async {
+    Map<String, dynamic> body,
+    BuildContext context,
+    String token,
+    String id,
+  ) async {
     final registerFormProvider =
         Provider.of<RegisterFormProvider>(context, listen: false);
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
     final headers = {
       "Content-Type": "application/json",
+      'Authorization': "Bearer $token",
     };
     final response = await http.post(
-      Uri.parse(ApiConstants.submitDataUserUrl),
+      Uri.parse(ApiConstants.submitDataUserUrl + '/$id'),
       body: json.encode(body),
       headers: headers,
     );
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       if (data['success']) {
-        loginProvider.saveProfileCompleted(data['profile_completed']);
+        loginProvider
+            .saveProfileCompleted(data['profile_completed'].toString());
+        loginProvider.saveGender(data['gender'].toString());
+
         showDialog(
             barrierDismissible: false,
             context: context,
             builder: (context) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             });
         Future.delayed(Duration(seconds: 2), () {
@@ -297,7 +364,7 @@ class UserApi {
             context: context,
             builder: (context) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             });
         ScaffoldMessenger.of(context).showSnackBar(
@@ -319,48 +386,61 @@ class UserApi {
     }
   }
 
-  Future<Map<String, dynamic>> getUserProfile(int userId) async {
-    final headers = {"Content-Type": "application/json"};
-    final response = await http.get(
-      Uri.parse(ApiConstants.readUserProfileByIdUrl + '?user_id=${userId}'),
-      headers: headers,
-    );
-    if (response.statusCode == 200) {
-      final result = json.decode(response.body);
-      return result;
-    } else {
-      throw Exception('Failed to load data user profile');
+  Future<Map<String, dynamic>> getUserProfile(int userId, String token) async {
+    final headers = {
+      "Content-Type": "application/json",
+      'Authorization': 'Bearer $token',
+    };
+    try {
+      final response = await http.get(
+        Uri.parse(ApiConstants.baseUrl + '/users/$userId'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        return result;
+      } else {
+        throw Exception(
+            'Failed to load data user profile. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to connect to the server: $e');
     }
   }
 
-  Future<List<AllUsers>> getAllUsers() async {
-    final headers = {"Content-Type": "application/json"};
+  Future<List<AllUsers>> getAllUsers(String token) async {
+    final headers = {
+      "Content-Type": "application/json",
+      'Authorization': 'Bearer $token'
+    };
     final response = await http.get(
       Uri.parse(ApiConstants.getAllUser),
       headers: headers,
     );
     if (response.statusCode == 200) {
-      Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> jsonResponse = data['users_data'];
-      var result = jsonResponse.map((json) {
-        return AllUsers.fromJson(json);
-      }).toList();
-      return result;
+      List<dynamic> jsonData = json.decode(response.body)['users_data'];
+      List<AllUsers> usersList =
+          jsonData.map((data) => AllUsers.fromJson(data)).toList();
+      return usersList;
+    } else {
+      throw Exception('Failed to load users data');
     }
-    throw Exception('Failed to load all users');
   }
 
   Future<void> approveUser(
-      Map<String, dynamic> body, BuildContext context) async {
+      BuildContext context, String token, String id) async {
     try {
       final viewAllDataUserProvider =
           Provider.of<SearchUserProvider>(context, listen: false);
 
-      final headers = {"Content-Type": "application/json"};
-      final response = await http.post(
-        Uri.parse(ApiConstants.approveUserUrl),
+      final headers = {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token'
+      };
+      final response = await http.put(
+        Uri.parse(ApiConstants.approveUserUrl + '/$id'),
         headers: headers,
-        body: json.encode(body),
       );
 
       if (response.statusCode == 200) {
@@ -371,7 +451,7 @@ class UserApi {
             context: context,
             builder: (context) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: CoolLoading(),
               );
             },
           );
@@ -403,9 +483,18 @@ class UserApi {
     }
   }
 
-  Future<void> deleteUser(String userId, BuildContext context) async {
-    final response = await http
-        .delete(Uri.parse(ApiConstants.deleteUserUrl + '?id=${userId}'));
+  Future<void> deleteUser(
+    String userId,
+    BuildContext context,
+    String token,
+  ) async {
+    final response = await http.delete(
+      Uri.parse(ApiConstants.deleteUserUrl + '/$userId'),
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      },
+    );
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       if (data['success']) {
@@ -414,7 +503,7 @@ class UserApi {
           context: context,
           builder: (context) {
             return Center(
-              child: CircularProgressIndicator(),
+              child: CoolLoading(),
             );
           },
         );
@@ -436,10 +525,245 @@ class UserApi {
           Navigator.pop(context);
         });
       } else {
-        throw Exception(data['message']);
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CoolLoading(),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorGreen,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          Navigator.pop(context);
+        });
       }
     } else {
-      throw Exception('Failed to approve user');
+      throw Exception('Failed to delete user');
+    }
+  }
+
+  Future<void> updateProfile(
+    BuildContext context,
+    String userId,
+    String token,
+    Map<String, dynamic> body,
+  ) async {
+    final response = await http.put(
+      Uri.parse(ApiConstants.updateProfile + '/$userId'),
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      },
+      body: json.encode(body),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['success']) {
+        print(response.body);
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CoolLoading(),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorGreen,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          Navigator.pop(context);
+        });
+      } else {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CoolLoading(),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorGreen,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          Navigator.pop(context);
+        });
+      }
+    } else {
+      throw Exception('Gagal update user profile');
+    }
+  }
+
+  Future<Map<String, dynamic>> getTotalNewUsers(String token) async {
+    final url = Uri.parse(ApiConstants.getTotalNewUsers);
+    final response = await http.get(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      },
+    );
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = json.decode(response.body);
+      return data;
+    } else {
+      throw Exception('Failed to load data new users');
+    }
+  }
+
+  Future<ApiResponse> getMonthlyDataForAllUsers(String token) async {
+    final url = Uri.parse(ApiConstants.getMonthlyDataForAllUsers);
+    final response = await http.get(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    print('Status Respon: ${response.statusCode}');
+    print('Body Respon: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      return ApiResponse.fromJson(data);
+    } else {
+      throw Exception('Gagal mendapatkan data: ${response.body ?? "No data"}');
+    }
+  }
+
+  Future<Map<String, dynamic>> userGenderTotal(String token) async {
+    try {
+      final response =
+          await http.get(Uri.parse(ApiConstants.userGenderTotal), headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      });
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body)['data'];
+        return data; // Sesuaikan dengan struktur respons API Anda
+      } else {
+        throw Exception(
+            'Failed to load data user total gender. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw e; // Rethrow exception untuk menangkapnya di FutureBuilder
+    }
+  }
+
+  Future<void> updateFullName(BuildContext context, Map<String, dynamic> body,
+      String userId, String token) async {
+    final response = await http.put(
+      Uri.parse('${ApiConstants.baseUrl}/users/$userId/update-full-name'),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: jsonEncode(body), // Mengonversi body ke format JSON
+    );
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['success']) {
+        print(response.body);
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CoolLoading(),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorGreen,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          Navigator.pop(context);
+        });
+      } else {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CoolLoading(),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorGreen,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          Navigator.pop(context);
+        });
+      }
+    } else {
+      throw Exception('Failed to update full name');
     }
   }
 }

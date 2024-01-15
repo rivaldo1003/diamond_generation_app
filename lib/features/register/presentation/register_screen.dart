@@ -27,8 +27,8 @@ class RegisterScreen extends StatelessWidget {
                 Center(
                   child: Container(
                     child: Image.asset(
-                      'assets/icons/logo_new.png',
-                      height: 150,
+                      'assets/icons/gsja_foreground.png',
+                      height: 200,
                     ),
                   ),
                 ),
@@ -120,20 +120,20 @@ class RegisterScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'Lupa kata sandi?',
-                        style: MyFonts.customTextStyle(
-                          14,
-                          FontWeight.w500,
-                          MyColor.primaryColor,
-                        ),
-                      ),
-                    ),
+                    // TextButton(
+                    //   onPressed: () {},
+                    //   child: Text(
+                    //     'Lupa kata sandi?',
+                    //     style: MyFonts.customTextStyle(
+                    //       14,
+                    //       FontWeight.w500,
+                    //       MyColor.primaryColor,
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
-                SizedBox(height: 12),
+                SizedBox(height: 24),
                 SizedBox(
                   height: 48,
                   width: MediaQuery.of(context).size.width,
@@ -172,7 +172,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 8),
+                SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

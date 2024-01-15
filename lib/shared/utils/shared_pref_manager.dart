@@ -5,8 +5,21 @@ class SharedPreferencesManager {
   static final String keyToken = 'token';
   static final String keyRole = 'role';
   static final String keyAccountNumber = 'account_number';
-  static final String keyUserId = 'user_id';
-  static final String keyProfileCompleted = 'key_profile_completed';
+  static final String keyUserId = 'id';
+  static final String keyProfileCompleted = 'profile_completed';
+  static final String keyBirthDate = 'birth_date';
+  static final String keyGender = 'gender';
+
+  // BIRTH DATE
+  static Future<void> saveBirthDate(String birthDate) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(keyBirthDate, birthDate);
+  }
+
+  static Future<String?> loadBirthDate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(keyBirthDate) ?? '';
+  }
 
 //PROFILE_COMPLETED
   static Future<void> saveProfileCompleted(String profileCompleted) async {
@@ -58,6 +71,11 @@ class SharedPreferencesManager {
     prefs.setString(keyToken, token);
   }
 
+  static Future<String?> loadToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(keyToken) ?? '';
+  }
+
 //FULL NAME
   static Future<void> saveFullName(String fullName) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -67,6 +85,17 @@ class SharedPreferencesManager {
   static Future<String?> loadFullName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(keyFullName) ?? '';
+  }
+
+// GENDER
+  static Future<void> saveGender(String gender) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(keyGender, gender);
+  }
+
+  static Future<String?> loadGender() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(keyGender) ?? '';
   }
 
 //CLEAR DATA

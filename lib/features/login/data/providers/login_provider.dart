@@ -23,12 +23,26 @@ class LoginProvider with ChangeNotifier {
 
 //USER ID GET SHARED PREFERENCES
 
+//Token GET SHARED PREFERENCES
+  String? _token;
+  String? get token => _token;
+
   String? _userId;
   String? get userId => _userId;
 
   //PROFILE COMPLETED
   String? _profileCompleted;
   String? get profileCompleted => _profileCompleted;
+
+  //BIRTH DATE
+
+  String? _birthDate;
+  String? get birthDate => _birthDate;
+
+  // GENDER
+
+  String? _gender;
+  String? get gender => _gender;
 
 // TEXTFIELD PASSWORD
   void showPassword() {
@@ -41,6 +55,19 @@ class LoginProvider with ChangeNotifier {
 //LOGIN USER
   void loginUser(Map<String, dynamic> body, BuildContext context) {
     _getUserUsecase.loginUser(body, context);
+    notifyListeners();
+  }
+
+  //BIRTH DATE
+
+  void saveBirthDate(String birthDate) async {
+    await SharedPreferencesManager.saveBirthDate(birthDate);
+    _birthDate = birthDate;
+    notifyListeners();
+  }
+
+  Future<String?> loadBirthDate() async {
+    _birthDate = await SharedPreferencesManager.loadBirthDate();
     notifyListeners();
   }
 
@@ -81,6 +108,11 @@ class LoginProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<String?> loadToken() async {
+    _token = await SharedPreferencesManager.loadToken();
+    notifyListeners();
+  }
+
 // ACCOUNT NUMBER
   void saveAccountNumber(String accountNumber) async {
     await SharedPreferencesManager.saveAccountNumber(accountNumber);
@@ -102,6 +134,18 @@ class LoginProvider with ChangeNotifier {
 
   Future<String?> loadProfileCompleted() async {
     _profileCompleted = await SharedPreferencesManager.loadProfiledCompleted();
+    notifyListeners();
+  }
+
+  // GENDER
+  void saveGender(String gender) async {
+    await SharedPreferencesManager.saveGender(gender);
+    _gender = gender;
+    notifyListeners();
+  }
+
+  Future<String?> loadGender() async {
+    _gender = await SharedPreferencesManager.loadGender();
     notifyListeners();
   }
 

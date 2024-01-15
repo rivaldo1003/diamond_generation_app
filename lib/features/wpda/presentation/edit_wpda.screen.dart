@@ -1,19 +1,43 @@
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/add_wpda_provider.dart';
+import 'package:diamond_generation_app/features/wpda/data/providers/bible_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/edit_wpda_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/button.dart';
 import 'package:diamond_generation_app/shared/widgets/textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class EditWpdaScreen extends StatelessWidget {
+class EditWpdaScreen extends StatefulWidget {
   final WPDA wpda;
 
   EditWpdaScreen({super.key, required this.wpda});
+
+  @override
+  State<EditWpdaScreen> createState() => _EditWpdaScreenState();
+}
+
+class _EditWpdaScreenState extends State<EditWpdaScreen> {
+  String? token;
+
+  Future getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      token = prefs.getString(SharedPreferencesManager.keyToken);
+      print(token);
+    });
+  }
+
+  @override
+  void initState() {
+    getToken();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +46,11 @@ class EditWpdaScreen extends StatelessWidget {
     final addWpdaProvider =
         Provider.of<AddWpdaWProvider>(context, listen: false);
 
-    editWpdaProvider.kitabBacaanController.text = wpda.kitabBacaan;
-    editWpdaProvider.isiKitabController.text = wpda.isiKitab;
-    editWpdaProvider.pesanTuhanController.text = wpda.pesanTuhan;
-    editWpdaProvider.aplikasiKehidupanController.text = wpda.aplikasiKehidupan;
+    editWpdaProvider.readingBookController.text = widget.wpda.reading_book;
+    editWpdaProvider.verseContentController.text = widget.wpda.verse_content;
+    editWpdaProvider.messageOfGodController.text = widget.wpda.message_of_god;
+    editWpdaProvider.applicationInLifeController.text =
+        widget.wpda.application_in_life;
 
     editWpdaProvider.newSelectedItems = addWpdaProvider.selectedItems;
     print(editWpdaProvider.newSelectedItems);
@@ -41,32 +66,201 @@ class EditWpdaScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     TextFieldWidget(
-                      hintText: 'Kitab bacaan',
+                      onTap: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text(
+                                  'Kitab Bacaan',
+                                  style: MyFonts.customTextStyle(
+                                    14,
+                                    FontWeight.bold,
+                                    MyColor.whiteColor,
+                                  ),
+                                ),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Consumer<BibleProvider>(
+                                      builder: (context, bibleProvider, child) {
+                                        return Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 12),
+                                          decoration: BoxDecoration(
+                                            color: MyColor.whiteColor,
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: DropdownButton<String>(
+                                            isExpanded: true,
+                                            underline: SizedBox(),
+                                            icon: Icon(
+                                              Icons.arrow_drop_down_rounded,
+                                              color: MyColor.greyText,
+                                            ),
+                                            value: bibleProvider.selectedBook,
+                                            items: bibleProvider.allBooks
+                                                .map((String value) {
+                                              return DropdownMenuItem<String>(
+                                                value: value,
+                                                child: Text(
+                                                  value,
+                                                  style:
+                                                      MyFonts.customTextStyle(
+                                                    14,
+                                                    FontWeight.bold,
+                                                    MyColor.greyText,
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                            onChanged: (String? newValue) {
+                                              bibleProvider.updateSelectedBook(
+                                                  newValue!);
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    SizedBox(height: 16),
+                                    TextFormField(
+                                      decoration: InputDecoration(
+                                        contentPadding: EdgeInsets.all(10),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        labelText: 'Pasal',
+                                        labelStyle: MyFonts.customTextStyle(
+                                          14,
+                                          FontWeight.bold,
+                                          MyColor.whiteColor,
+                                        ),
+                                      ),
+                                      keyboardType: TextInputType.number,
+                                      onChanged: (value) {
+                                        Provider.of<BibleProvider>(context,
+                                                listen: false)
+                                            .updateSelectedChapter(value);
+                                      },
+                                    ),
+                                    SizedBox(height: 16),
+                                    TextFormField(
+                                      decoration: InputDecoration(
+                                        contentPadding: EdgeInsets.all(10),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        labelText: 'Ayat',
+                                        labelStyle: MyFonts.customTextStyle(
+                                          14,
+                                          FontWeight.bold,
+                                          MyColor.whiteColor,
+                                        ),
+                                      ),
+                                      keyboardType: TextInputType.number,
+                                      onChanged: (value) {
+                                        Provider.of<BibleProvider>(context,
+                                                listen: false)
+                                            .updateSelectedVerse(value);
+                                      },
+                                    ),
+                                    SizedBox(height: 16),
+                                    Consumer<BibleProvider>(
+                                      builder: (context, bibleProvider, _) {
+                                        return ButtonWidget(
+                                          title: 'Pilih Ayat',
+                                          color: MyColor.primaryColor,
+                                          onPressed: () async {
+                                            await Provider.of<BibleProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .fetchVerse(context, '2', '6');
+
+                                            if (Provider.of<BibleProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .selectedVerseData
+                                                    .isNotEmpty &&
+                                                Provider.of<BibleProvider>(
+                                                                context,
+                                                                listen: false)
+                                                            .selectedVerseData[
+                                                        "verse"] >
+                                                    0) {
+                                              // Kode yang sudah ada ketika ayat ditemukan...
+                                              editWpdaProvider
+                                                      .verseContentController
+                                                      .text =
+                                                  '(${bibleProvider.selectedVerseData["verse"]})  ${bibleProvider.selectedVerseData["content"]}';
+                                              editWpdaProvider
+                                                      .readingBookController
+                                                      .text =
+                                                  '${bibleProvider.selectedBook} ${bibleProvider.selectedChapter} : ${bibleProvider.selectedVerseData["verse"]}';
+                                              Navigator.pop(context);
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  backgroundColor:
+                                                      MyColor.colorRed,
+                                                  content: Text(
+                                                    'Pasal atau ayat tidak valid!',
+                                                    style:
+                                                        MyFonts.customTextStyle(
+                                                      14,
+                                                      FontWeight.w500,
+                                                      MyColor.whiteColor,
+                                                    ),
+                                                  ),
+                                                  duration:
+                                                      Duration(seconds: 3),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                        );
+                                      },
+                                    )
+                                  ],
+                                ),
+                              );
+                            });
+                      },
+                      hintText: 'Kitab Bacaan',
                       obscureText: false,
-                      controller: editWpdaProvider.kitabBacaanController,
-                      focusNode: editWpdaProvider.kitabBacaanFocusNode,
-                      errorText: editWpdaProvider.showRequiredMessageKitabBacaan
-                          ? 'Data Required'
+                      readOnly: true,
+                      controller: editWpdaProvider.readingBookController,
+                      textColor: MyColor.greyText,
+                      focusNode: editWpdaProvider.readingBookFocusNode,
+                      errorText: editWpdaProvider.showRequiredMessageReadingBook
+                          ? 'Kitab Bacaan wajib diisi'
                           : null,
                       onChanged: (value) {
-                        editWpdaProvider.showRequiredMessageKitabBacaan = false;
+                        editWpdaProvider.showRequiredMessageReadingBook = false;
+                        editWpdaProvider.notifyListeners();
                       },
-                      suffixIcon: Icon(
-                        Icons.book,
+                      suffixIcon: IconButton(
+                        onPressed: () {},
+                        icon: Icon(Icons.book),
                       ),
                     ),
                     SizedBox(height: 12),
                     TextFieldWidget(
-                      hintText: 'Isi kitab',
+                      hintText: 'Isi Ayat',
                       obscureText: false,
-                      controller: editWpdaProvider.isiKitabController,
+                      controller: editWpdaProvider.verseContentController,
                       textColor: MyColor.greyText,
-                      focusNode: editWpdaProvider.isiKitabFocusNode,
-                      errorText: editWpdaProvider.showRequiredMessageIsiKitab
-                          ? 'Data Required'
-                          : null,
+                      focusNode: editWpdaProvider.verseContentFocusNode,
+                      errorText:
+                          editWpdaProvider.showRequiredMessageVerseContent
+                              ? 'Data Required'
+                              : null,
                       onChanged: (value) {
-                        editWpdaProvider.showRequiredMessageIsiKitab = false;
+                        editWpdaProvider.showRequiredMessageVerseContent =
+                            false;
                       },
                       suffixIcon: Icon(
                         Icons.book,
@@ -77,14 +271,16 @@ class EditWpdaScreen extends StatelessWidget {
                     TextFieldWidget(
                       hintText: 'Pesan Tuhan',
                       obscureText: false,
-                      controller: editWpdaProvider.pesanTuhanController,
+                      controller: editWpdaProvider.messageOfGodController,
                       textColor: MyColor.greyText,
-                      focusNode: editWpdaProvider.pesanTuhanFocusNode,
-                      errorText: editWpdaProvider.showRequiredMessagePesanTuhan
-                          ? 'Data Required'
-                          : null,
+                      focusNode: editWpdaProvider.messageOfGodFocusNode,
+                      errorText:
+                          editWpdaProvider.showRequiredMessageMessageOfGod
+                              ? 'Data Required'
+                              : null,
                       onChanged: (value) {
-                        editWpdaProvider.showRequiredMessagePesanTuhan = false;
+                        editWpdaProvider.showRequiredMessageMessageOfGod =
+                            false;
                       },
                       suffixIcon: Icon(
                         Icons.book,
@@ -95,15 +291,15 @@ class EditWpdaScreen extends StatelessWidget {
                     TextFieldWidget(
                       hintText: 'Aplikasi dalam kehidupan',
                       obscureText: false,
-                      controller: editWpdaProvider.aplikasiKehidupanController,
+                      controller: editWpdaProvider.applicationInLifeController,
                       textColor: MyColor.greyText,
-                      focusNode: editWpdaProvider.aplikasiKehidupanFocusNode,
+                      focusNode: editWpdaProvider.applicationInLifeFocusNode,
                       errorText:
-                          editWpdaProvider.showRequiredMessageAplikasiKehidupan
+                          editWpdaProvider.showRequiredMessageApplicationInLife
                               ? 'Data Required'
                               : null,
                       onChanged: (value) {
-                        editWpdaProvider.showRequiredMessageAplikasiKehidupan =
+                        editWpdaProvider.showRequiredMessageApplicationInLife =
                             false;
                       },
                       suffixIcon: Icon(
@@ -267,18 +463,53 @@ class EditWpdaScreen extends StatelessWidget {
                   title: 'Edit WPDA',
                   color: MyColor.primaryColor,
                   onPressed: () {
-                    editWpdaProvider.onSubmit({
-                      'user_id': value.userId,
-                      'wpda_id': wpda.id,
-                      'kitab_bacaan':
-                          editWpdaProvider.kitabBacaanController.text,
-                      'isi_kitab': editWpdaProvider.isiKitabController.text,
-                      'pesan_tuhan': editWpdaProvider.pesanTuhanController.text,
-                      'aplikasi_kehidupan':
-                          editWpdaProvider.aplikasiKehidupanController.text,
-                      'selected_prayers':
-                          editWpdaProvider.newSelectedItems.join(','),
-                    }, context);
+                    var checkBoxState =
+                        Provider.of<AddWpdaWProvider>(context, listen: false);
+                    if (checkBoxState.selectedItems.isNotEmpty) {
+                      editWpdaProvider.onSubmit({
+                        // 'user_id': value.userId,
+                        'reading_book':
+                            editWpdaProvider.readingBookController.text,
+                        'verse_content':
+                            editWpdaProvider.verseContentController.text,
+                        'message_of_god':
+                            editWpdaProvider.messageOfGodController.text,
+                        'application_in_life':
+                            editWpdaProvider.applicationInLifeController.text,
+                        'doa_tabernakel':
+                            editWpdaProvider.newSelectedItems.toString(),
+                      }, context, (token == null) ? '' : token!,
+                          widget.wpda.id);
+                    } else {
+                      showDialog(
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text(
+                              'Peringatan',
+                              style: MyFonts.customTextStyle(
+                                  14, FontWeight.bold, MyColor.whiteColor),
+                            ),
+                            content: Text(
+                              'Minimal satu item harus dipilih!',
+                              style: MyFonts.customTextStyle(
+                                  14, FontWeight.w500, MyColor.whiteColor),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('OK',
+                                    style: MyFonts.customTextStyle(14,
+                                        FontWeight.bold, MyColor.whiteColor)),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
                   },
                 );
               }

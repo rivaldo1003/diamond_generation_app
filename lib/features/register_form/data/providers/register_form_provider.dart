@@ -1,6 +1,7 @@
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum Gender { Male, Female }
 
@@ -46,29 +47,73 @@ class RegisterFormProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void onSubmit(Map<String, dynamic> body, BuildContext context) {
+  void onSubmit(
+    Map<String, dynamic> body,
+    BuildContext context,
+    String token,
+    String id,
+  ) {
     validateInput();
 
     if (!showRequiredMessageAddress &&
         !showRequiredMessagePhoneNumber &&
         !showRequiredMessagePlaceOfBirth) {
       //SUCCESS
-      _getUserUsecase.submitDataUser(body, context);
+      _getUserUsecase.submitDataUser(
+        body,
+        context,
+        token,
+        id,
+      );
     }
     notifyListeners();
   }
 
-  Future<void> selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+  Future<void> selectDate(BuildContext context, {String? initialDate}) async {
+    DateTime currentDate = DateTime.now();
+    DateTime? selectedDate = await showDatePicker(
       context: context,
-      initialDate: selectedDateOfBirth,
-      firstDate: DateTime(1940),
-      lastDate: DateTime.now(),
+      initialDate:
+          initialDate != null ? DateTime.parse(initialDate) : currentDate,
+      firstDate: DateTime(1900),
+      lastDate: currentDate,
     );
 
-    if (picked != null && picked != selectedDateOfBirth) {
-      selectedDateOfBirth = picked;
+    if (selectedDate != null && selectedDate != selectedDateOfBirth) {
+      // Perbarui selectedDateOfBirth sesuai dengan tanggal yang dipilih
+      selectedDateOfBirth = selectedDate;
+
+      // Hitung umur berdasarkan tanggal lahir yang baru
+      int umur = calculateAge(selectedDate);
+
+      // Simpan selectedDateOfBirth dan umur ke shared preferences
+      await saveBirthDateAndAgeToPreferences(
+          selectedDate.toIso8601String(), umur);
+
+      // Panggil notifyListeners() untuk memberi tahu widget terkait perubahan
       notifyListeners();
+    } else {
+      // Jika pengguna membatalkan, muat ulang selectedDateOfBirth dan umur dari shared preferences
+      await loadBirthDateAndAgeFromPreferences();
+    }
+  }
+
+  // Metode untuk menyimpan birthDate dan umur ke shared preferences
+  Future<void> saveBirthDateAndAgeToPreferences(
+      String birthDate, int age) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('birth_date', birthDate);
+    prefs.setInt('age', age);
+  }
+
+  Future<void> loadBirthDateAndAgeFromPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? storedBirthDate = prefs.getString('birth_date');
+    int? storedAge = prefs.getInt('age');
+
+    if (storedBirthDate != null && storedAge != null) {
+      selectedDateOfBirth = DateTime.parse(storedBirthDate);
+      // Jika Anda membutuhkan akses ke umur di kelas, Anda dapat menyimpannya di sini.
     }
   }
 

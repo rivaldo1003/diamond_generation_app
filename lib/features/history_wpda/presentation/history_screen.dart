@@ -1,104 +1,820 @@
+import 'dart:io';
+
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
+import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
-import 'package:diamond_generation_app/features/filter_screen/presentation/filter_screen.dart';
+import 'package:diamond_generation_app/features/history_wpda/data/history_provider.dart';
+import 'package:diamond_generation_app/features/history_wpda/presentation/detail_history.dart';
 import 'package:diamond_generation_app/features/history_wpda/widgets/card_history_wpda.dart';
+import 'package:diamond_generation_app/features/history_wpda/widgets/card_monthly_report.dart';
+import 'package:diamond_generation_app/features/history_wpda/widgets/filter_date_dropdown.dart';
+import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
+import 'package:diamond_generation_app/features/loading_diamond/loading_diamond.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
+import 'package:diamond_generation_app/features/wpda/presentation/add_wpda.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
+import 'package:diamond_generation_app/shared/widgets/button.dart';
+import 'package:diamond_generation_app/shared/widgets/placeholder_card_wpda.dart';
+import 'package:diamond_generation_app/shared/widgets/placeholder_history.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HistoryScreen extends StatelessWidget {
+class HistoryScreen extends StatefulWidget {
+  String? id;
+  String? fullName;
+  String? profilePictures;
+
+  HistoryScreen({
+    super.key,
+    this.id,
+    this.fullName,
+    this.profilePictures,
+  });
+  @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  String? token;
+  Future getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      token = prefs.getString(SharedPreferencesManager.keyToken);
+    });
+  }
+
+  late String url;
+  String? urlProfilePictures; // Sesuaikan dengan jenis data yang sesuai
+
+  File? _image;
+  final keyImageProfile = "image_profile";
+
+  Future<void> loadImage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? imagePath = prefs.getString(keyImageProfile);
+    if (imagePath != null && imagePath.isNotEmpty) {
+      setState(() {
+        _image = File(imagePath);
+      });
+    }
+  }
+
+  void changeUrl() {
+    if (widget.profilePictures != null && widget.profilePictures!.isNotEmpty) {
+      url = widget.profilePictures!;
+      urlProfilePictures = url.replaceAll("public/", "");
+    } else {
+      // Jika _image tidak null, dapatkan path-nya
+      if (_image != null) {
+        urlProfilePictures = _image?.path;
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    loadImage().then((value) {
+      print('IMAGE path : ${(_image != null) ? _image!.path : 'No data'}');
+    });
+    changeUrl();
+    getToken();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final getWpdaUsecase = Provider.of<GetWpdaUsecase>(context);
     final wpdaProvider = Provider.of<WpdaProvider>(context);
+    final historyProvider = Provider.of<HistoryProvider>(context);
     return Scaffold(
-      appBar: AppBarWidget(title: 'Riwayat WPDA'),
+      appBar: AppBarWidget(
+        title: 'Riwayat ${widget.fullName ?? 'WPDA'}',
+      ),
       body: Consumer<LoginProvider>(
         builder: (context, value, _) {
           if (value.userId == null) {
             value.loadUserId();
-            return Center(child: CircularProgressIndicator());
+            return Center(
+              child: CoolLoading(),
+            );
           } else {
-            return FutureBuilder<History>(
-              future: getWpdaUsecase.getAllWpdaByUserID(value.userId!),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else {
-                  final history = snapshot.data;
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                          'Server sedang dalam masalah! Riwayat WPDA tidak ditemukan'),
-                    );
+            DateTime now = DateTime.now();
+            var currentMonth = now.month;
+            var currentYear = now.year;
+            if (historyProvider.selectedTanggal == 'Bulan ini') {
+              return FutureBuilder(
+                future: getWpdaUsecase.fetchWpdaByMonth(
+                    context,
+                    (token == null) ? '' : token!,
+                    (widget.id == null) ? value.userId! : widget.id!,
+                    currentMonth,
+                    currentYear),
+                builder: (context, snapshot) {
+                  print(value.userId);
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return PlaceholderCardWpda();
                   } else {
-                    if (history!.history.isEmpty) {
-                      return Column(
-                        children: [
-                          _buildHeaderWidget(context, history),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/images/emoji.png',
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.15,
-                                ),
-                                SizedBox(height: 8),
-                                Center(
-                                  child: Text(
-                                    'WPDA data is empty!',
+                    final monthlyReport = snapshot.data;
+                    if (snapshot.hasError) {
+                      return SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/images/emoji.png',
+                              height: MediaQuery.of(context).size.height * 0.15,
+                            ),
+                            SizedBox(height: 8),
+                            Center(
+                              child: Column(
+                                children: [
+                                  Text(
+                                    'Ada gangguan sepertinya',
                                     style: MyFonts.customTextStyle(
-                                      14,
-                                      FontWeight.w500,
+                                      16,
+                                      FontWeight.bold,
                                       MyColor.whiteColor,
                                     ),
                                   ),
-                                ),
-                              ],
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'Coba lagi atau kembali nanti.',
+                                    style: MyFonts.customTextStyle(
+                                      12,
+                                      FontWeight.w500,
+                                      MyColor.greyText,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20),
+                                    child: ButtonWidget(
+                                      title: 'Coba Lagi',
+                                      onPressed: () async {
+                                        await wpdaProvider.refreshWpdaHistory(
+                                            value.userId!, token!);
+                                      },
+                                      color: MyColor.primaryColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                            SizedBox(height: 12),
+                            PlaceholderHistory(),
+                            PlaceholderHistory(),
+                            PlaceholderHistory(),
+                            PlaceholderHistory(),
+                            SizedBox(height: 12),
+                          ],
+                        ),
                       );
                     } else {
-                      return Column(
-                        children: [
-                          _buildHeaderWidget(context, history),
-                          Expanded(
-                            child: RefreshIndicator(
+                      if (monthlyReport!.data.isEmpty) {
+                        return Column(
+                          children: [
+                            HeaderMonthlyReport(
+                              monthlyReport: monthlyReport,
+                              id: (widget.id == null)
+                                  ? value.userId!
+                                  : widget.id!,
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/emoji.png',
+                                    height: MediaQuery.of(context).size.height *
+                                        0.15,
+                                  ),
+                                  SizedBox(height: 8),
+                                  Center(
+                                    child: Text(
+                                      'Belum ada riwayat WPDA',
+                                      style: MyFonts.customTextStyle(
+                                        14,
+                                        FontWeight.w500,
+                                        MyColor.whiteColor,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) {
+                                        return AddWPDAForm();
+                                      }));
+                                    },
+                                    child: Text(
+                                      'Mulai WPDA',
+                                      style: MyFonts.customTextStyle(
+                                        14,
+                                        FontWeight.w500,
+                                        MyColor.colorLightBlue,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        monthlyReport.data.sort((a, b) =>
+                            DateTime.parse(b.createdAt)
+                                .compareTo(DateTime.parse(a.createdAt)));
+                        return Column(
+                          children: [
+                            HeaderMonthlyReport(
+                              monthlyReport: monthlyReport,
+                              id: (widget.id == null)
+                                  ? value.userId!
+                                  : widget.id!,
+                            ),
+                            Expanded(
+                                child: RefreshIndicator(
                               onRefresh: () async {
-                                await wpdaProvider
-                                    .refreshWpdaHistory(value.userId!);
+                                wpdaProvider.refreshWpdaHistory(
+                                    value.userId!, token!);
                               },
                               child: ListView.builder(
                                 padding: EdgeInsets.symmetric(
                                   horizontal: 12,
                                   vertical: 4,
                                 ),
-                                itemCount: history.history.length,
+                                // controller: _scrollController,
+                                itemCount: monthlyReport.data.length,
                                 itemBuilder: (context, index) {
-                                  final historyWpda = history.history[index];
-                                  return CardHistoryWpda(
-                                    historyWpda: historyWpda,
+                                  final monthlyReportData =
+                                      monthlyReport.data[index];
+                                  return CardMonthlyReport(
+                                    reportData: monthlyReportData,
                                   );
                                 },
                               ),
-                            ),
-                          ),
-                        ],
-                      );
+                            ))
+                          ],
+                        );
+                      }
                     }
                   }
-                }
-              },
-            );
+                },
+              );
+            } else {
+              return FutureBuilder<History>(
+                future: Future.delayed(
+                  Duration(milliseconds: 500),
+                  () => getWpdaUsecase.getAllWpdaByUserID(
+                    (widget.id == null) ? value.userId! : widget.id!,
+                    token!,
+                  ),
+                ),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return PlaceholderCardWpda();
+                  } else {
+                    final history = snapshot.data;
+                    if (snapshot.hasError) {
+                      return SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/images/emoji.png',
+                              height: MediaQuery.of(context).size.height * 0.15,
+                            ),
+                            SizedBox(height: 8),
+                            Center(
+                              child: Column(
+                                children: [
+                                  Text(
+                                    'Ada gangguan sepertinya',
+                                    style: MyFonts.customTextStyle(
+                                      16,
+                                      FontWeight.bold,
+                                      MyColor.whiteColor,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'Coba lagi atau kembali nanti.',
+                                    style: MyFonts.customTextStyle(
+                                      12,
+                                      FontWeight.w500,
+                                      MyColor.greyText,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20),
+                                    child: ButtonWidget(
+                                      title: 'Coba Lagi',
+                                      onPressed: () async {
+                                        await wpdaProvider.refreshWpdaHistory(
+                                            value.userId!, token!);
+                                      },
+                                      color: MyColor.primaryColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 12),
+                            PlaceholderHistory(),
+                            PlaceholderHistory(),
+                            PlaceholderHistory(),
+                            PlaceholderHistory(),
+                            SizedBox(height: 12),
+                          ],
+                        ),
+                      );
+                    } else {
+                      if (history!.data.isEmpty) {
+                        return Column(
+                          children: [
+                            _buildHeaderWidget(context, history),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/emoji.png',
+                                    height: MediaQuery.of(context).size.height *
+                                        0.15,
+                                  ),
+                                  SizedBox(height: 8),
+                                  Center(
+                                    child: Text(
+                                      'Belum ada riwayat WPDA',
+                                      style: MyFonts.customTextStyle(
+                                        14,
+                                        FontWeight.w500,
+                                        MyColor.whiteColor,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) {
+                                        return AddWPDAForm();
+                                      }));
+                                    },
+                                    child: Text(
+                                      'Mulai WPDA',
+                                      style: MyFonts.customTextStyle(
+                                        14,
+                                        FontWeight.w500,
+                                        MyColor.colorLightBlue,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        history.data.sort((a, b) => DateTime.parse(b.createdAt)
+                            .compareTo(DateTime.parse(a.createdAt)));
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            _buildHeaderWidget(context, history),
+                            Expanded(
+                              child: RefreshIndicator(
+                                  onRefresh: () async {
+                                    await wpdaProvider.refreshWpdaHistory(
+                                        value.userId!, token!);
+                                  },
+                                  child: (historyProvider.selectedTanggal ==
+                                          'Semua')
+                                      ? RefreshIndicator(
+                                          onRefresh: () async {},
+                                          child: ListView.builder(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 4,
+                                            ),
+                                            // controller: _scrollController,
+                                            itemCount: history.data.length,
+                                            itemBuilder: (context, index) {
+                                              final historyWpda =
+                                                  history.data[index];
+                                              return CardHistoryWpda(
+                                                historyWpda: historyWpda,
+                                                profilePictures: (widget
+                                                                .profilePictures !=
+                                                            null &&
+                                                        widget.profilePictures!
+                                                            .isNotEmpty)
+                                                    ? urlProfilePictures!
+                                                    : _image?.path ??
+                                                        '', // Gunakan null-aware operator untuk mendapatkan path _image jika tidak null
+                                              );
+                                            },
+                                          ),
+                                        )
+                                      : (historyProvider.selectedTanggal ==
+                                              '7 Hari Terakhir')
+                                          ? FutureBuilder<List<HistoryWpda>>(
+                                              future: Future.delayed(
+                                                Duration(milliseconds: 500),
+                                                () => history.filterLast7Days(),
+                                              ),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  return Center(
+                                                    child: CoolLoading(),
+                                                  );
+                                                } else if (snapshot.hasError) {
+                                                  return Text(
+                                                      'Error: ${snapshot.error}');
+                                                } else {
+                                                  final filteredData =
+                                                      snapshot.data ?? [];
+
+                                                  return (snapshot
+                                                          .data!.isNotEmpty)
+                                                      ? RefreshIndicator(
+                                                          onRefresh:
+                                                              () async {},
+                                                          child:
+                                                              ListView.builder(
+                                                            padding: EdgeInsets
+                                                                .symmetric(
+                                                              horizontal: 12,
+                                                              vertical: 4,
+                                                            ),
+                                                            itemCount:
+                                                                filteredData
+                                                                    .length,
+                                                            itemBuilder:
+                                                                (context,
+                                                                    index) {
+                                                              final historyWpda =
+                                                                  filteredData[
+                                                                      index];
+                                                              return CardHistoryWpda(
+                                                                historyWpda:
+                                                                    historyWpda,
+                                                                profilePictures: (widget.profilePictures !=
+                                                                            null &&
+                                                                        widget
+                                                                            .profilePictures!
+                                                                            .isNotEmpty)
+                                                                    ? urlProfilePictures!
+                                                                    : _image?.path ??
+                                                                        '', // Gunakan null-aware operator untuk mendapatkan path _image jika tidak null
+                                                              );
+                                                            },
+                                                          ),
+                                                        )
+                                                      : Center(
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              Image.asset(
+                                                                'assets/images/emoji.png',
+                                                                height: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .height *
+                                                                    0.15,
+                                                              ),
+                                                              SizedBox(
+                                                                  height: 8),
+                                                              Center(
+                                                                child: Text(
+                                                                  'Tidak ada data ditemukan',
+                                                                  style: MyFonts
+                                                                      .customTextStyle(
+                                                                    14,
+                                                                    FontWeight
+                                                                        .w500,
+                                                                    MyColor
+                                                                        .whiteColor,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        );
+                                                }
+                                              },
+                                            )
+                                          : (historyProvider.selectedTanggal ==
+                                                  'Kemarin')
+                                              ? FutureBuilder<
+                                                  List<HistoryWpda>>(
+                                                  future: Future.delayed(
+                                                    Duration(milliseconds: 500),
+                                                    () => history.filterByDate(
+                                                        historyProvider
+                                                            .selectedTanggal),
+                                                  ),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot
+                                                            .connectionState ==
+                                                        ConnectionState
+                                                            .waiting) {
+                                                      return Center(
+                                                        child: CoolLoading(),
+                                                      );
+                                                    } else if (snapshot
+                                                        .hasError) {
+                                                      return Text(
+                                                          'Error: ${snapshot.error}');
+                                                    } else {
+                                                      final filteredData =
+                                                          snapshot.data ?? [];
+                                                      return (snapshot
+                                                              .data!.isNotEmpty)
+                                                          ? RefreshIndicator(
+                                                              onRefresh:
+                                                                  () async {},
+                                                              child: ListView
+                                                                  .builder(
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                  vertical: 4,
+                                                                ),
+                                                                itemCount:
+                                                                    filteredData
+                                                                        .length,
+                                                                itemBuilder:
+                                                                    (context,
+                                                                        index) {
+                                                                  final historyWpda =
+                                                                      filteredData[
+                                                                          index];
+                                                                  return CardHistoryWpda(
+                                                                    historyWpda:
+                                                                        historyWpda,
+                                                                    profilePictures: (widget.profilePictures !=
+                                                                                null &&
+                                                                            widget
+                                                                                .profilePictures!.isNotEmpty)
+                                                                        ? urlProfilePictures!
+                                                                        : _image?.path ??
+                                                                            '', // Gunakan null-aware operator untuk mendapatkan path _image jika tidak null
+                                                                  );
+                                                                },
+                                                              ),
+                                                            )
+                                                          : Center(
+                                                              child: Column(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  Image.asset(
+                                                                    'assets/images/emoji.png',
+                                                                    height: MediaQuery.of(context)
+                                                                            .size
+                                                                            .height *
+                                                                        0.15,
+                                                                  ),
+                                                                  SizedBox(
+                                                                      height:
+                                                                          8),
+                                                                  Center(
+                                                                    child: Text(
+                                                                      'Tidak ada data ditemukan',
+                                                                      style: MyFonts
+                                                                          .customTextStyle(
+                                                                        14,
+                                                                        FontWeight
+                                                                            .w500,
+                                                                        MyColor
+                                                                            .whiteColor,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            );
+                                                    }
+                                                  },
+                                                )
+                                              : (historyProvider
+                                                          .selectedTanggal ==
+                                                      '30 Hari Terakhir')
+                                                  ? FutureBuilder<
+                                                      List<HistoryWpda>>(
+                                                      future: Future.delayed(
+                                                        Duration(
+                                                            milliseconds: 500),
+                                                        () => history
+                                                            .filterLast30Days(),
+                                                      ),
+                                                      builder:
+                                                          (context, snapshot) {
+                                                        if (snapshot
+                                                                .connectionState ==
+                                                            ConnectionState
+                                                                .waiting) {
+                                                          return Center(
+                                                            child:
+                                                                CoolLoading(),
+                                                          );
+                                                        } else if (snapshot
+                                                            .hasError) {
+                                                          return Text(
+                                                              'Error: ${snapshot.error}');
+                                                        } else {
+                                                          final filteredData =
+                                                              snapshot.data ??
+                                                                  [];
+                                                          return (snapshot.data!
+                                                                  .isNotEmpty)
+                                                              ? RefreshIndicator(
+                                                                  onRefresh:
+                                                                      () async {},
+                                                                  child: ListView
+                                                                      .builder(
+                                                                    padding:
+                                                                        EdgeInsets
+                                                                            .symmetric(
+                                                                      horizontal:
+                                                                          12,
+                                                                      vertical:
+                                                                          4,
+                                                                    ),
+                                                                    itemCount:
+                                                                        filteredData
+                                                                            .length,
+                                                                    itemBuilder:
+                                                                        (context,
+                                                                            index) {
+                                                                      final historyWpda =
+                                                                          filteredData[
+                                                                              index];
+                                                                      return CardHistoryWpda(
+                                                                        historyWpda:
+                                                                            historyWpda,
+                                                                        profilePictures: (widget.profilePictures != null && widget.profilePictures!.isNotEmpty)
+                                                                            ? urlProfilePictures!
+                                                                            : _image?.path ??
+                                                                                '', // Gunakan null-aware operator untuk mendapatkan path _image jika tidak null
+                                                                      );
+                                                                    },
+                                                                  ),
+                                                                )
+                                                              : Center(
+                                                                  child: Column(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .center,
+                                                                    children: [
+                                                                      Image
+                                                                          .asset(
+                                                                        'assets/images/emoji.png',
+                                                                        height: MediaQuery.of(context).size.height *
+                                                                            0.15,
+                                                                      ),
+                                                                      SizedBox(
+                                                                          height:
+                                                                              8),
+                                                                      Center(
+                                                                        child:
+                                                                            Text(
+                                                                          'Tidak ada data ditemukan',
+                                                                          style:
+                                                                              MyFonts.customTextStyle(
+                                                                            14,
+                                                                            FontWeight.w500,
+                                                                            MyColor.whiteColor,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                );
+                                                        }
+                                                      },
+                                                    )
+                                                  : FutureBuilder<
+                                                      List<HistoryWpda>>(
+                                                      future: Future.delayed(
+                                                        Duration(
+                                                            milliseconds: 500),
+                                                        () => history.onDay(
+                                                            historyProvider
+                                                                .selectedTanggal),
+                                                      ),
+                                                      builder:
+                                                          (context, snapshot) {
+                                                        if (snapshot
+                                                                .connectionState ==
+                                                            ConnectionState
+                                                                .waiting) {
+                                                          return Center(
+                                                            child:
+                                                                CoolLoading(),
+                                                          );
+                                                        } else if (snapshot
+                                                            .hasError) {
+                                                          return Text(
+                                                              'Error: ${snapshot.error}');
+                                                        } else {
+                                                          final filteredData =
+                                                              snapshot.data ??
+                                                                  [];
+
+                                                          return (snapshot.data!
+                                                                  .isNotEmpty)
+                                                              ? RefreshIndicator(
+                                                                  onRefresh:
+                                                                      () async {},
+                                                                  child: ListView
+                                                                      .builder(
+                                                                    padding:
+                                                                        EdgeInsets
+                                                                            .symmetric(
+                                                                      horizontal:
+                                                                          12,
+                                                                      vertical:
+                                                                          4,
+                                                                    ),
+                                                                    itemCount:
+                                                                        filteredData
+                                                                            .length,
+                                                                    itemBuilder:
+                                                                        (context,
+                                                                            index) {
+                                                                      final historyWpda =
+                                                                          filteredData[
+                                                                              index];
+                                                                      return CardHistoryWpda(
+                                                                        historyWpda:
+                                                                            historyWpda,
+                                                                        profilePictures: (widget.profilePictures != null && widget.profilePictures!.isNotEmpty)
+                                                                            ? urlProfilePictures!
+                                                                            : _image?.path ??
+                                                                                '', // Gunakan null-aware operator untuk mendapatkan path _image jika tidak null
+                                                                      );
+                                                                    },
+                                                                  ),
+                                                                )
+                                                              : Center(
+                                                                  child: Column(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .center,
+                                                                    children: [
+                                                                      Image
+                                                                          .asset(
+                                                                        'assets/images/emoji.png',
+                                                                        height: MediaQuery.of(context).size.height *
+                                                                            0.15,
+                                                                      ),
+                                                                      SizedBox(
+                                                                          height:
+                                                                              8),
+                                                                      Center(
+                                                                        child:
+                                                                            Text(
+                                                                          'Tidak ada data ditemukan',
+                                                                          style:
+                                                                              MyFonts.customTextStyle(
+                                                                            14,
+                                                                            FontWeight.w500,
+                                                                            MyColor.whiteColor,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                );
+                                                        }
+                                                      },
+                                                    )),
+                            ),
+                          ],
+                        );
+                      }
+                    }
+                  }
+                },
+              );
+            }
           }
         },
       ),
@@ -148,7 +864,7 @@ class HistoryScreen extends StatelessWidget {
                   Expanded(
                     child: CardHeaderHistoryWpda(
                       title: 'TOTAL WPDA',
-                      totalWpda: '0',
+                      totalWpda: history!.totalWPDA.toString(),
                       color: MyColor.colorGreen,
                     ),
                   ),
@@ -156,7 +872,7 @@ class HistoryScreen extends StatelessWidget {
                   Expanded(
                     child: CardHeaderHistoryWpda(
                       title: 'NILAI',
-                      totalWpda: history!.grade,
+                      totalWpda: history.grade,
                       color: MyColor.colorLightBlue,
                     ),
                   ),
@@ -164,8 +880,7 @@ class HistoryScreen extends StatelessWidget {
                   Expanded(
                     child: CardHeaderHistoryWpda(
                       title: 'HARI TERLEWAT',
-                      totalWpda:
-                          (history == null) ? '0' : history.missed_days_total,
+                      totalWpda: history.missedDaysTotal.toString(),
                       color: MyColor.colorRed,
                     ),
                   ),
@@ -187,7 +902,7 @@ class HistoryScreen extends StatelessWidget {
             SizedBox(height: 8),
             Center(
               child: Text(
-                'WPDA data not found! Server error',
+                'WPDA tidak ditemukan. Server sedang dalam perbaikan.',
                 style: MyFonts.customTextStyle(
                   14,
                   FontWeight.w500,
@@ -202,6 +917,7 @@ class HistoryScreen extends StatelessWidget {
   }
 
   Widget _buildHeaderWidget(BuildContext context, History? history) {
+    final historyProvider = Provider.of<HistoryProvider>(context);
     return Center(
       child: Column(
         children: [
@@ -227,7 +943,7 @@ class HistoryScreen extends StatelessWidget {
                         SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Perhitungan catatan WPDA dibawah ini adalah terhitung sejak anda mendaftar.',
+                            'Perhitungan catatan WPDA dibawah ini adalah terhitung sejak anda mendaftar. Untuk nilai dihitung setiap bulan.',
                             style: MyFonts.customTextStyle(
                               14,
                               FontWeight.w500,
@@ -239,13 +955,51 @@ class HistoryScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 12),
+                SizedBox(height: 8),
+                FilterDateDropdown(),
+                SizedBox(height: 8),
                 Row(
                   children: [
                     Expanded(
                       child: CardHeaderHistoryWpda(
                         title: 'TOTAL WPDA',
-                        totalWpda: history!.history.length.toString(),
+                        totalWpda: (historyProvider.selectedTanggal ==
+                                '7 Hari Terakhir')
+                            ? history!
+                                .filterLast7Days()
+                                .fold(
+                                  0.0,
+                                  (previous, current) => previous + 1,
+                                )
+                                .toStringAsFixed(0)
+                            : (historyProvider.selectedTanggal == 'Hari ini')
+                                ? history!
+                                    .onDay(historyProvider.selectedTanggal)
+                                    .fold(
+                                      0.0,
+                                      (previous, current) => previous + 1,
+                                    )
+                                    .toStringAsFixed(0)
+                                : (historyProvider.selectedTanggal == 'Kemarin')
+                                    ? history!
+                                        .filterByDate(
+                                            historyProvider.selectedTanggal)
+                                        .fold(
+                                          0.0,
+                                          (previous, current) => previous + 1,
+                                        )
+                                        .toStringAsFixed(0)
+                                    : (historyProvider.selectedTanggal ==
+                                            '30 Hari Terakhir')
+                                        ? history!
+                                            .filterLast30Days()
+                                            .fold(
+                                              0.0,
+                                              (previous, current) =>
+                                                  previous + 1,
+                                            )
+                                            .toStringAsFixed(0)
+                                        : history!.totalWPDA.toString(),
                         color: MyColor.colorGreen,
                         onTap: () {},
                       ),
@@ -254,14 +1008,22 @@ class HistoryScreen extends StatelessWidget {
                     Expanded(
                       child: CardHeaderHistoryWpda(
                         title: 'NILAI',
-                        totalWpda:
-                            (history.history.isEmpty) ? 'C' : history.grade,
+                        totalWpda: (historyProvider.selectedTanggal ==
+                                    '7 Hari Terakhir' ||
+                                historyProvider.selectedTanggal == 'Kemarin' ||
+                                (historyProvider.selectedTanggal ==
+                                        'Hari ini' ||
+                                    historyProvider.selectedTanggal == 'Semua'))
+                            ? '-'
+                            : history.grade,
                         color: MyColor.colorLightBlue,
                         onTap: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return FilterScreen();
-                          }));
+                          if (historyProvider.selectedTanggal == 'Semua') {
+                            // Navigator.push(context,
+                            //     MaterialPageRoute(builder: (context) {
+                            //   return FilterScreen();
+                            // }));
+                          }
                         },
                       ),
                     ),
@@ -269,10 +1031,19 @@ class HistoryScreen extends StatelessWidget {
                     Expanded(
                       child: CardHeaderHistoryWpda(
                         title: 'HARI TERLEWAT',
-                        totalWpda: (history.missed_days_total == "-1")
-                            ? '0'
-                            : history
-                                .missed_days_total, // Replace with the actual missed day value
+                        totalWpda: (historyProvider.selectedTanggal ==
+                                    'Kemarin' ||
+                                (historyProvider.selectedTanggal == 'Hari ini'))
+                            ? '-'
+                            : (historyProvider.selectedTanggal ==
+                                    '7 Hari Terakhir')
+                                ? history.missedDaysLast7Days.toString()
+                                : (historyProvider.selectedTanggal ==
+                                        '30 Hari Terakhir')
+                                    ? history.missedDaysLast30Days.toString()
+                                    : (history.missedDaysTotal == 1)
+                                        ? '0'
+                                        : history.missedDaysTotal.toString(),
                         color: MyColor.colorRed,
                         onTap: () {},
                       ),
@@ -340,6 +1111,141 @@ class CardHeaderHistoryWpda extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class HeaderMonthlyReport extends StatelessWidget {
+  MonthlyReport? monthlyReport;
+  final String id;
+
+  HeaderMonthlyReport({
+    super.key,
+    this.monthlyReport,
+    required this.id,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final historyProvider = Provider.of<HistoryProvider>(context);
+    var now = DateTime.now();
+    return Center(
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    color: MyColor.greyText,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.info,
+                          color: MyColor.whiteColor,
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Perhitungan catatan WPDA dibawah ini adalah terhitung sejak anda mendaftar. Untuk nilai dihitung setiap bulan.',
+                            style: MyFonts.customTextStyle(
+                              12,
+                              FontWeight.w500,
+                              MyColor.whiteColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) {
+                      return DetailHistoryWPDA(
+                        id: id,
+                      );
+                    }));
+                  },
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_month,
+                        color: MyColor.primaryColor,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        '${monthlyReport!.month}',
+                        style: MyFonts.customTextStyle(
+                          15,
+                          FontWeight.bold,
+                          MyColor.primaryColor,
+                        ),
+                      ),
+                      Expanded(
+                        child: Divider(
+                          indent: 10,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(height: 16),
+                FilterDateDropdown(),
+                SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: CardHeaderHistoryWpda(
+                        title: 'TOTAL WPDA',
+                        totalWpda: monthlyReport!.totalWpda.toString(),
+                        color: MyColor.colorGreen,
+                        onTap: () {},
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: CardHeaderHistoryWpda(
+                        title: 'NILAI',
+                        totalWpda: monthlyReport!.grade,
+                        color: MyColor.colorLightBlue,
+                        onTap: () {
+                          if (historyProvider.selectedTanggal == 'Semua') {
+                            // Navigator.push(context,
+                            //     MaterialPageRoute(builder: (context) {
+                            //   return FilterScreen();
+                            // }));
+                          }
+                        },
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: CardHeaderHistoryWpda(
+                        title: 'HARI TERLEWAT',
+                        totalWpda:
+                            monthlyReport!.missedDaysTotalThisMonth.toString(),
+                        color: MyColor.colorRed,
+                        onTap: () {},
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
 import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/profile/data/providers/profile_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
@@ -64,7 +65,7 @@ class UserScreen extends StatelessWidget {
                                     context: context,
                                     builder: (context) {
                                       return Center(
-                                        child: CircularProgressIndicator(),
+                                        child: CoolLoading(),
                                       );
                                     });
                                 Future.delayed(Duration(seconds: 2), () {

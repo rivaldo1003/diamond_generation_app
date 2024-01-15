@@ -1,5 +1,5 @@
 import 'package:diamond_generation_app/core/models/all_users.dart';
-import 'package:diamond_generation_app/core/models/history_wpda.dart';
+import 'package:diamond_generation_app/core/models/monthly_data_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/core/repositories/user_repository.dart';
 import 'package:flutter/material.dart';
@@ -25,25 +25,53 @@ class GetUserUsecase {
     await userRepository.registerUser(body, context);
   }
 
-  Future<void> submitDataUser(
-      Map<String, dynamic> body, BuildContext context) async {
-    await userRepository.submitDataUser(body, context);
+  Future<void> submitDataUser(Map<String, dynamic> body, BuildContext context,
+      String token, String id) async {
+    await userRepository.submitDataUser(body, context, token, id);
   }
 
-  Future<Map<String, dynamic>> getUserProfile(int userId) async {
-    return await userRepository.getUserProfile(userId);
+  Future<Map<String, dynamic>> getUserProfile(int userId, String token) async {
+    return await userRepository.getUserProfile(userId, token);
   }
 
-  Future<List<AllUsers>> getAllUsers() async {
-    return await userRepository.getAllUser();
+  Future<List<AllUsers>> getAllUsers(String token) async {
+    return await userRepository.getAllUser(token);
   }
 
   Future<void> approveUser(
-      Map<String, dynamic> body, BuildContext context) async {
-    await userRepository.approveUser(body, context);
+      BuildContext context, String token, String id) async {
+    await userRepository.approveUser(context, token, id);
   }
 
-  Future<void> deleteUser(String userId, BuildContext context) async {
-    await userRepository.deleteUser(userId, context);
+  Future<void> deleteUser(
+      String userId, BuildContext context, String token) async {
+    await userRepository.deleteUser(userId, context, token);
+  }
+
+  Future<void> updateProfile(String userId, BuildContext context, String token,
+      Map<String, dynamic> body) async {
+    await userRepository.updateProfile(context, body, userId, token);
+  }
+
+  Future<Map<String, dynamic>> getTotalNewUsers(String token) async {
+    return await userRepository.getTotalNewUsers(token);
+  }
+
+  Future<ApiResponse> getMonthlyDataForAllUsers(String token) async {
+    return await userRepository.getMonthlyDataForAllUsers(token);
+  }
+
+  Future<void> verifyUser(
+      BuildContext context, Map<String, dynamic> body, String token) async {
+    return await userRepository.verifyUser(context, body, token);
+  }
+
+  Future<Map<String, dynamic>> userGenderTotal(String token) async {
+    return await userRepository.userGenderTotal(token);
+  }
+
+  Future<void> updateFullName(BuildContext context, Map<String, dynamic> body,
+      String userId, String token) async {
+    return await userRepository.updateFullName(context, body, userId, token);
   }
 }

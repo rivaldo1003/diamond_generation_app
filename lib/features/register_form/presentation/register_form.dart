@@ -2,27 +2,42 @@ import 'package:diamond_generation_app/features/login/data/providers/login_provi
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/button.dart';
 import 'package:diamond_generation_app/shared/widgets/textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class RegisterForm extends StatelessWidget {
-  final String token;
+class RegisterForm extends StatefulWidget {
+  @override
+  State<RegisterForm> createState() => _RegisterFormState();
+}
 
-  RegisterForm({
-    super.key,
-    required this.token,
-  });
+class _RegisterFormState extends State<RegisterForm> {
+  String? token;
+
+  Future getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      token = prefs.getString(SharedPreferencesManager.keyToken);
+      print(token);
+    });
+  }
+
+  @override
+  void initState() {
+    getToken();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     final registerFormProvider = Provider.of<RegisterFormProvider>(context);
 
-    print('DARI REGISTER FORM :${token}');
     return Scaffold(
-      appBar: AppBarWidget(title: 'Enter Personal Information'),
+      appBar: AppBarWidget(title: 'Masukkan Data Pribadi'),
       body: Column(
         children: [
           Expanded(
@@ -42,7 +57,7 @@ class RegisterForm extends StatelessWidget {
                               registerFormProvider.fullNameController.text =
                                   loginProvider.fullName!;
                               return TextFieldWidget(
-                                hintText: 'Full Name',
+                                hintText: 'Nama Lengkap',
                                 readOnly: true,
                                 suffixIcon: Icon(Icons.person),
                                 obscureText: false,
@@ -57,14 +72,14 @@ class RegisterForm extends StatelessWidget {
                         ),
                         SizedBox(height: 12),
                         TextFieldWidget(
-                          hintText: 'Address',
+                          hintText: 'Alamat Tempat Tinggal',
                           suffixIcon: Icon(Icons.location_on),
                           obscureText: false,
                           focusNode: registerFormProvider.addressFocusNode,
                           controller: registerFormProvider.addressController,
                           errorText:
                               registerFormProvider.showRequiredMessageAddress
-                                  ? 'Address Required'
+                                  ? 'Alamat wajib diisi'
                                   : null,
                           onChanged: (value) {
                             registerFormProvider.showRequiredMessageAddress =
@@ -74,7 +89,7 @@ class RegisterForm extends StatelessWidget {
                         ),
                         SizedBox(height: 12),
                         TextFieldWidget(
-                          hintText: 'Phone Number',
+                          hintText: 'Nomor Telepon',
                           keyboardType: TextInputType.phone,
                           suffixIcon: Icon(Icons.phone),
                           obscureText: false,
@@ -83,7 +98,7 @@ class RegisterForm extends StatelessWidget {
                               registerFormProvider.phoneNumberController,
                           errorText: registerFormProvider
                                   .showRequiredMessagePhoneNumber
-                              ? 'Phone Number Required'
+                              ? 'Nomor Telepon wajib diisi'
                               : null,
                           onChanged: (value) {
                             registerFormProvider
@@ -96,7 +111,7 @@ class RegisterForm extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Place and Date of Birth',
+                              'Tempat dan Tanggal Lahir',
                               style: MyFonts.customTextStyle(
                                 14,
                                 FontWeight.w500,
@@ -109,7 +124,7 @@ class RegisterForm extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: TextFieldWidget(
-                                    hintText: 'Place of Birth',
+                                    hintText: 'Tempat Lahir',
                                     obscureText: false,
                                     focusNode: registerFormProvider
                                         .placeOfBirthFocusNode,
@@ -117,7 +132,7 @@ class RegisterForm extends StatelessWidget {
                                         .placeOfBirthController,
                                     errorText: registerFormProvider
                                             .showRequiredMessagePlaceOfBirth
-                                        ? 'Place of Birth Required'
+                                        ? 'Tempat Lahir wajib diisi'
                                         : null,
                                     onChanged: (value) {
                                       registerFormProvider
@@ -187,20 +202,24 @@ class RegisterForm extends StatelessWidget {
                                                 : false,
                                         child: Row(
                                           children: [
-                                            Text(
-                                              'Your Age: ',
-                                              style: MyFonts.customTextStyle(
-                                                14,
-                                                FontWeight.w500,
-                                                MyColor.whiteColor,
+                                            Expanded(
+                                              child: Text(
+                                                'Umur: ',
+                                                style: MyFonts.customTextStyle(
+                                                  12,
+                                                  FontWeight.w500,
+                                                  MyColor.whiteColor,
+                                                ),
                                               ),
                                             ),
-                                            Text(
-                                              '${registerFormProvider.calculateAge(registerFormProvider.selectedDateOfBirth)} Years',
-                                              style: MyFonts.customTextStyle(
-                                                14,
-                                                FontWeight.bold,
-                                                MyColor.whiteColor,
+                                            Expanded(
+                                              child: Text(
+                                                '${registerFormProvider.calculateAge(registerFormProvider.selectedDateOfBirth)} Tahun',
+                                                style: MyFonts.customTextStyle(
+                                                  12,
+                                                  FontWeight.bold,
+                                                  MyColor.whiteColor,
+                                                ),
                                               ),
                                             ),
                                           ],
@@ -218,7 +237,7 @@ class RegisterForm extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Gender',
+                              'Jenis Kelamin',
                               style: MyFonts.customTextStyle(
                                 14,
                                 FontWeight.w500,
@@ -227,55 +246,51 @@ class RegisterForm extends StatelessWidget {
                             ),
                             SizedBox(height: 4),
                             Container(
-                              height: 48,
+                              // height: 80,
                               width: MediaQuery.of(context).size.width,
                               decoration: BoxDecoration(
                                 color: MyColor.whiteColor,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Row(
+                              child: Column(
                                 children: [
-                                  Expanded(
-                                    child: RadioListTile<Gender>(
-                                      title: Text(
-                                        'Male',
-                                        style: MyFonts.customTextStyle(
-                                          15,
-                                          FontWeight.w500,
-                                          MyColor.greyText,
-                                        ),
+                                  RadioListTile<Gender>(
+                                    title: Text(
+                                      'Laki-Laki',
+                                      style: MyFonts.customTextStyle(
+                                        15,
+                                        FontWeight.w500,
+                                        MyColor.greyText,
                                       ),
-                                      value: Gender.Male,
-                                      dense: true,
-                                      groupValue:
-                                          registerFormProvider.selectedGender,
-                                      activeColor: MyColor.primaryColor,
-                                      onChanged: (Gender? value) {
-                                        registerFormProvider.selectedGender =
-                                            value!;
-                                      },
                                     ),
+                                    value: Gender.Male,
+                                    dense: true,
+                                    groupValue:
+                                        registerFormProvider.selectedGender,
+                                    activeColor: MyColor.primaryColor,
+                                    onChanged: (Gender? value) {
+                                      registerFormProvider.selectedGender =
+                                          value!;
+                                    },
                                   ),
-                                  Expanded(
-                                    child: RadioListTile<Gender>(
-                                      title: Text(
-                                        'Female',
-                                        style: MyFonts.customTextStyle(
-                                          15,
-                                          FontWeight.w500,
-                                          MyColor.greyText,
-                                        ),
+                                  RadioListTile<Gender>(
+                                    title: Text(
+                                      'Perempuan',
+                                      style: MyFonts.customTextStyle(
+                                        15,
+                                        FontWeight.w500,
+                                        MyColor.greyText,
                                       ),
-                                      value: Gender.Female,
-                                      dense: true,
-                                      activeColor: MyColor.primaryColor,
-                                      groupValue:
-                                          registerFormProvider.selectedGender,
-                                      onChanged: (Gender? value) {
-                                        registerFormProvider.selectedGender =
-                                            value!;
-                                      },
                                     ),
+                                    value: Gender.Female,
+                                    dense: true,
+                                    activeColor: MyColor.primaryColor,
+                                    groupValue:
+                                        registerFormProvider.selectedGender,
+                                    onChanged: (Gender? value) {
+                                      registerFormProvider.selectedGender =
+                                          value!;
+                                    },
                                   ),
                                 ],
                               ),
@@ -297,7 +312,7 @@ class RegisterForm extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.all(20),
                 child: ButtonWidget(
-                  title: 'Submit',
+                  title: 'Kirim Data',
                   color: (registerFormProvider.addressController.text == '' &&
                           registerFormProvider.phoneNumberController.text ==
                               '' &&
@@ -308,19 +323,24 @@ class RegisterForm extends StatelessWidget {
                   onPressed: () {
                     var data = registerFormProvider.selectedGender;
                     var dataGender = data.toString().split('.').last;
-                    registerFormProvider.onSubmit({
-                      "user_id": value.userId,
-                      "address": registerFormProvider.addressController.text,
-                      "phone_number":
-                          registerFormProvider.phoneNumberController.text,
-                      "gender": dataGender,
-                      "age": registerFormProvider.calculateAge(
-                          registerFormProvider.selectedDateOfBirth),
-                      "birth_place":
-                          registerFormProvider.placeOfBirthController.text,
-                      "birth_date":
-                          registerFormProvider.selectedDateOfBirth.toString(),
-                    }, context);
+                    registerFormProvider.onSubmit(
+                      {
+                        "address": registerFormProvider.addressController.text,
+                        "phone_number":
+                            registerFormProvider.phoneNumberController.text,
+                        "gender":
+                            (dataGender == 'Male') ? 'Laki-Laki' : 'Perempuan',
+                        "age": registerFormProvider.calculateAge(
+                            registerFormProvider.selectedDateOfBirth),
+                        "birth_place":
+                            registerFormProvider.placeOfBirthController.text,
+                        "birth_date":
+                            registerFormProvider.selectedDateOfBirth.toString(),
+                      },
+                      context,
+                      (token == null) ? '' : token!,
+                      value.userId!,
+                    );
                   },
                 ),
               );

@@ -21,9 +21,10 @@ class SearchUserProvider with ChangeNotifier {
   List<AllUsers> userData = [];
   List<AllUsers> filteredUserData = [];
 
-  Future<void> fetchData(BuildContext context, String urlApi) async {
+  Future<void> fetchData(
+      BuildContext context, String urlApi, String token) async {
     try {
-      List<AllUsers> allUsers = await _getUserUsecase.getAllUsers();
+      List<AllUsers> allUsers = await _getUserUsecase.getAllUsers(token);
       userData = allUsers;
       filteredUserData = allUsers;
       notifyListeners();
@@ -35,7 +36,7 @@ class SearchUserProvider with ChangeNotifier {
   int countUnapprovedUsers(List<AllUsers> users) {
     int count = 0;
     for (var user in users) {
-      if (user.statusPersetujuan != "approved") {
+      if (user.approvalStatus != "approved") {
         count++;
       }
     }
@@ -43,7 +44,6 @@ class SearchUserProvider with ChangeNotifier {
   }
 
   Future refreshAllUsers() async {
-    userData = await _getUserUsecase.getAllUsers();
     notifyListeners();
   }
 
@@ -74,15 +74,16 @@ class SearchUserProvider with ChangeNotifier {
   }
 
   Future<void> approveUser(
-      Map<String, dynamic> body, BuildContext context) async {
-    await _getUserUsecase.approveUser(body, context);
+      BuildContext context, String token, String id) async {
+    await _getUserUsecase.approveUser(context, token, id);
     Future.delayed(Duration(seconds: 2), () {
       notifyListeners();
     });
   }
 
-  Future<void> deleteData(String userId, BuildContext context) async {
-    await _getUserUsecase.deleteUser(userId, context);
+  Future<void> deleteData(
+      String userId, BuildContext context, String token) async {
+    await _getUserUsecase.deleteUser(userId, context, token);
     Future.delayed(Duration(seconds: 2), () {
       notifyListeners();
     });
