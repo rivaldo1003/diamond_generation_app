@@ -19,6 +19,7 @@ class TextFieldWidget extends StatelessWidget {
   TextInputType? keyboardType;
   Color? fillColor;
   BorderSide? borderSide;
+  TextStyle? textStyle;
 
   TextFieldWidget({
     super.key,
@@ -38,6 +39,7 @@ class TextFieldWidget extends StatelessWidget {
     this.onFieldSubmitted,
     this.fillColor,
     this.borderSide,
+    this.textStyle,
   });
 
   @override
@@ -55,11 +57,13 @@ class TextFieldWidget extends StatelessWidget {
       onChanged: onChanged,
       maxLines: (maxLines == null) ? 1 : maxLines,
       cursorColor: MyColor.primaryColor,
-      style: MyFonts.customTextStyle(
-        14,
-        FontWeight.w500,
-        MyColor.blackColor,
-      ),
+      style: (textStyle == null)
+          ? MyFonts.customTextStyle(
+              14,
+              FontWeight.w500,
+              MyColor.blackColor,
+            )
+          : textStyle,
       decoration: InputDecoration(
         filled: true,
         errorText: errorText,

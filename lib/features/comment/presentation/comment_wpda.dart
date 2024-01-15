@@ -385,6 +385,11 @@ class _CommentWpdaState extends State<CommentWpda> {
                               color: MyColor.greyText.withOpacity(0.1),
                               width: 0.9,
                             ),
+                            textStyle: MyFonts.customTextStyle(
+                              14,
+                              FontWeight.w500,
+                              MyColor.whiteColor,
+                            ),
                             hintText: 'Tambahkan komentar',
                             obscureText: false,
                             controller: _commentController,

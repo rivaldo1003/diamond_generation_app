@@ -397,23 +397,27 @@ class _WPDAScreenState extends State<WPDAScreen> {
 
                                   data = data!.reversed.toList();
                                   data!.sort((a, b) {
-                                    var dateA = DateFormat('yy MMM dd')
-                                        .format(DateTime.parse(a.created_at));
-                                    var dateB = DateFormat('yy MMM dd')
-                                        .format(DateTime.parse(b.created_at));
+                                    var dateA = DateTime.parse(a.created_at);
+                                    var dateB = DateTime.parse(b.created_at);
 
                                     if (a.user_id == value.userId &&
-                                        b.user_id != value.userId &&
-                                        dateA == formatDate) {
+                                        dateA.isAfter(currentDate)) {
                                       return -1;
-                                    } else if (a.user_id != value.userId &&
-                                        b.user_id == value.userId &&
-                                        dateB == formatDate) {
+                                    } else if (b.user_id == value.userId &&
+                                        dateB.isAfter(currentDate)) {
+                                      return 1;
+                                    } else if (a.user_id == value.userId &&
+                                        dateA.day == currentDate.day) {
+                                      return -1;
+                                    } else if (b.user_id == value.userId &&
+                                        dateB.day == currentDate.day) {
                                       return 1;
                                     } else {
-                                      return 0;
+                                      return dateB.compareTo(
+                                          dateA); // Jika bukan milik pengguna yang login, bandingkan berdasarkan tanggal secara umum
                                     }
                                   });
+
                                   return Column(
                                     children: [
                                       FutureBuilder<bool>(

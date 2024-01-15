@@ -167,14 +167,18 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                     Container(
                       margin: EdgeInsets.symmetric(horizontal: 10),
                       height: 24,
-                      width: 70,
+                      width: widget.userData.role == 'super_admin' ? 120 : 70,
                       decoration: BoxDecoration(
-                        color: MyColor.colorLightBlue,
+                        color: (widget.userData.role == 'super_admin')
+                            ? MyColor.primaryColor
+                            : MyColor.colorLightBlue,
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: Center(
                         child: Text(
-                          widget.userData.role,
+                          (widget.userData.role) == 'super_admin'
+                              ? 'Super Admin'
+                              : widget.userData.role,
                           style: MyFonts.customTextStyle(
                             14,
                             FontWeight.bold,
@@ -297,7 +301,6 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                     return HistoryScreen(
                       id: widget.userData.id,
                       fullName: widget.userData.fullName,
-                      profilePictures: widget.userData.profile!.profile_picture,
                     );
                   }));
                 }

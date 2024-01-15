@@ -506,7 +506,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               decoration: BoxDecoration(
                                 // color: MyColor.colorLightBlue.withOpacity(0.7),
                                 color: MyColor.colorBlackBg,
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(15)),
                                 // border: Border.all(color: MyColor.whiteColor),
                               ),
                               child: Column(
@@ -603,9 +604,18 @@ class _HomeScreenState extends State<HomeScreen> {
                             final maleData = snapshot.data!['total_male_users'];
                             final femaleData =
                                 snapshot.data!['total_female_users'];
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 20),
+                            return Container(
+                              padding: EdgeInsets.only(
+                                left: 20,
+                                right: 20,
+                                bottom: 20,
+                              ),
+                              decoration: BoxDecoration(
+                                color: MyColor.colorBlackBg,
+                                borderRadius: BorderRadius.vertical(
+                                  bottom: Radius.circular(15),
+                                ),
+                              ),
                               child: Row(
                                 children: [
                                   CardBeranda(

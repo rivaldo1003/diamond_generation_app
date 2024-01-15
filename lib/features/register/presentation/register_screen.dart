@@ -27,8 +27,8 @@ class RegisterScreen extends StatelessWidget {
                 Center(
                   child: Container(
                     child: Image.asset(
-                      'assets/icons/logo_new.png',
-                      height: 150,
+                      'assets/icons/gsja_foreground.png',
+                      height: 200,
                     ),
                   ),
                 ),
