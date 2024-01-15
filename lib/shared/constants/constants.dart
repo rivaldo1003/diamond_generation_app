@@ -2,10 +2,6 @@ class ApiConstants {
   static const baseUrl = 'https://gsjasungaikehidupan.com/api';
   static const baseUrlImage = 'https://gsjasungaikehidupan.com/storage';
 
-  // static const baseUrl =
-  //     'http://192.168.1.8/diamond-generation-service/public/api';
-  // static const baseUrlImage = 'https://gsjasungaikehidupan.com/storage';
-
   static const loginUrl = baseUrl + '/login';
   static const loginGoogleUrl = baseUrl + '/google-login';
   static const registerUrl = baseUrl + '/register';
