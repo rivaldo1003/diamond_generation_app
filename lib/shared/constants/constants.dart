@@ -1,10 +1,8 @@
 class ApiConstants {
+
   static const baseUrl = 'https://gsjasungaikehidupan.com/api';
   static const baseUrlImage = 'https://gsjasungaikehidupan.com/storage';
 
-  // static const baseUrl =
-  //     'http://192.168.1.8/diamond-generation-service/public/api';
-  // static const baseUrlImage = 'https://gsjasungaikehidupan.com/storage';
 
   static const loginUrl = baseUrl + '/login';
   static const loginGoogleUrl = baseUrl + '/google-login';
@@ -27,12 +25,4 @@ class ApiConstants {
   static const deleteCommentWpda = baseUrl + '/comments/delete';
   static const userGenderTotal = baseUrl + '/user-gender-total';
   static const updateFullName = baseUrl + '/update-full-name';
-
-  // OLD API URL
-  static const newCreation1Url = baseUrl + 'new_creation_1.php';
-  static const newCreation2Url = baseUrl + 'new_creation_2.php';
-  static const lightUrl = baseUrl + 'light.php';
-  static const getUserProfileUrl = baseUrl + 'read_user_profile.php';
-  static const uploadImageUrl = baseUrl + 'upload_image.php';
-  static const readImageUrl = baseUrl + 'read_image.php';
 }

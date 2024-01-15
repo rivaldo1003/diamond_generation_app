@@ -370,39 +370,7 @@ class _CardWpdaState extends State<CardWpda> {
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              // Row(
-                              //   children: [
-                              //     IconButton(
-                              //       onPressed: () {
-                              //         getWpdausecase.likeWpda(
-                              //             int.parse(widget.wpda.id), token!);
-                              //       },
-                              //       icon: Icon(Icons.favorite_border_outlined),
-                              //     ),
-                              //     Text(
-                              //       widget.wpda.id,
-                              //     ),
-                              //   ],
-                              // ),
-                              // SizedBox(width: 8),
-                              // Row(
-                              //   children: [
-                              //     IconButton(
-                              //       onPressed: () {
-                              //         showModalBottomSheet(
-                              //           isScrollControlled: true,
-                              //           context: context,
-                              //           builder: (context) {
-                              //             return CommentScreen();
-                              //           },
-                              //         );
-                              //       },
-                              //       icon: Icon(Icons.comment),
-                              //     ),
-                              //     Text('1'),
-                              //   ],
-                              // ),
-                              // SizedBox(width: 12),
+                    
                               IconButton(
                                 onPressed: () {
                                   Navigator.push(context,
