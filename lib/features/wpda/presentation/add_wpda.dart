@@ -149,8 +149,8 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                                       ),
                                       SizedBox(height: 16),
                                       TextFormField(
-                                        controller:
-                                            bibleProvider.startVerseController,
+                                        controller: bibleProvider
+                                            .startVerseControllerAdd,
                                         decoration: InputDecoration(
                                           contentPadding: EdgeInsets.all(10),
                                           border: OutlineInputBorder(
@@ -174,7 +174,7 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                                       SizedBox(height: 16),
                                       TextFormField(
                                         controller:
-                                            bibleProvider.endVerseController,
+                                            bibleProvider.endVerseControllerAdd,
                                         decoration: InputDecoration(
                                           contentPadding: EdgeInsets.all(10),
                                           border: OutlineInputBorder(
@@ -220,10 +220,11 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                                                 ).fetchVerse(
                                                   context,
                                                   bibleProvider
-                                                      .startVerseController
+                                                      .startVerseControllerAdd
                                                       .text,
                                                   bibleProvider
-                                                      .endVerseController.text,
+                                                      .endVerseControllerAdd
+                                                      .text,
                                                 );
                                                 Navigator.of(context).pop();
                                                 Navigator.of(context).pop();
@@ -291,7 +292,7 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                         suffixIcon: Icon(
                           Icons.book,
                         ),
-                        maxLines: 4,
+                        maxLines: 6,
                       ),
                       SizedBox(height: 12),
                       TextFieldWidget(
@@ -312,7 +313,7 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                         suffixIcon: Icon(
                           Icons.book,
                         ),
-                        maxLines: 4,
+                        maxLines: 6,
                       ),
                       SizedBox(height: 12),
                       TextButton(
@@ -355,7 +356,7 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                                             ),
                                           ),
                                           SizedBox(height: 24),
-                                          Consumer<AddWpdaWProvider>(builder:
+                                          Consumer<AddWpdaProvider>(builder:
                                               (context, checkBoxState, _) {
                                             return Container(
                                               height: 400,
@@ -679,7 +680,7 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                     color: MyColor.primaryColor,
                     onPressed: () {
                       var checkBoxState =
-                          Provider.of<AddWpdaWProvider>(context, listen: false);
+                          Provider.of<AddWpdaProvider>(context, listen: false);
 
                       if (checkBoxState.selectedItems.isNotEmpty) {
                         wpdaProvider.onSubmit({

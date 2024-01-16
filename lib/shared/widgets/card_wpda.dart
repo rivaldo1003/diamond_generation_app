@@ -370,7 +370,6 @@ class _CardWpdaState extends State<CardWpda> {
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                    
                               IconButton(
                                 onPressed: () {
                                   Navigator.push(context,

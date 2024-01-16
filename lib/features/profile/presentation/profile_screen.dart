@@ -1085,7 +1085,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             style: MyFonts.customTextStyle(
                                               15,
                                               FontWeight.bold,
-                                              Colors.lightBlue,
+                                              MyColor.colorLogOut,
                                             ),
                                           ),
                                         ),

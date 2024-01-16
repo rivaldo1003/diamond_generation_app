@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:diamond_generation_app/features/wpda/data/providers/edit_wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
@@ -11,8 +12,11 @@ class BibleProvider extends ChangeNotifier {
   int selectedChapter = 1;
   int selectedVerse = 1;
   Map<String, dynamic> selectedVerseData = {};
-  TextEditingController startVerseController = TextEditingController();
-  TextEditingController endVerseController = TextEditingController();
+  TextEditingController chapterController = TextEditingController();
+  TextEditingController startVerseControllerAdd = TextEditingController();
+  TextEditingController endVerseControllerAdd = TextEditingController();
+  TextEditingController startVerseControllerEdit = TextEditingController();
+  TextEditingController endVerseControllerEdit = TextEditingController();
   List<String> allBooks = [
     'Kejadian',
     'Keluaran',
@@ -145,6 +149,8 @@ class BibleProvider extends ChangeNotifier {
   Future<void> fetchVerse(
       BuildContext context, String startVerse, String endVerse) async {
     final wpdaProvider = Provider.of<WpdaProvider>(context, listen: false);
+    final editWpdaProvider =
+        Provider.of<EditWpdaProvider>(context, listen: false);
     final bibleProvider = Provider.of<BibleProvider>(context, listen: false);
 
     try {
@@ -237,6 +243,127 @@ class BibleProvider extends ChangeNotifier {
         wpdaProvider.verseContentController.text = formattedText;
         print(
             'Reading Book Controller Text: ${wpdaProvider.readingBookController.text}');
+
+        notifyListeners();
+      } else {
+        print('Response : ${response.statusCode}');
+        throw Exception('Failed to load verse');
+      }
+    } catch (error) {
+      print('Error: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: MyColor.colorRed,
+          content: Text(
+            'Gagal memuat data.  Pastikan ayat awal tidak kosong',
+            style: MyFonts.customTextStyle(
+              14,
+              FontWeight.w500,
+              MyColor.whiteColor,
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> fetchVerseEdit(
+      BuildContext context, String startVerse, String endVerse) async {
+    // final wpdaProvider = Provider.of<WpdaProvider>(context, listen: false);
+    final editWpdaProvider =
+        Provider.of<EditWpdaProvider>(context, listen: false);
+    final bibleProvider = Provider.of<BibleProvider>(context, listen: false);
+
+    try {
+      int parsedStartVerse = int.parse(startVerse);
+      int parsedEndVerse =
+          endVerse.isNotEmpty ? int.parse(endVerse) : parsedStartVerse;
+
+      if (parsedStartVerse > parsedEndVerse) {
+        parsedEndVerse = parsedStartVerse;
+      }
+
+      int totalChapter = await getTotalChapters(bibleProvider.selectedBook);
+      int totalVerses = await getTotalVerses(
+          bibleProvider.selectedBook, bibleProvider.selectedChapter);
+
+      print('Selected Book: ${bibleProvider.selectedBook}');
+      print('Selected Chapter: ${bibleProvider.selectedChapter}');
+      print('Total Chapters: $totalChapter');
+      print('Total Verses: $totalVerses');
+      print('Parsed Start Verse: $parsedStartVerse');
+      print('Parsed End Verse: $parsedEndVerse');
+
+      if (selectedChapter > totalChapter) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: MyColor.colorRed,
+            content: Text(
+              'Gagal memuat data.',
+              style: MyFonts.customTextStyle(
+                14,
+                FontWeight.w500,
+                MyColor.whiteColor,
+              ),
+            ),
+          ),
+        );
+        return;
+      }
+
+      if (parsedStartVerse < 1 ||
+          parsedStartVerse > totalVerses ||
+          parsedEndVerse > totalVerses) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: MyColor.colorRed,
+            content: Text(
+              'Ayat tidak ditemukan.',
+              style: MyFonts.customTextStyle(
+                14,
+                FontWeight.w500,
+                MyColor.whiteColor,
+              ),
+            ),
+          ),
+        );
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse(
+          'https://beeble.vercel.app/api/v1/passage/$selectedBook/$selectedChapter:$parsedStartVerse-$parsedEndVerse?ver=tb',
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = json.decode(response.body);
+        List<Map<String, dynamic>> verses =
+            List<Map<String, dynamic>>.from(data['data']['verses']);
+        String formattedText = verses
+            .where((verse) => verse['type'] == 'content')
+            .map((verse) => '(${verse['verse']}) ${verse['content']}')
+            .join(' ');
+
+        print(formattedText);
+
+        print('Start Verse: $parsedStartVerse');
+        print('Start Verse: $parsedStartVerse');
+        if (parsedStartVerse > parsedEndVerse) {
+          print('End Verse:  $parsedEndVerse');
+        }
+
+        editWpdaProvider.readingBookController.text = (endVerse.isNotEmpty)
+            ? (parsedStartVerse == parsedEndVerse)
+                ? '${bibleProvider.selectedBook} ${bibleProvider.selectedChapter} : $parsedEndVerse'
+                : (parsedEndVerse > totalVerses)
+                    ? '${bibleProvider.selectedBook} ${bibleProvider.selectedChapter} : $parsedEndVerse'
+                    : '${bibleProvider.selectedBook} ${bibleProvider.selectedChapter} : $parsedStartVerse-$parsedEndVerse'
+            : '${bibleProvider.selectedBook} ${bibleProvider.selectedChapter} : $parsedStartVerse';
+
+        editWpdaProvider.verseContentController.text = formattedText;
+        print(
+            'Reading Book Controller Text: ${editWpdaProvider.readingBookController.text}');
 
         notifyListeners();
       } else {

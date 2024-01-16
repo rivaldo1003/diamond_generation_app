@@ -70,6 +70,7 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
 
   @override
   void initState() {
+    print('URL IMAGE : ${widget.profilePictures}');
     imgUrl = buildImageUrlWithStaticTimestamp(widget.profilePictures);
     super.initState();
   }

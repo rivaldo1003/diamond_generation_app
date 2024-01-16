@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class AddWpdaWProvider with ChangeNotifier {
+class AddWpdaProvider with ChangeNotifier {
   List<String> selectedItems = [];
 
   void addItem(String item) {
