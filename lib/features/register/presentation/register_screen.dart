@@ -97,7 +97,11 @@ class RegisterScreen extends StatelessWidget {
                         if (value!.isEmpty || value.length == 0) {
                           return 'Kata sandi tidak boleh kosong';
                         } else {
-                          return null;
+                          if (value.length >= 6) {
+                            return null;
+                          } else {
+                            return 'Password minimal 6 karakter';
+                          }
                         }
                       },
                     ),

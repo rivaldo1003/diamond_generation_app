@@ -294,15 +294,65 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
             padding: const EdgeInsets.all(20),
             child: ButtonWidget(
               title: 'Lihat WPDA',
-              color: MyColor.primaryColor,
+              color: (widget.userData.dataWpda.isEmpty)
+                  ? MyColor.colorBlackBg
+                  : MyColor.primaryColor,
               onPressed: () {
-                if (widget.userData.dataWpda != null) {
+                if (widget.userData.dataWpda.isNotEmpty) {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return HistoryScreen(
                       id: widget.userData.id,
                       fullName: widget.userData.fullName,
+                      profilePictures: widget.userData.profile!.profile_picture,
                     );
                   }));
+                } else {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Row(
+                            children: [
+                              Icon(
+                                Icons.notifications,
+                                color: MyColor.primaryColor,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Notifikasi',
+                                style: MyFonts.customTextStyle(
+                                  14,
+                                  FontWeight.bold,
+                                  MyColor.whiteColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                          content: Text(
+                            '${widget.userData.fullName} belum melengkapi profil dan data WPDA ${widget.userData.fullName} masih kosong.',
+                            style: MyFonts.customTextStyle(
+                              14,
+                              FontWeight.w500,
+                              MyColor.whiteColor,
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text(
+                                'Oke',
+                                style: MyFonts.customTextStyle(
+                                  14,
+                                  FontWeight.w500,
+                                  MyColor.whiteColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      });
                 }
               },
             ),

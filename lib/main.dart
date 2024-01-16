@@ -82,7 +82,7 @@ class MyApp extends StatelessWidget {
                       userApi: UserApi(urlApi: ApiConstants.updateProfile)))),
         ),
         ChangeNotifierProvider(
-          create: (context) => AddWpdaWProvider(),
+          create: (context) => AddWpdaProvider(),
         ),
         ChangeNotifierProvider(
           create: (context) => SearchUserProvider(

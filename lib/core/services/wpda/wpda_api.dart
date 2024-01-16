@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
@@ -24,6 +26,22 @@ class WpdaApi {
     required this.urlApi,
   });
 
+  // Fungsi untuk memeriksa koneksi internet menggunakan http
+  Future<bool> checkInternetConnection() async {
+    try {
+      final response = await http
+          .head(Uri.parse('https://www.google.com'))
+          .timeout(Duration(seconds: 5));
+      return response.statusCode == 200;
+    } on TimeoutException catch (_) {
+      return false; // Timeout, koneksi internet lambat atau tidak stabil
+    } on SocketException catch (_) {
+      return false; // Tidak ada koneksi internet
+    } catch (e) {
+      return false; // Kesalahan lain dalam memeriksa koneksi
+    }
+  }
+
   Future<void> createWpda(
       Map<String, dynamic> body, BuildContext context, String token) async {
     final wpdaProvider = Provider.of<WpdaProvider>(context, listen: false);
@@ -33,27 +51,70 @@ class WpdaApi {
       'Authorization': 'Bearer $token',
     };
 
-    try {
-      final response = await http.post(
+    // Tampilkan pemberitahuan loading
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Center(
+            child: CoolLoading(),
+          );
+        });
+
+    checkInternetConnection().then((isConnected) async {
+      if (!isConnected) {
+        // Tidak ada koneksi internet setelah jeda, tampilkan notifikasi gagal
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: MyColor.colorRed,
+            content: Text(
+              'Gagal mengirim WPDA. Periksa koneksi internet anda',
+              style: MyFonts.customTextStyle(
+                14,
+                FontWeight.w500,
+                MyColor.whiteColor,
+              ),
+            ),
+          ),
+        );
+        return Navigator.pop(context);
+      }
+      final response = await http
+          .post(
         Uri.parse(ApiConstants.createWpdaUrl),
         headers: headers,
         body: json.encode(body),
+      )
+          .then((response) {
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> data = json.decode(response.body);
+          _showSuccessSnackBar(context, wpdaProvider, bibleProvider, data);
+        } else if (response.statusCode == 400) {
+          final Map<String, dynamic> data = json.decode(response.body);
+          _handleError(
+              context, wpdaProvider, data['message'], MyColor.colorRed);
+        } else {
+          _handleError(
+              context, wpdaProvider, 'Gagal membuat WPDA', MyColor.colorRed);
+        }
+      });
+    }).catchError((error) {
+      // Tangani kesalahan apapun yang mungkin terjadi saat mengirim permintaan HTTP
+      print('Error: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: MyColor.colorRed,
+          content: Text(
+            'Gagal: Terjadi kesalahan.',
+            style: MyFonts.customTextStyle(
+              14,
+              FontWeight.w500,
+              MyColor.whiteColor,
+            ),
+          ),
+        ),
       );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        _showSuccessSnackBar(context, wpdaProvider, bibleProvider, data);
-      } else if (response.statusCode == 400) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        _handleError(context, wpdaProvider, data['message'], MyColor.colorRed);
-      } else {
-        _handleError(
-            context, wpdaProvider, 'Gagal membuat WPDA', MyColor.colorRed);
-      }
-    } catch (e) {
-      _handleError(
-          context, wpdaProvider, 'Terjadi kesalahan: $e', MyColor.colorRed);
-    }
+    });
+    ;
   }
 
   void _showSuccessSnackBar(BuildContext context, WpdaProvider wpdaProvider,
@@ -61,15 +122,15 @@ class WpdaApi {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? role = prefs.getString(SharedPreferencesManager.keyRole);
 
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (context) {
-        return Center(
-          child: CoolLoading(),
-        );
-      },
-    );
+    // showDialog(
+    //   barrierDismissible: false,
+    //   context: context,
+    //   builder: (context) {
+    //     return Center(
+    //       child: CoolLoading(),
+    //     );
+    //   },
+    // );
 
     Future.delayed(Duration(seconds: 2), () {
       Navigator.pop(context);
@@ -87,8 +148,8 @@ class WpdaApi {
       wpdaProvider.verseContentController.text = '';
       wpdaProvider.messageOfGodController.text = '';
       wpdaProvider.applicationInLifeController.text = '';
-      bibleProvider.startVerseController.text = '';
-      bibleProvider.endVerseController.text = '';
+      bibleProvider.startVerseControllerAdd.text = '';
+      bibleProvider.endVerseControllerAdd.text = '';
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -183,90 +244,138 @@ class WpdaApi {
       "Content-Type": "application/json",
       'Authorization': 'Bearer $token',
     };
-    final response = await http.put(
-      Uri.parse(ApiConstants.editWpdaUrl + '/$id'),
-      headers: headers,
-      body: json.encode(body),
-    );
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? role = prefs.getString(SharedPreferencesManager.keyRole);
-      if (data['success']) {
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) {
-              return Center(
-                child: CoolLoading(),
-              );
-            });
-        Future.delayed(Duration(seconds: 2), () {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) {
-              return BottomNavigationPage(
-                index: (role == "admin") ? 1 : 0,
-              );
-            }),
-            (route) => false,
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: MyColor.colorGreen,
-              content: Text(
-                '${data['message']}',
-                style: MyFonts.customTextStyle(
-                  14,
-                  FontWeight.w500,
-                  MyColor.whiteColor,
-                ),
-              ),
-            ),
+
+    // Tampilkan pemberitahuan loading
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Center(
+            child: CoolLoading(),
           );
         });
-        editWpdaProvider.readingBookController.text = '';
-        editWpdaProvider.verseContentController.text = '';
-        editWpdaProvider.messageOfGodController.text = '';
-        editWpdaProvider.applicationInLifeController.text = '';
-      } else {
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) {
-              return Center(
-                child: CoolLoading(),
-              );
-            });
-        Future.delayed(Duration(seconds: 2), () {
-          Navigator.pop(context);
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) {
-              return BottomNavigationPage(
-                index: (role == "admin") ? 1 : 0,
-              );
-            }),
-            (route) => false,
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: MyColor.colorRed,
-              content: Text(
-                'gagal',
-                style: MyFonts.customTextStyle(
-                  14,
-                  FontWeight.w500,
-                  MyColor.whiteColor,
-                ),
+
+    checkInternetConnection().then((isConnected) async {
+      if (!isConnected) {
+        // Tidak ada koneksi internet setelah jeda, tampilkan notifikasi gagal
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: MyColor.colorRed,
+            content: Text(
+              'WPDA gagal diperbarui. Periksa koneksi internet anda.',
+              style: MyFonts.customTextStyle(
+                14,
+                FontWeight.w500,
+                MyColor.whiteColor,
               ),
             ),
-          );
-        });
+          ),
+        );
+        return Navigator.pop(context);
       }
-    } else {
-      throw Exception('Failed edit data');
-    }
+      final response = await http
+          .put(
+        Uri.parse(ApiConstants.editWpdaUrl + '/$id'),
+        headers: headers,
+        body: json.encode(body),
+      )
+          .then((response) async {
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          String? role = prefs.getString(SharedPreferencesManager.keyRole);
+          if (data['success']) {
+            // showDialog(
+            //     barrierDismissible: false,
+            //     context: context,
+            //     builder: (context) {
+            //       return Center(
+            //         child: CoolLoading(),
+            //       );
+            //     });
+            Future.delayed(Duration(seconds: 2), () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) {
+                  return BottomNavigationPage(
+                    index: (role == "admin") ? 1 : 0,
+                  );
+                }),
+                (route) => false,
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: MyColor.colorGreen,
+                  content: Text(
+                    '${data['message']}',
+                    style: MyFonts.customTextStyle(
+                      14,
+                      FontWeight.w500,
+                      MyColor.whiteColor,
+                    ),
+                  ),
+                ),
+              );
+              editWpdaProvider.readingBookController.text = '';
+              editWpdaProvider.verseContentController.text = '';
+              editWpdaProvider.messageOfGodController.text = '';
+              editWpdaProvider.applicationInLifeController.text = '';
+            });
+          } else {
+            // showDialog(
+            //     barrierDismissible: false,
+            //     context: context,
+            //     builder: (context) {
+            //       return Center(
+            //         child: CoolLoading(),
+            //       );
+            //     });
+            Future.delayed(Duration(seconds: 2), () {
+              Navigator.pop(context);
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) {
+                  return BottomNavigationPage(
+                    index: (role == "admin") ? 1 : 0,
+                  );
+                }),
+                (route) => false,
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: MyColor.colorRed,
+                  content: Text(
+                    'gagal',
+                    style: MyFonts.customTextStyle(
+                      14,
+                      FontWeight.w500,
+                      MyColor.whiteColor,
+                    ),
+                  ),
+                ),
+              );
+            });
+          }
+        } else {
+          throw Exception('Gagal edit data WPDA');
+        }
+      });
+    }).catchError((error) {
+      // Tangani kesalahan apapun yang mungkin terjadi saat mengirim permintaan HTTP
+      print('Error: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: MyColor.colorRed,
+          content: Text(
+            'Gagal: Terjadi kesalahan.',
+            style: MyFonts.customTextStyle(
+              14,
+              FontWeight.w500,
+              MyColor.whiteColor,
+            ),
+          ),
+        ),
+      );
+    });
   }
 
   Future<void> deleteWpda(

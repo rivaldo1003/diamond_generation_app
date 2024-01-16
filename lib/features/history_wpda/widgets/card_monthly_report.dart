@@ -66,6 +66,7 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
 
   @override
   void initState() {
+    print('Image URL : ${widget.reportData.writer.profilePicture}');
     loadImage();
     super.initState();
     if (widget.reportData.writer.profilePicture != null &&

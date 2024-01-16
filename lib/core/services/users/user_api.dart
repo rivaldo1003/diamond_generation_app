@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:diamond_generation_app/core/models/all_users.dart';
 import 'package:diamond_generation_app/core/models/monthly_data_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
@@ -60,40 +62,187 @@ class UserApi {
     }
   }
 
+  // Fungsi untuk memeriksa koneksi internet menggunakan http
+  Future<bool> checkInternetConnection() async {
+    try {
+      final response = await http
+          .head(Uri.parse('https://www.google.com'))
+          .timeout(Duration(seconds: 5));
+      return response.statusCode == 200;
+    } on TimeoutException catch (_) {
+      return false; // Timeout, koneksi internet lambat atau tidak stabil
+    } on SocketException catch (_) {
+      return false; // Tidak ada koneksi internet
+    } catch (e) {
+      return false; // Kesalahan lain dalam memeriksa koneksi
+    }
+  }
+
   Future<void> loginUser(
       Map<String, dynamic> body, BuildContext context) async {
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
     final url = Uri.parse(ApiConstants.loginUrl);
-    final response = await http.post(
-      url,
-      body: json.encode(body),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
 
-    print(response.body);
+    // Tampilkan pemberitahuan loading
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Center(
+            child: CoolLoading(),
+          );
+        });
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> data = json.decode(response.body);
-      print('RESPONSE : ${data}');
-      if (data['success']) {
-        Map<String, dynamic> userData = json.decode(response.body)['user'];
-        if (userData['profile'] != null) {
-          Map<String, dynamic> profile = userData['profile'];
-          loginProvider.saveBirthDate(profile['birth_date']);
-          loginProvider.saveGender(profile['gender']);
-        }
+    checkInternetConnection().then((isConnected) async {
+      if (!isConnected) {
+        // Tidak ada koneksi internet setelah jeda, tampilkan notifikasi gagal
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: MyColor.colorRed,
+            content: Text(
+              'Login gagal. Tidak ada koneksi internet.',
+              style: MyFonts.customTextStyle(
+                14,
+                FontWeight.w500,
+                MyColor.whiteColor,
+              ),
+            ),
+          ),
+        );
+        return Navigator.pop(context);
+      }
 
-        loginProvider.saveFullName(userData['full_name']);
-        loginProvider.saveToken(data['token']);
-        loginProvider.saveRole(userData['role']);
-        loginProvider.saveUserId(userData['id'].toString());
-        loginProvider
-            .saveProfileCompleted(userData['profile_completed'].toString());
-        print('DATA : $data');
-        print('Token : ${data['token']}');
-        if (data['role'] == 'admin') {
+      final response = await http.post(
+        url,
+        body: json.encode(body),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      ).then((response) {
+        if (response.statusCode == 200) {
+          Map<String, dynamic> data = json.decode(response.body);
+          print('RESPONSE : ${data}');
+          if (data['success']) {
+            Map<String, dynamic> userData = json.decode(response.body)['user'];
+            if (userData['profile'] != null) {
+              Map<String, dynamic> profile = userData['profile'];
+              loginProvider.saveBirthDate(profile['birth_date']);
+              loginProvider.saveGender(profile['gender']);
+            }
+
+            loginProvider.saveFullName(userData['full_name']);
+            loginProvider.saveToken(data['token']);
+            loginProvider.saveRole(userData['role']);
+            loginProvider.saveUserId(userData['id'].toString());
+            loginProvider
+                .saveProfileCompleted(userData['profile_completed'].toString());
+            print('DATA : $data');
+            print('Token : ${data['token']}');
+
+            if (data['role'] == 'admin') {
+              // showDialog(
+              //     barrierDismissible: false,
+              //     context: context,
+              //     builder: (context) {
+              //       return Center(
+              //         child: CoolLoading(),
+              //       );
+              //     });
+              Future.delayed(Duration(seconds: 2), () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) {
+                    return BottomNavigationPage();
+                  }),
+                  (route) => false,
+                );
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: MyColor.colorGreen,
+                    content: Text(
+                      '${data['message']}',
+                      style: MyFonts.customTextStyle(
+                        14,
+                        FontWeight.w500,
+                        MyColor.whiteColor,
+                      ),
+                    ),
+                  ),
+                );
+              });
+              TextFieldControllerLogin.emailController.text = '';
+              TextFieldControllerLogin.passwordController.text = '';
+            } else {
+              // showDialog(
+              //     barrierDismissible: false,
+              //     context: context,
+              //     builder: (context) {
+              //       return Center(
+              //         child: CoolLoading(),
+              //       );
+              //     });
+              Future.delayed(Duration(seconds: 2), () {
+                if (userData['profile_completed'] == 0) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) {
+                      return RegisterForm();
+                    }),
+                    (route) => false,
+                  );
+                  SnackBarWidget.showSnackBar(
+                    context: context,
+                    message: 'Profil Anda tidak lengkap. Lengkapi profil Anda.',
+                    textColor: MyColor.whiteColor,
+                    bgColor: MyColor.colorLightBlue,
+                  );
+                } else {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) {
+                      return BottomNavigationPage();
+                    }),
+                    (route) => false,
+                  );
+                  SnackBarWidget.showSnackBar(
+                    context: context,
+                    message: 'Anda telah berhasil masuk ke akun Anda.',
+                    textColor: MyColor.whiteColor,
+                    bgColor: MyColor.colorGreen,
+                  );
+                  TextFieldControllerLogin.emailController.text = '';
+                  TextFieldControllerLogin.passwordController.text = '';
+                }
+              });
+            }
+          } else {
+            // showDialog(
+            //     barrierDismissible: false,
+            //     context: context,
+            //     builder: (context) {
+            //       return Center(
+            //         child: CoolLoading(),
+            //       );
+            //     });
+            Future.delayed(Duration(seconds: 2), () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: MyColor.colorRed,
+                  content: Text(
+                    '${data['message']}',
+                    style: MyFonts.customTextStyle(
+                      14,
+                      FontWeight.w500,
+                      MyColor.whiteColor,
+                    ),
+                  ),
+                ),
+              );
+            });
+          }
+        } else {
+          final data = json.decode(response.body);
           showDialog(
               barrierDismissible: false,
               context: context,
@@ -103,17 +252,10 @@ class UserApi {
                 );
               });
           Future.delayed(Duration(seconds: 2), () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) {
-                return BottomNavigationPage();
-              }),
-              (route) => false,
-            );
-
+            Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                backgroundColor: MyColor.colorGreen,
+                backgroundColor: MyColor.colorRed,
                 content: Text(
                   '${data['message']}',
                   style: MyFonts.customTextStyle(
@@ -125,104 +267,25 @@ class UserApi {
               ),
             );
           });
-          TextFieldControllerLogin.emailController.text = '';
-          TextFieldControllerLogin.passwordController.text = '';
-        } else {
-          showDialog(
-              barrierDismissible: false,
-              context: context,
-              builder: (context) {
-                return Center(
-                  child: CoolLoading(),
-                );
-              });
-          Future.delayed(Duration(seconds: 2), () {
-            if (userData['profile_completed'] == 0) {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) {
-                  return RegisterForm();
-                }),
-                (route) => false,
-              );
-              SnackBarWidget.showSnackBar(
-                context: context,
-                message: 'Profil Anda tidak lengkap. Lengkapi profil Anda.',
-                textColor: MyColor.whiteColor,
-                bgColor: MyColor.colorLightBlue,
-              );
-            } else {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) {
-                  return BottomNavigationPage();
-                }),
-                (route) => false,
-              );
-              SnackBarWidget.showSnackBar(
-                context: context,
-                message: 'Anda telah berhasil masuk ke akun Anda.',
-                textColor: MyColor.whiteColor,
-                bgColor: MyColor.colorGreen,
-              );
-            }
-          });
-          TextFieldControllerLogin.emailController.text = '';
-          TextFieldControllerLogin.passwordController.text = '';
         }
-      } else {
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) {
-              return Center(
-                child: CoolLoading(),
-              );
-            });
-        Future.delayed(Duration(seconds: 2), () {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: MyColor.colorRed,
-              content: Text(
-                '${data['message']}',
-                style: MyFonts.customTextStyle(
-                  14,
-                  FontWeight.w500,
-                  MyColor.whiteColor,
-                ),
-              ),
-            ),
-          );
-        });
-      }
-    } else {
-      final data = json.decode(response.body);
-      showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) {
-            return Center(
-              child: CoolLoading(),
-            );
-          });
-      Future.delayed(Duration(seconds: 2), () {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: MyColor.colorRed,
-            content: Text(
-              '${data['message']}',
-              style: MyFonts.customTextStyle(
-                14,
-                FontWeight.w500,
-                MyColor.whiteColor,
-              ),
+      });
+    }).catchError((error) {
+      // Tangani kesalahan apapun yang mungkin terjadi saat mengirim permintaan HTTP
+      print('Error: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: MyColor.colorRed,
+          content: Text(
+            'Gagal: Terjadi kesalahan.',
+            style: MyFonts.customTextStyle(
+              14,
+              FontWeight.w500,
+              MyColor.whiteColor,
             ),
           ),
-        );
-      });
-    }
+        ),
+      );
+    });
   }
 
   Future<void> registerUser(
@@ -230,36 +293,111 @@ class UserApi {
     final headers = {
       "Content-Type": "application/json",
     };
-    final response = await http.post(
-      Uri.parse(ApiConstants.registerUrl),
-      headers: headers,
-      body: json.encode(body),
-    );
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      print('DATA REGISTER :${data}');
-      if (data['success']) {
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) {
-              return Center(
-                child: CoolLoading(),
-              );
-            });
-        Future.delayed(Duration(seconds: 2), () {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) {
-              return LoginScreen();
-            }),
-            (route) => false,
+
+    // Tampilkan pemberitahuan loading
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Center(
+            child: CoolLoading(),
           );
+        });
+
+    checkInternetConnection().then(
+      (isConnected) async {
+        if (!isConnected) {
+          // Tidak ada koneksi internet setelah jeda, tampilkan notifikasi gagal
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              backgroundColor: MyColor.colorGreen,
+              backgroundColor: MyColor.colorRed,
               content: Text(
-                '${data['message']}',
+                'Registrasi gagal. Tidak ada koneksi internet.',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          return Navigator.pop(context);
+        }
+        final response = await http
+            .post(
+          Uri.parse(ApiConstants.registerUrl),
+          headers: headers,
+          body: json.encode(body),
+        )
+            .then((response) {
+          if (response.statusCode == 200) {
+            final data = json.decode(response.body);
+            print('DATA REGISTER :${data}');
+            if (data['success']) {
+              // showDialog(
+              //     barrierDismissible: false,
+              //     context: context,
+              //     builder: (context) {
+              //       return Center(
+              //         child: CoolLoading(),
+              //       );
+              //     });
+              Future.delayed(Duration(seconds: 2), () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) {
+                    return LoginScreen();
+                  }),
+                  (route) => false,
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: MyColor.colorGreen,
+                    content: Text(
+                      '${data['message']}',
+                      style: MyFonts.customTextStyle(
+                        14,
+                        FontWeight.w500,
+                        MyColor.whiteColor,
+                      ),
+                    ),
+                  ),
+                );
+              });
+              TextFieldControllerRegister.fullNameController.text = '';
+              TextFieldControllerRegister.emailController.text = '';
+              TextFieldControllerRegister.passwordController.text = '';
+            } else {
+              // showDialog(
+              //     barrierDismissible: false,
+              //     context: context,
+              //     builder: (context) {
+              //       return Center(
+              //         child: CoolLoading(),
+              //       );
+              //     });
+              Future.delayed(Duration(seconds: 2), () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: MyColor.colorRed,
+                    content: Text(
+                      '${data['message']}',
+                      style: MyFonts.customTextStyle(
+                          14, FontWeight.w500, MyColor.whiteColor),
+                    ),
+                  ),
+                );
+              });
+            }
+          }
+        }).catchError((error) {
+          // Tangani kesalahan apapun yang mungkin terjadi saat mengirim permintaan HTTP
+          print('Error: $error');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorRed,
+              content: Text(
+                'Gagal: Terjadi kesalahan.',
                 style: MyFonts.customTextStyle(
                   14,
                   FontWeight.w500,
@@ -269,33 +407,8 @@ class UserApi {
             ),
           );
         });
-        TextFieldControllerRegister.fullNameController.text = '';
-        TextFieldControllerRegister.emailController.text = '';
-        TextFieldControllerRegister.passwordController.text = '';
-      } else {
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) {
-              return Center(
-                child: CoolLoading(),
-              );
-            });
-        Future.delayed(Duration(seconds: 2), () {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: MyColor.colorRed,
-              content: Text(
-                '${data['message']}',
-                style: MyFonts.customTextStyle(
-                    14, FontWeight.w500, MyColor.whiteColor),
-              ),
-            ),
-          );
-        });
-      }
-    }
+      },
+    );
   }
 
   Future<void> submitDataUser(
