@@ -257,6 +257,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.9.3+1"
+  firebase_core:
+    dependency: "direct main"
+    description:
+      name: firebase_core
+      sha256: "4761e56863ddf21341fd88e7f6325720d6537d8b9af4288f2c36968d54aa6d04"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.25.2"
+  firebase_core_platform_interface:
+    dependency: transitive
+    description:
+      name: firebase_core_platform_interface
+      sha256: c437ae5d17e6b5cc7981cf6fd458a5db4d12979905f9aafd1fea930428a9fe63
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.0"
+  firebase_core_web:
+    dependency: transitive
+    description:
+      name: firebase_core_web
+      sha256: "288bcb940f21b21cfa575c998f3145a33ded9628a01cf9797057cc56888f4900"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.11.2"
   fixnum:
     dependency: transitive
     description:
@@ -565,6 +589,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.8.1"
+  map_launcher:
+    dependency: "direct main"
+    description:
+      name: map_launcher
+      sha256: cc94eff23dc35b56142bedc4f8553024454dfa8351508116888a418858d18ac0
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   matcher:
     dependency: transitive
     description:
@@ -613,6 +645,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  onesignal_flutter:
+    dependency: "direct main"
+    description:
+      name: onesignal_flutter
+      sha256: e47b739747bffb6c414b176f156dad8d179ba35c64c2a1dec643876aaea4c3e8
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.4"
   package_info:
     dependency: "direct main"
     description:

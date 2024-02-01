@@ -79,23 +79,23 @@ class _EditWpdaScreenState extends State<EditWpdaScreen> {
                           return book;
                         }
 
-                        String getStartVerse(String verseRef) {
-                          List<String> parts = verseRef.split(' : ');
-                          String verse = parts[1].substring(0, 2);
-                          return verse;
-                        }
+                        // String getStartVerse(String verseRef) {
+                        //   List<String> parts = verseRef.split(' : ');
+                        //   String verse = parts[1].substring(0, 2);
+                        //   return verse;
+                        // }
 
-                        String getEndVerse(String verseRef) {
-                          List<String> parts = verseRef.split(' : ');
-                          String verseNumber =
-                              parts.length > 1 && parts[1].length >= 5
-                                  ? parts[1].substring(3, 5)
-                                  : '';
-                          return verseNumber;
-                        }
+                        // String getEndVerse(String verseRef) {
+                        //   List<String> parts = verseRef.split(' : ');
+                        //   String verseNumber =
+                        //       parts.length > 1 && parts[1].length >= 5
+                        //           ? parts[1].substring(3, 5)
+                        //           : '';
+                        //   return verseNumber;
+                        // }
 
-                        String result = getStartVerse(widget.wpda.reading_book);
-                        print('Verse Result : $result ');
+                        // String result = getStartVerse(widget.wpda.reading_book);
+                        // print('Verse Result : $result ');
 
                         bibleProvider.selectedBook =
                             getBook(widget.wpda.reading_book, 0);
@@ -104,10 +104,10 @@ class _EditWpdaScreenState extends State<EditWpdaScreen> {
                               int.parse(getBook(widget.wpda.reading_book, 1));
                           bibleProvider.chapterController.text =
                               getBook(widget.wpda.reading_book, 1);
-                          bibleProvider.startVerseControllerEdit.text =
-                              getStartVerse(widget.wpda.reading_book);
-                          bibleProvider.endVerseControllerEdit.text =
-                              getEndVerse(widget.wpda.reading_book);
+                          // bibleProvider.startVerseControllerEdit.text =
+                          //     getStartVerse(widget.wpda.reading_book);
+                          // bibleProvider.endVerseControllerEdit.text =
+                          //     getEndVerse(widget.wpda.reading_book);
                         });
 
                         print('Chapter : ${bibleProvider.selectedChapter}');
@@ -361,8 +361,13 @@ class _EditWpdaScreenState extends State<EditWpdaScreen> {
                     SizedBox(height: 12),
                     TextButton(
                         style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStatePropertyAll(MyColor.colorLightBlue),
+                          // backgroundColor: MaterialStatePropertyAll(
+                          //   MyColor.colorLightBlue,
+                          // ),
+                          side: MaterialStatePropertyAll(BorderSide(
+                              color: MyColor.greyText.withOpacity(
+                            0.4,
+                          ))),
                           shape: MaterialStatePropertyAll(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -401,7 +406,7 @@ class _EditWpdaScreenState extends State<EditWpdaScreen> {
                                         Consumer<AddWpdaProvider>(builder:
                                             (context, checkBoxState, _) {
                                           return Container(
-                                            height: 400,
+                                            // height: 400,
                                             // color: Colors.white,
                                             child: ListView(
                                               padding: EdgeInsets.only(
@@ -730,6 +735,7 @@ class _EditWpdaScreenState extends State<EditWpdaScreen> {
                             editWpdaProvider.applicationInLifeController.text,
                         'doa_tabernakel':
                             editWpdaProvider.newSelectedItems.toString(),
+                        'created_at': DateTime.now().toString(),
                       }, context, (token == null) ? '' : token!,
                           widget.wpda.id);
                     } else {

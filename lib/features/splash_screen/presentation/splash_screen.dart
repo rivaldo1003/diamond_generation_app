@@ -61,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 baseColor: Colors.amber, // Warna latar belakang shimmer
                 highlightColor: Colors.grey.shade300,
                 child: Image.asset(
-                  'assets/images/diamond_title.png',
+                  'assets/images/gsja_logo.png',
                 ),
               ),
             ),

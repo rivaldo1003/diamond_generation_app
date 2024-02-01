@@ -6,7 +6,6 @@ import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
 import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
-import 'package:diamond_generation_app/features/wpda/data/providers/add_wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/bible_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/edit_wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
@@ -18,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
 
 class WpdaApi {
   final String urlApi;
@@ -42,6 +42,79 @@ class WpdaApi {
     }
   }
 
+  Future<void> _saveMessageLocally(Map<String, dynamic> message) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}/wpda.json');
+
+    try {
+      List<Map<String, dynamic>> messages = [];
+      if (await file.exists()) {
+        final contents = await file.readAsString();
+        messages = List<Map<String, dynamic>>.from(json.decode(contents));
+      }
+      messages.add(message);
+      await file.writeAsString(json.encode(messages));
+      print('Messages $message');
+    } catch (error) {
+      print('Error saving message locally: $error');
+    }
+  }
+
+  Future<void> _sendWpdaToServer(
+      List<Map<String, dynamic>> pendingMessages, String token) async {
+    final headers = {
+      "Content-Type": "application/json",
+      'Authorization': 'Bearer $token',
+    };
+
+    for (final message in pendingMessages) {
+      try {
+        final response = await http.post(
+          Uri.parse(ApiConstants.createWpdaUrl),
+          headers: headers,
+          body: json.encode(message),
+        );
+
+        if (response.statusCode == 200) {
+          print('WPDA successfully sent to server');
+          // Hapus pesan dari daftar pending jika berhasil dikirim
+          pendingMessages.remove(message);
+        } else {
+          print('Failed to send WPDA to server: ${response.statusCode}');
+        }
+      } catch (error) {
+        print('Error sending WPDA to server: $error');
+      }
+    }
+  }
+
+  List<Map<String, dynamic>> pendingMessages = [];
+
+// Menambahkan pesan ke daftar pendingMessages
+  void addPendingMessage(Map<String, dynamic> message) {
+    pendingMessages.add(message);
+  }
+
+// Menghapus pesan dari daftar pendingMessages setelah berhasil dikirim
+  void removePendingMessage(Map<String, dynamic> message) {
+    pendingMessages.remove(message);
+  }
+
+// Kirim pesan tertunda ke server
+  Future<void> sendPendingMessages(String token) async {
+    for (final message in pendingMessages) {
+      try {
+        // Kirim pesan ke server
+        await _sendWpdaToServer(pendingMessages, token);
+        // Hapus pesan dari daftar pendingMessages setelah berhasil dikirim
+        removePendingMessage(message);
+      } catch (error) {
+        // Tangani kesalahan jika pesan gagal dikirim
+        print('Error sending pending message: $error');
+      }
+    }
+  }
+
   Future<void> createWpda(
       Map<String, dynamic> body, BuildContext context, String token) async {
     final wpdaProvider = Provider.of<WpdaProvider>(context, listen: false);
@@ -51,17 +124,26 @@ class WpdaApi {
       'Authorization': 'Bearer $token',
     };
 
+    // Simpan data WPDA secara lokal terlebih dahulu
+    await _saveMessageLocally(body);
+
     // Tampilkan pemberitahuan loading
     showDialog(
-        context: context,
-        builder: (context) {
-          return Center(
-            child: CoolLoading(),
-          );
-        });
+      context: context,
+      builder: (context) {
+        return Center(
+          child: CoolLoading(),
+        );
+      },
+    );
 
-    checkInternetConnection().then((isConnected) async {
+    // Coba kirim data WPDA ke server
+    await _sendWpdaToServer(pendingMessages, token);
+
+    try {
+      final isConnected = await checkInternetConnection();
       if (!isConnected) {
+        Navigator.pop(context);
         // Tidak ada koneksi internet setelah jeda, tampilkan notifikasi gagal
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -76,30 +158,30 @@ class WpdaApi {
             ),
           ),
         );
-        return Navigator.pop(context);
+        return;
       }
-      final response = await http
-          .post(
+
+      final response = await http.post(
         Uri.parse(ApiConstants.createWpdaUrl),
         headers: headers,
         body: json.encode(body),
-      )
-          .then((response) {
-        if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
-          _showSuccessSnackBar(context, wpdaProvider, bibleProvider, data);
-        } else if (response.statusCode == 400) {
-          final Map<String, dynamic> data = json.decode(response.body);
-          _handleError(
-              context, wpdaProvider, data['message'], MyColor.colorRed);
-        } else {
-          _handleError(
-              context, wpdaProvider, 'Gagal membuat WPDA', MyColor.colorRed);
-        }
-      });
-    }).catchError((error) {
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        print('Success send WPDA');
+        _showSuccessSnackBar(context, wpdaProvider, bibleProvider, data);
+      } else if (response.statusCode == 400) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        _handleError(context, wpdaProvider, data['message'], MyColor.colorRed);
+      } else {
+        _handleError(
+            context, wpdaProvider, 'Gagal membuat WPDA', MyColor.colorRed);
+      }
+    } catch (error) {
       // Tangani kesalahan apapun yang mungkin terjadi saat mengirim permintaan HTTP
       print('Error: $error');
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: MyColor.colorRed,
@@ -111,10 +193,16 @@ class WpdaApi {
               MyColor.whiteColor,
             ),
           ),
+          action: SnackBarAction(
+            label: 'Coba Lagi',
+            onPressed: () {
+              Navigator.pop(context); // Tutup snackbar
+              createWpda(body, context, token); // Coba kirim lagi
+            },
+          ),
         ),
       );
-    });
-    ;
+    }
   }
 
   void _showSuccessSnackBar(BuildContext context, WpdaProvider wpdaProvider,
@@ -122,23 +210,13 @@ class WpdaApi {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? role = prefs.getString(SharedPreferencesManager.keyRole);
 
-    // showDialog(
-    //   barrierDismissible: false,
-    //   context: context,
-    //   builder: (context) {
-    //     return Center(
-    //       child: CoolLoading(),
-    //     );
-    //   },
-    // );
-
-    Future.delayed(Duration(seconds: 2), () {
+    Future.delayed(Duration(seconds: 1), () {
       Navigator.pop(context);
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) {
           return BottomNavigationPage(
-            index: (role == "admin") ? 1 : 0,
+            index: (role == "admin" || role == 'super_admin') ? 1 : 0,
           );
         }),
         (route) => false,
@@ -172,6 +250,8 @@ class WpdaApi {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? role = prefs.getString(SharedPreferencesManager.keyRole);
 
+    Navigator.pop(context); // Tutup dialog pemberitahuan loading
+
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -182,13 +262,13 @@ class WpdaApi {
       },
     );
 
-    Future.delayed(Duration(seconds: 2), () {
-      Navigator.pop(context);
+    Future.delayed(Duration(seconds: 1), () {
+      Navigator.pop(context); // Tutup dialog pemberitahuan loading
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) {
           return BottomNavigationPage(
-            index: (role == "admin") ? 1 : 0,
+            index: (role == "admin" || role == 'super_admin') ? 1 : 0,
           );
         }),
         (route) => false,
@@ -272,7 +352,7 @@ class WpdaApi {
         );
         return Navigator.pop(context);
       }
-      final response = await http
+      await http
           .put(
         Uri.parse(ApiConstants.editWpdaUrl + '/$id'),
         headers: headers,
@@ -284,20 +364,12 @@ class WpdaApi {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           String? role = prefs.getString(SharedPreferencesManager.keyRole);
           if (data['success']) {
-            // showDialog(
-            //     barrierDismissible: false,
-            //     context: context,
-            //     builder: (context) {
-            //       return Center(
-            //         child: CoolLoading(),
-            //       );
-            //     });
             Future.delayed(Duration(seconds: 2), () {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) {
                   return BottomNavigationPage(
-                    index: (role == "admin") ? 1 : 0,
+                    index: (role == "admin" || role == 'super_admin') ? 1 : 0,
                   );
                 }),
                 (route) => false,
@@ -321,21 +393,13 @@ class WpdaApi {
               editWpdaProvider.applicationInLifeController.text = '';
             });
           } else {
-            // showDialog(
-            //     barrierDismissible: false,
-            //     context: context,
-            //     builder: (context) {
-            //       return Center(
-            //         child: CoolLoading(),
-            //       );
-            //     });
             Future.delayed(Duration(seconds: 2), () {
               Navigator.pop(context);
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) {
                   return BottomNavigationPage(
-                    index: (role == "admin") ? 1 : 0,
+                    index: (role == "admin" || role == 'super_admin') ? 1 : 0,
                   );
                 }),
                 (route) => false,
@@ -415,7 +479,7 @@ class WpdaApi {
               context,
               MaterialPageRoute(builder: (context) {
                 return BottomNavigationPage(
-                  index: (role == "admin") ? 1 : 0,
+                  index: (role == "admin" || role == 'super_admin') ? 1 : 0,
                 );
               }),
               (route) => false,
@@ -454,7 +518,7 @@ class WpdaApi {
             context,
             MaterialPageRoute(builder: (context) {
               return BottomNavigationPage(
-                index: (role == "admin") ? 1 : 0,
+                index: (role == "admin" || role == 'super_admin') ? 1 : 0,
               );
             }),
             (route) => false,

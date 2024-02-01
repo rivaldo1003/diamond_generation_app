@@ -1,15 +1,14 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:diamond_generation_app/core/models/all_users.dart';
 import 'package:diamond_generation_app/features/history_wpda/presentation/history_screen.dart';
-import 'package:diamond_generation_app/features/view_detail_all_data_users/presentation/wpda_user_screen.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
+import 'package:diamond_generation_app/shared/widgets/build_image_url_with_timestamp.dart';
 import 'package:diamond_generation_app/shared/widgets/button.dart';
-import 'package:diamond_generation_app/shared/widgets/card_detail_profile.dart';
 import 'package:diamond_generation_app/shared/widgets/detail_user.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
 class ViewAllDataUsers extends StatefulWidget {
@@ -45,28 +44,12 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
 
   TextEditingController _controllerBirthDateAndPlace = TextEditingController();
 
-  String buildImageUrlWithStaticTimestamp(String? profilePicture) {
-    if (profilePicture != null &&
-        profilePicture.isNotEmpty &&
-        profilePicture != 'null') {
-      // Tambahkan timestamp sebagai parameter query string
-      return Uri.https(
-              'gsjasungaikehidupan.com',
-              '/storage/profile_pictures/$profilePicture',
-              {'timestamp': DateTime.now().millisecondsSinceEpoch.toString()})
-          .toString();
-    } else {
-      return "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
-    }
-  }
-
   String? imgUrl;
 
   @override
   void initState() {
     super.initState();
     if (widget.userData.profile != null &&
-        widget.userData.profile!.profile_picture != null &&
         widget.userData.profile!.profile_picture.isNotEmpty) {
       imgUrl = buildImageUrlWithStaticTimestamp(
           widget.userData.profile!.profile_picture);
@@ -75,6 +58,26 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
       imgUrl =
           "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
     }
+  }
+
+  String capitalizeFirstLetter(String text) {
+    if (text.isEmpty || text.isEmpty) {
+      return text;
+    }
+    return text[0].toUpperCase() + text.substring(1);
+  }
+
+  String? capitalizeEachWord(String? text) {
+    if (text == null || text.isEmpty) {
+      return text;
+    }
+
+    List<String> words = text.split(" ");
+    for (int i = 0; i < words.length; i++) {
+      words[i] = capitalizeFirstLetter(words[i]);
+    }
+
+    return words.join(" ");
   }
 
   @override
@@ -151,7 +154,7 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                   ),
                 ),
                 Text(
-                  widget.userData.fullName,
+                  capitalizeEachWord(widget.userData.fullName)!,
                   style: MyFonts.customTextStyle(
                     18,
                     FontWeight.bold,
@@ -196,7 +199,7 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                 Text(
                   'Aktif sejak - ${widget.userData.createdAt}',
                   style: MyFonts.customTextStyle(
-                    14,
+                    13,
                     FontWeight.w500,
                     MyColor.greyText,
                   ),
@@ -210,16 +213,19 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                       child: Text(
                         'Informasi Pribadi',
                         style: MyFonts.customTextStyle(
-                          14,
+                          12,
                           FontWeight.w500,
-                          MyColor.whiteColor,
+                          MyColor.greyText,
                         ),
                       ),
                     ),
                     SizedBox(height: 8),
                     DetailUser(
                       readOnly: true,
-                      iconData: Icons.numbers,
+                      iconData: SvgPicture.asset(
+                        'assets/icons/account_number.svg',
+                        color: MyColor.primaryColor.withOpacity(0.7),
+                      ),
                       title: 'Nomor Akun',
                       value: widget.userData.accountNumber,
                       controller: _controllerAccountNumber,
@@ -227,7 +233,10 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                     SizedBox(height: 4),
                     DetailUser(
                       readOnly: true,
-                      iconData: Icons.campaign,
+                      iconData: SvgPicture.asset(
+                        'assets/icons/age.svg',
+                        color: MyColor.primaryColor.withOpacity(0.7),
+                      ),
                       title: 'Umur',
                       value: (widget.userData.profile == null)
                           ? '-'
@@ -237,7 +246,10 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                     SizedBox(height: 4),
                     DetailUser(
                       readOnly: true,
-                      iconData: Icons.email,
+                      iconData: SvgPicture.asset(
+                        'assets/icons/email.svg',
+                        color: MyColor.primaryColor.withOpacity(0.7),
+                      ),
                       title: 'Email',
                       value: widget.userData.email,
                       controller: _controllerEmail,
@@ -245,17 +257,24 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                     SizedBox(height: 4),
                     DetailUser(
                       readOnly: true,
-                      iconData: Icons.home_rounded,
+                      iconData: SvgPicture.asset(
+                        'assets/icons/address.svg',
+                        color: MyColor.primaryColor.withOpacity(0.7),
+                      ),
                       title: 'Alamat',
                       value: (widget.userData.profile == null)
                           ? '-'
-                          : widget.userData.profile!.address,
+                          : capitalizeEachWord(
+                              widget.userData.profile!.address)!,
                       controller: _controllerAddress,
                     ),
                     SizedBox(height: 4),
                     DetailUser(
                       readOnly: true,
-                      iconData: Icons.phone,
+                      iconData: SvgPicture.asset(
+                        'assets/icons/phone_number.svg',
+                        color: MyColor.primaryColor.withOpacity(0.7),
+                      ),
                       title: 'No Telepon',
                       value: (widget.userData.profile == null)
                           ? '-'
@@ -265,7 +284,10 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                     SizedBox(height: 4),
                     DetailUser(
                       readOnly: true,
-                      iconData: Icons.person,
+                      iconData: SvgPicture.asset(
+                        'assets/icons/gender.svg',
+                        color: MyColor.primaryColor.withOpacity(0.7),
+                      ),
                       title: 'Jenis Kelamin',
                       value: (widget.userData.profile == null)
                           ? '-'
@@ -275,11 +297,14 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                     SizedBox(height: 4),
                     DetailUser(
                       readOnly: true,
-                      iconData: Icons.add_location_alt,
+                      iconData: SvgPicture.asset(
+                        'assets/icons/born.svg',
+                        color: MyColor.primaryColor.withOpacity(0.7),
+                      ),
                       title: 'Tempat/Tanggal Lahir',
                       value: (widget.userData.profile == null)
                           ? '-'
-                          : '${widget.userData.profile!.birth_place}' +
+                          : '${capitalizeEachWord(widget.userData.profile!.birth_place)}' +
                               ', ' +
                               '${formattedDate}',
                       controller: _controllerBirthDateAndPlace,
@@ -298,62 +323,64 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                   ? MyColor.colorBlackBg
                   : MyColor.primaryColor,
               onPressed: () {
-                if (widget.userData.dataWpda.isNotEmpty) {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return HistoryScreen(
-                      id: widget.userData.id,
-                      fullName: widget.userData.fullName,
-                      profilePictures: widget.userData.profile!.profile_picture,
-                    );
-                  }));
-                } else {
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Row(
-                            children: [
-                              Icon(
-                                Icons.notifications,
-                                color: MyColor.primaryColor,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                'Notifikasi',
-                                style: MyFonts.customTextStyle(
-                                  14,
-                                  FontWeight.bold,
-                                  MyColor.whiteColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                          content: Text(
-                            '${widget.userData.fullName} belum melengkapi profil dan data WPDA ${widget.userData.fullName} masih kosong.',
-                            style: MyFonts.customTextStyle(
-                              14,
-                              FontWeight.w500,
-                              MyColor.whiteColor,
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text(
-                                'Oke',
-                                style: MyFonts.customTextStyle(
-                                  14,
-                                  FontWeight.w500,
-                                  MyColor.whiteColor,
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      });
-                }
+                // if (widget.userData != null) {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return HistoryScreen(
+                    id: widget.userData.id,
+                    fullName: widget.userData.fullName,
+                    profilePictures: (widget.userData.profile != null)
+                        ? widget.userData.profile!.profile_picture
+                        : '',
+                  );
+                }));
+                // } else {
+                // showDialog(
+                //     context: context,
+                //     builder: (context) {
+                //       return AlertDialog(
+                //         title: Row(
+                //           children: [
+                //             Icon(
+                //               Icons.notifications,
+                //               color: MyColor.primaryColor,
+                //             ),
+                //             SizedBox(width: 8),
+                //             Text(
+                //               'Notifikasi',
+                //               style: MyFonts.customTextStyle(
+                //                 14,
+                //                 FontWeight.bold,
+                //                 MyColor.whiteColor,
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //         content: Text(
+                //           '${widget.userData.fullName} belum melengkapi profil dan data WPDA ${widget.userData.fullName} masih kosong.',
+                //           style: MyFonts.customTextStyle(
+                //             14,
+                //             FontWeight.w500,
+                //             MyColor.whiteColor,
+                //           ),
+                //         ),
+                //         actions: [
+                //           TextButton(
+                //             onPressed: () {
+                //               Navigator.pop(context);
+                //             },
+                //             child: Text(
+                //               'Oke',
+                //               style: MyFonts.customTextStyle(
+                //                 14,
+                //                 FontWeight.w500,
+                //                 MyColor.whiteColor,
+                //               ),
+                //             ),
+                //           ),
+                //         ],
+                //       );
+                //     });
+                // }
               },
             ),
           ),

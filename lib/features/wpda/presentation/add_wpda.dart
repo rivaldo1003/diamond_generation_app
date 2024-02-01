@@ -51,10 +51,72 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
       appBar: AppBarWidget(title: 'Buat WPDA'),
       body: WillPopScope(
         onWillPop: () async {
-          wpdaProvider.readingBookController.clear();
-          wpdaProvider.verseContentController.clear();
-          wpdaProvider.messageOfGodController.clear();
-          wpdaProvider.applicationInLifeController.clear();
+          if (wpdaProvider.readingBookController.text.isNotEmpty ||
+              wpdaProvider.applicationInLifeController.text.isNotEmpty ||
+              wpdaProvider.messageOfGodController.text.isNotEmpty ||
+              wpdaProvider.messageOfGodController.text.isNotEmpty) {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text(
+                      'Konfirmasi Keluar',
+                      style: MyFonts.customTextStyle(
+                        16,
+                        FontWeight.bold,
+                        MyColor.whiteColor,
+                      ),
+                    ),
+                    content: Text(
+                      'Data yang sudah anda buat saat ini akan hilang. Tetap lanjutkan?',
+                      style: MyFonts.customTextStyle(
+                        14,
+                        FontWeight.w500,
+                        MyColor.whiteColor,
+                      ),
+                    ),
+                    actions: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text(
+                              'Batal',
+                              style: MyFonts.customTextStyle(
+                                16,
+                                FontWeight.w500,
+                                MyColor.whiteColor,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              wpdaProvider.readingBookController.clear();
+                              wpdaProvider.verseContentController.clear();
+                              wpdaProvider.messageOfGodController.clear();
+                              wpdaProvider.applicationInLifeController.clear();
+                              Navigator.of(context).pop();
+                              Navigator.of(context).pop();
+                            },
+                            child: Text(
+                              'Ya',
+                              style: MyFonts.customTextStyle(
+                                16,
+                                FontWeight.bold,
+                                MyColor.colorRed,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                });
+            return true;
+          }
           return true;
         },
         child: Padding(
@@ -318,14 +380,18 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                       SizedBox(height: 12),
                       TextButton(
                           style: ButtonStyle(
-                            backgroundColor: MaterialStatePropertyAll(
-                                MyColor.colorLightBlue),
-                            shape: MaterialStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                              // backgroundColor: MaterialStatePropertyAll(
+                              //   MyColor.colorLightBlue,
+                              // ),
+
+                              shape: MaterialStatePropertyAll(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
-                            ),
-                          ),
+                              side: MaterialStatePropertyAll(BorderSide(
+                                color: MyColor.greyText.withOpacity(0.4),
+                              ))),
                           onPressed: () {
                             showModalBottomSheet(
                               context: context,
@@ -359,12 +425,12 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                                           Consumer<AddWpdaProvider>(builder:
                                               (context, checkBoxState, _) {
                                             return Container(
-                                              height: 400,
+                                              // height: 400,
                                               // color: Colors.white,
                                               child: ListView(
                                                 padding: EdgeInsets.only(
                                                   top: 0,
-                                                  bottom: 20,
+                                                  bottom: 0,
                                                 ),
                                                 shrinkWrap: true,
                                                 children: [
@@ -677,7 +743,13 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                 } else {
                   return ButtonWidget(
                     title: 'Kirim WPDA',
-                    color: MyColor.primaryColor,
+                    color: (wpdaProvider.readingBookController.text.isEmpty ||
+                            wpdaProvider.verseContentController.text.isEmpty ||
+                            wpdaProvider
+                                .applicationInLifeController.text.isEmpty ||
+                            wpdaProvider.messageOfGodController.text.isEmpty)
+                        ? MyColor.colorBlackBg
+                        : MyColor.primaryColor,
                     onPressed: () {
                       var checkBoxState =
                           Provider.of<AddWpdaProvider>(context, listen: false);

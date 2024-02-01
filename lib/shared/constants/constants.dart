@@ -3,6 +3,7 @@ class ApiConstants {
   static const baseUrlImage = 'https://gsjasungaikehidupan.com/storage';
 
   static const loginUrl = baseUrl + '/login';
+  static const logoutUrl = baseUrl + '/user/logout';
   static const loginGoogleUrl = baseUrl + '/google-login';
   static const registerUrl = baseUrl + '/register';
   static const readUserProfileByIdUrl = baseUrl + '/users';

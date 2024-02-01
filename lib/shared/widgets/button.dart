@@ -1,4 +1,3 @@
-import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/profile/data/providers/profile_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';

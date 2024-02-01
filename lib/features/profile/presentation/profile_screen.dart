@@ -731,7 +731,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 Text(
                                   'Aktif sejak - ${formatDate}',
                                   style: MyFonts.customTextStyle(
-                                    14,
+                                    13,
                                     FontWeight.w500,
                                     MyColor.greyText,
                                   ),
@@ -774,9 +774,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           Text(
                                             'Informasi Pribadi',
                                             style: MyFonts.customTextStyle(
-                                              14,
+                                              12,
                                               FontWeight.w500,
-                                              MyColor.whiteColor,
+                                              MyColor.greyText,
                                             ),
                                           ),
                                           Row(
@@ -979,6 +979,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         );
                                       },
                                     ),
+                                    SizedBox(height: 4),
+                                    // Divider(
+                                    //   thickness: 0.5,
+                                    // ),
+                                    SizedBox(height: 16),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      child: Text(
+                                        'Kebijakan Privasi',
+                                        style: MyFonts.customTextStyle(
+                                          12,
+                                          FontWeight.w500,
+                                          MyColor.greyText,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    CardDetailProfile(
+                                      keyboardType: TextInputType.number,
+                                      readOnly: true,
+                                      onPressed: () {},
+                                      iconData: SvgPicture.asset(
+                                        'assets/icons/privacy_policy.svg',
+                                        color: MyColor.primaryColor
+                                            .withOpacity(0.7),
+                                      ),
+                                      title: 'Kebijakan Privasi',
+                                      value: '',
+                                    ),
+                                    SizedBox(height: 4),
+                                    CardDetailProfile(
+                                      keyboardType: TextInputType.number,
+                                      readOnly: true,
+                                      onPressed: () {},
+                                      iconData: Image.asset(
+                                        'assets/icons/business.png',
+                                        color: MyColor.primaryColor
+                                            .withOpacity(0.7),
+                                        height: 22,
+                                      ),
+                                      title: 'Syarat dan Kondisi',
+                                      value: '',
+                                    ),
                                     SizedBox(height: 32),
                                     (appVersion != null)
                                         ? Center(
@@ -1036,48 +1080,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             'Batal',
                                             style: MyFonts.customTextStyle(
                                               15,
-                                              FontWeight.bold,
+                                              FontWeight.w500,
                                               Colors.lightBlue,
                                             ),
                                           ),
                                         ),
                                         TextButton(
                                           onPressed: () {
-                                            showDialog(
-                                                barrierDismissible: false,
-                                                context: context,
-                                                builder: (context) {
-                                                  return Center(
-                                                    child: CoolLoading(),
-                                                  );
-                                                });
-                                            Future.delayed(Duration(seconds: 2),
-                                                () {
-                                              Navigator.pushAndRemoveUntil(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) {
-                                                  return LoginScreen();
-                                                }),
-                                                (route) => false,
-                                              );
-                                              profileProvider.clearAllData();
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                  backgroundColor:
-                                                      MyColor.colorGreen,
-                                                  content: Text(
-                                                    'Anda telah berhasil keluar.',
-                                                    style:
-                                                        MyFonts.customTextStyle(
-                                                      15,
-                                                      FontWeight.w500,
-                                                      MyColor.whiteColor,
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
+                                            getUserUsecase
+                                                .logout(context, token!)
+                                                .then((value) {
+                                              return profileProvider
+                                                  .clearAllData();
                                             });
                                           },
                                           child: Text(

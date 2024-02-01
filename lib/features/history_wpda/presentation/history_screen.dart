@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
@@ -9,7 +8,6 @@ import 'package:diamond_generation_app/features/history_wpda/widgets/card_histor
 import 'package:diamond_generation_app/features/history_wpda/widgets/card_monthly_report.dart';
 import 'package:diamond_generation_app/features/history_wpda/widgets/filter_date_dropdown.dart';
 import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
-import 'package:diamond_generation_app/features/loading_diamond/loading_diamond.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/presentation/add_wpda.dart';
@@ -21,7 +19,6 @@ import 'package:diamond_generation_app/shared/widgets/button.dart';
 import 'package:diamond_generation_app/shared/widgets/placeholder_card_wpda.dart';
 import 'package:diamond_generation_app/shared/widgets/placeholder_history.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -50,7 +47,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   late String url;
-  String? urlProfilePictures; // Sesuaikan dengan jenis data yang sesuai
+  String? urlProfilePictures;
 
   File? _image;
   final keyImageProfile = "image_profile";
@@ -414,14 +411,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                   history.data[index];
                                               return CardHistoryWpda(
                                                 historyWpda: historyWpda,
-                                                profilePictures: (widget
-                                                                .profilePictures !=
-                                                            null &&
-                                                        widget.profilePictures!
-                                                            .isNotEmpty)
-                                                    ? urlProfilePictures!
-                                                    : _image?.path ??
-                                                        '', // Gunakan null-aware operator untuk mendapatkan path _image jika tidak null
+                                                profilePictures:
+                                                    (widget.profilePictures !=
+                                                                null &&
+                                                            widget
+                                                                .profilePictures!
+                                                                .isNotEmpty)
+                                                        ? urlProfilePictures!
+                                                        : _image?.path ?? '',
                                               );
                                             },
                                           ),

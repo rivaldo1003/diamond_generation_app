@@ -325,12 +325,14 @@ class _CommentWpdaState extends State<CommentWpda> {
                           ),
                           title: Row(
                             children: [
-                              Text(
-                                data[index].comentator.fullName,
-                                style: MyFonts.customTextStyle(
-                                  10,
-                                  FontWeight.bold,
-                                  MyColor.whiteColor,
+                              Expanded(
+                                child: Text(
+                                  data[index].comentator.fullName,
+                                  style: MyFonts.customTextStyle(
+                                    10,
+                                    FontWeight.bold,
+                                    MyColor.whiteColor,
+                                  ),
                                 ),
                               ),
                               SizedBox(width: 5),

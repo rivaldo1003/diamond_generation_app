@@ -27,6 +27,7 @@ class SearchUserProvider with ChangeNotifier {
       List<AllUsers> allUsers = await _getUserUsecase.getAllUsers(token);
       userData = allUsers;
       filteredUserData = allUsers;
+      print('Success fetch data users');
       notifyListeners();
     } catch (e) {
       throw Exception(e.toString());

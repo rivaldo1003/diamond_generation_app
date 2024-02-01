@@ -1,8 +1,6 @@
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
-import 'package:diamond_generation_app/shared/utils/color.dart';
-import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:flutter/material.dart';
 
 class WpdaProvider with ChangeNotifier {

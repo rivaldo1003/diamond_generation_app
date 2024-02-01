@@ -74,4 +74,8 @@ class GetUserUsecase {
       String userId, String token) async {
     return await userRepository.updateFullName(context, body, userId, token);
   }
+
+  Future<void> logout(BuildContext context, String token) async {
+    return await userRepository.logout(context, token);
+  }
 }

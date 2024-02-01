@@ -1,13 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
-import 'package:diamond_generation_app/features/klasemen/presentation/klasmen_wpda_screen.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
-import 'package:diamond_generation_app/features/wpda/presentation/add_wpda.dart';
-import 'package:diamond_generation_app/features/wpda/presentation/bible_app.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
@@ -19,9 +15,9 @@ import 'package:diamond_generation_app/shared/widgets/placeholder_card_wpda.dart
 import 'package:diamond_generation_app/shared/widgets/placeholder_history.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
@@ -177,6 +173,7 @@ class _WPDAScreenState extends State<WPDAScreen> {
         });
       }
     });
+
     getToken();
     super.initState();
   }
@@ -190,17 +187,6 @@ class _WPDAScreenState extends State<WPDAScreen> {
     return Scaffold(
       appBar: AppBarWidget(
         title: 'WPDA',
-        // leading: IconButton(
-        //   onPressed: () {
-        //     Navigator.push(context, MaterialPageRoute(builder: (context) {
-        //       return KlasmenWpdaScreen();
-        //     }));
-        //   },
-        //   icon: Icon(
-        //     FontAwesomeIcons.trophy,
-        //     color: MyColor.primaryColor,
-        //   ),
-        // ),
       ),
       body: Consumer<LoginProvider>(
         builder: (context, value, _) {
@@ -348,7 +334,8 @@ class _WPDAScreenState extends State<WPDAScreen> {
                   SizedBox(height: 12),
                   Expanded(
                     child: FutureBuilder<List<WPDA>>(
-                      future: getWpdaUsecase.getAllWpda("${token}"),
+                      future: Future.delayed(Duration(milliseconds: 600),
+                          () => getWpdaUsecase.getAllWpda("${token}")),
                       builder: (context, snapshot) {
                         var data = snapshot.data;
                         if (snapshot.connectionState ==
@@ -392,8 +379,6 @@ class _WPDAScreenState extends State<WPDAScreen> {
                                   return CircularProgressIndicator();
                                 } else {
                                   var currentDate = DateTime.now();
-                                  var formatDate = DateFormat('yy MMM dd')
-                                      .format(currentDate);
 
                                   data = data!.reversed.toList();
                                   data!.sort((a, b) {
@@ -497,22 +482,32 @@ class _WPDAScreenState extends State<WPDAScreen> {
                                             horizontal: 20),
                                         child: Row(
                                           children: [
-                                            Text(
-                                              'Hari ini : ',
-                                              style: MyFonts.customTextStyle(
-                                                12,
-                                                FontWeight.w500,
-                                                MyColor.greyText,
-                                              ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  'Hari ini : ',
+                                                  style:
+                                                      MyFonts.customTextStyle(
+                                                    12,
+                                                    FontWeight.w500,
+                                                    MyColor.greyText,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  formatDateResult,
+                                                  style:
+                                                      MyFonts.customTextStyle(
+                                                    12,
+                                                    FontWeight.bold,
+                                                    MyColor.whiteColor,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                            Text(
-                                              formatDateResult,
-                                              style: MyFonts.customTextStyle(
-                                                12,
-                                                FontWeight.bold,
-                                                MyColor.whiteColor,
-                                              ),
-                                            ),
+                                            SizedBox(width: 32),
+                                            // Expanded(
+                                            //   child: TodayDropDown(),
+                                            // ),
                                           ],
                                         ),
                                       ),
