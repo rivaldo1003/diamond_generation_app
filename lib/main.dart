@@ -6,10 +6,10 @@ import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/data/providers/bottom_nav_bar_provider.dart';
 import 'package:diamond_generation_app/features/comment/data/comment_provider.dart';
-import 'package:diamond_generation_app/features/comment/presentation/comment_wpda.dart';
 import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
 import 'package:diamond_generation_app/features/history_wpda/data/detail_history_provider.dart';
 import 'package:diamond_generation_app/features/history_wpda/data/history_provider.dart';
+import 'package:diamond_generation_app/features/history_wpda/data/today_wpda.dart';
 import 'package:diamond_generation_app/features/home/data/providers/home_provider.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/profile/data/providers/profile_provider.dart';
@@ -28,6 +28,7 @@ import 'package:diamond_generation_app/shared/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -36,12 +37,23 @@ void main() async {
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
+  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+
+  OneSignal.initialize("ae235573-b52c-44a5-b2c3-23d9de4232fa");
+
+// The promptForPushNotificationsWithUserResponse function will show the iOS or Android push notification prompt. We recommend removing the following code and instead using an In-App Message to prompt for notification permission
+  OneSignal.Notifications.requestPermission(true);
   await initializeDateFormatting('id_ID', null);
   timeago.setLocaleMessages('id', timeago.IdMessages());
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -53,6 +65,9 @@ class MyApp extends StatelessWidget {
                       userApi: UserApi(
             urlApi: ApiConstants.verifyUserUrl,
           )))),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => TodayWpdaProvider(),
         ),
         ChangeNotifierProvider(
           create: (context) => CommentProvider(),

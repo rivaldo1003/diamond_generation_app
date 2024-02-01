@@ -4,6 +4,7 @@ import 'package:diamond_generation_app/features/login/data/providers/login_provi
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/widgets/build_image_url_with_timestamp.dart';
 import 'package:diamond_generation_app/shared/widgets/prayer_abbreviation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -53,20 +54,6 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
   }
 
   late String imgUrl;
-  String buildImageUrlWithStaticTimestamp(String? profilePicture) {
-    if (profilePicture != null &&
-        profilePicture.isNotEmpty &&
-        profilePicture != 'null') {
-      // Tambahkan timestamp sebagai parameter query string
-      return Uri.https(
-              'gsjasungaikehidupan.com',
-              '/storage/profile_pictures/$profilePicture',
-              {'timestamp': DateTime.now().millisecondsSinceEpoch.toString()})
-          .toString();
-    } else {
-      return "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
-    }
-  }
 
   @override
   void initState() {
@@ -202,7 +189,7 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                                   ),
                                 ),
                                 child: (widget.profilePictures.startsWith(
-                                        '/data/user/0/com.example.diamond_generation_app/'))
+                                        '/data/user/0/com.riverapp.gsjasungaikehidupan/'))
                                     ? CircleAvatar(
                                         backgroundImage: fileImage,
                                       )
@@ -340,8 +327,7 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      (widget.profilePictures == null ||
-                              widget.profilePictures.isEmpty)
+                      (widget.profilePictures.isEmpty)
                           ? Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
@@ -365,7 +351,7 @@ class _CardHistoryWpdaState extends State<CardHistoryWpda> {
                                 ),
                               ),
                               child: (widget.profilePictures.startsWith(
-                                      '/data/user/0/com.example.diamond_generation_app/'))
+                                      '/data/user/0/com.riverapp.gsjasungaikehidupan/'))
                                   ? CircleAvatar(
                                       backgroundImage: fileImage,
                                     )

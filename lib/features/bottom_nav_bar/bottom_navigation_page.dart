@@ -1,7 +1,5 @@
 import 'package:diamond_generation_app/features/history_wpda/presentation/history_screen.dart';
 import 'package:diamond_generation_app/features/home/presentation/home_screen.dart';
-import 'package:diamond_generation_app/features/home/presentation/home_screen_user.dart';
-import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/profile/presentation/profile_screen.dart';
 import 'package:diamond_generation_app/features/wpda/presentation/add_wpda.dart';
 import 'package:diamond_generation_app/features/wpda/presentation/wpda_screen.dart';
@@ -13,7 +11,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BottomNavigationPage extends StatefulWidget {
-  int? index;
+  final int? index;
 
   BottomNavigationPage({
     this.index,
@@ -65,7 +63,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
         shape: CircularNotchedRectangle(),
         child: BottomNavigationBar(
           elevation: 0,
-          backgroundColor: Colors.transparent,
+          // backgroundColor: Colors.transparent,
           currentIndex: selected,
           onTap: (value) {
             setState(() {
@@ -125,16 +123,16 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
                   // ),
                   BottomNavigationBarItem(
                     label: 'WPDA',
-                    icon: (selected == 1) ? Icon(Icons.book) : Icon(Icons.book),
+                    icon: (selected == 0) ? Icon(Icons.book) : Icon(Icons.book),
                   ),
                   BottomNavigationBarItem(
                     label: 'Riwayat',
-                    icon: (selected == 2)
+                    icon: (selected == 1)
                         ? Icon(Icons.history)
                         : Icon(Icons.history),
                   ),
                   BottomNavigationBarItem(
-                    icon: (selected == 3)
+                    icon: (selected == 2)
                         ? SvgPicture.asset(
                             'assets/icons/profil_active.svg',
                             color: MyColor.primaryColor,

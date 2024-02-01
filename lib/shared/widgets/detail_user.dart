@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailUser extends StatefulWidget {
-  final IconData iconData;
+  final Widget iconData;
   final String title;
   final String value;
   final bool? readOnly;
@@ -159,14 +159,13 @@ class _DetailUserState extends State<DetailUser> {
               Expanded(
                 child: Row(
                   children: [
-                    SizedBox(width: 18),
-                    Icon(widget.iconData),
+                    widget.iconData,
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         widget.title,
                         style: MyFonts.customTextStyle(
-                          14,
+                          12,
                           FontWeight.w500,
                           MyColor.greyText,
                         ),
@@ -185,7 +184,7 @@ class _DetailUserState extends State<DetailUser> {
                           widget.value,
                           overflow: TextOverflow.ellipsis,
                           style: MyFonts.customTextStyle(
-                            14,
+                            12,
                             FontWeight.w500,
                             MyColor.greyText,
                           ),

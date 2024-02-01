@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class AppMainScreen extends StatelessWidget {
-  List<Widget> _screens = [
+  final List<Widget> _screens = [
     BottomNavBarHome(),
     BottomNavBarProfile(),
   ];

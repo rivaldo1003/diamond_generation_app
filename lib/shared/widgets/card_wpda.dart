@@ -9,6 +9,7 @@ import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
+import 'package:diamond_generation_app/shared/widgets/build_image_url_with_timestamp.dart';
 import 'package:diamond_generation_app/shared/widgets/custom_dialog.dart';
 import 'package:diamond_generation_app/shared/widgets/prayer_abbreviation.dart';
 import 'package:flutter/material.dart';
@@ -34,20 +35,11 @@ class CardWpda extends StatefulWidget {
 
 class _CardWpdaState extends State<CardWpda> {
   String? imgUrl;
-  String buildImageUrlWithTimestamp(String? profilePicture) {
-    if (profilePicture != null &&
-        profilePicture.isNotEmpty &&
-        profilePicture != 'null') {
-      String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-      return 'https://gsjasungaikehidupan.com/storage/profile_pictures/$profilePicture?timestamp=$timestamp';
-    } else {
-      return '${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg';
-    }
-  }
 
   Future<void> fetchData() async {
     await retryLogic(() async {
-      imgUrl = buildImageUrlWithTimestamp(widget.wpda.writer.profile_picture);
+      imgUrl =
+          buildImageUrlWithStaticTimestamp(widget.wpda.writer.profile_picture);
       print('IMG URL : ${imgUrl}');
     });
   }
@@ -94,14 +86,34 @@ class _CardWpdaState extends State<CardWpda> {
 
   @override
   void initState() {
+    print(widget.wpda.writer.profile_picture);
     fetchData().then((value) => print('image dijalankan'));
     getToken();
     super.initState();
   }
 
+  String capitalizeFirstLetter(String text) {
+    if (text.isEmpty || text.isEmpty) {
+      return text;
+    }
+    return text[0].toUpperCase() + text.substring(1);
+  }
+
+  String? capitalizeEachWord(String? text) {
+    if (text!.isEmpty || text.isEmpty) {
+      return text;
+    }
+
+    List<String> words = text.split(" ");
+    for (int i = 0; i < words.length; i++) {
+      words[i] = capitalizeFirstLetter(words[i]);
+    }
+
+    return words.join(" ");
+  }
+
   @override
   Widget build(BuildContext context) {
-    final getWpdausecase = Provider.of<GetWpdaUsecase>(context);
     String time = widget.wpda.created_at.split(' ').last;
 
     String timeOnly = convertTimeFormat(time);
@@ -121,7 +133,7 @@ class _CardWpdaState extends State<CardWpda> {
 
     List<String> abbreviations = [];
 
-    if (selectedPrayers.isEmpty || selectedPrayers == null) {
+    if (selectedPrayers.isEmpty || selectedPrayers.isEmpty) {
       abbreviations.add('Tidak Berdoa');
     } else {
       List<String> prayersList = selectedPrayers.split(',');
@@ -132,14 +144,14 @@ class _CardWpdaState extends State<CardWpda> {
     String selectedItemsString = abbreviations.join(', ');
 
     String capitalizeFirstLetter(String text) {
-      if (text == null || text.isEmpty) {
+      if (text.isEmpty || text.isEmpty) {
         return text;
       }
       return text[0].toUpperCase() + text.substring(1);
     }
 
     String capitalizeEachWord(String text) {
-      if (text == null || text.isEmpty) {
+      if (text.isEmpty || text.isEmpty) {
         return text;
       }
 
@@ -228,7 +240,7 @@ class _CardWpdaState extends State<CardWpda> {
                             ),
                             SizedBox(width: 8),
                             (widget.wpda.writer.profile_picture.isEmpty ||
-                                    widget.wpda.writer.profile_picture == null)
+                                    widget.wpda.writer.profile_picture.isEmpty)
                                 ? Container(
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
@@ -263,9 +275,10 @@ class _CardWpdaState extends State<CardWpda> {
                                                   shape: BoxShape.circle,
                                                 ),
                                                 child: CircleAvatar(
-                                                    backgroundImage:
-                                                        CachedNetworkImageProvider(
-                                                            imgUrl!)),
+                                                  backgroundImage:
+                                                      CachedNetworkImageProvider(
+                                                          imgUrl!),
+                                                ),
                                               ),
                                             ),
                                           );
@@ -322,7 +335,7 @@ class _CardWpdaState extends State<CardWpda> {
                               ),
                               Expanded(
                                 child: Text(
-                                  '${widget.wpda.message_of_god}',
+                                  '${capitalizeFirstLetter(widget.wpda.message_of_god)}',
                                   style: MyFonts.customTextStyle(
                                     14,
                                     FontWeight.w500,
@@ -346,7 +359,7 @@ class _CardWpdaState extends State<CardWpda> {
                               ),
                               Expanded(
                                 child: Text(
-                                  '${widget.wpda.application_in_life}',
+                                  '${capitalizeFirstLetter(widget.wpda.application_in_life)}',
                                   style: MyFonts.customTextStyle(
                                     14,
                                     FontWeight.w500,
@@ -362,7 +375,7 @@ class _CardWpdaState extends State<CardWpda> {
                   ),
                   actions: [
                     Consumer<LoginProvider>(builder: (context, value, _) {
-                      if (value.userId == null) {
+                      if (value.userId!.isEmpty) {
                         value.loadFullName();
                         return CircularProgressIndicator();
                       } else {
@@ -386,7 +399,7 @@ class _CardWpdaState extends State<CardWpda> {
                               ),
                               Consumer<LoginProvider>(
                                 builder: (context, _value, _) {
-                                  if (value.userId == null) {
+                                  if (value.userId!.isEmpty) {
                                     value.loadUserId();
                                     return CircularProgressIndicator();
                                   } else {
@@ -399,7 +412,7 @@ class _CardWpdaState extends State<CardWpda> {
                                                 onApprovePressed: (context) {
                                                   wpdaProvider.deleteWpda(
                                                     context,
-                                                    (token == null)
+                                                    (token!.isEmpty)
                                                         ? ''
                                                         : token!,
                                                     widget.wpda.id,
@@ -476,7 +489,7 @@ class _CardWpdaState extends State<CardWpda> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Consumer<LoginProvider>(builder: (context, value, _) {
-              if (value.userId == null) {
+              if (value.userId!.isEmpty) {
                 value.loadUserId();
                 return CircularProgressIndicator();
               } else {
@@ -500,7 +513,7 @@ class _CardWpdaState extends State<CardWpda> {
                         Row(
                           children: [
                             (widget.wpda.writer.profile_picture.isEmpty ||
-                                    widget.wpda.writer.profile_picture == null)
+                                    widget.wpda.writer.profile_picture.isEmpty)
                                 ? Container(
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
@@ -529,7 +542,7 @@ class _CardWpdaState extends State<CardWpda> {
                                 children: [
                                   Consumer<LoginProvider>(
                                     builder: (context, value, _) {
-                                      if (value.userId == null) {
+                                      if (value.userId!.isEmpty) {
                                         value.loadUserId();
                                         return CircularProgressIndicator();
                                       } else {
@@ -755,9 +768,10 @@ class _CardWpdaState extends State<CardWpda> {
                                     widget.wpda.verse_content;
                                 final dataPT = widget.wpda.message_of_god;
                                 final dataAP = widget.wpda.application_in_life;
+                                final doaTabernakel = widget.wpda.doaTabernakel;
                                 // Teks yang ingin disalin ke clipboard
                                 String textToCopy =
-                                    ('WPDA ${widget.wpda.writer.full_name}\n\n ${formatDateResult}\n\n Kitab Bacaan: ${dataReadingBook}\n\n Isi Ayat: ${dataVerseContent}\n\n Pesan Tuhan: ${dataPT}\n\n Aplikasi dalam kehidupan: ${dataAP}');
+                                    ('*WPDA ${widget.wpda.writer.full_name}*\n\n${formatDateResult}\n\n*Kitab Bacaan:* ${dataReadingBook}\n\n*Isi Ayat:* ${dataVerseContent}\n\n*Pesan Tuhan:* ${dataPT}\n\n*Aplikasi dalam kehidupan:* ${dataAP}\n\n*DT:* ${doaTabernakel}');
 
                                 // Salin teks ke clipboard
                                 Clipboard.setData(
@@ -792,36 +806,21 @@ class _CardWpdaState extends State<CardWpda> {
                                     widget.wpda.verse_content;
                                 final dataPT = widget.wpda.message_of_god;
                                 final dataAP = widget.wpda.application_in_life;
+                                final doaTabernakel = widget.wpda.doaTabernakel;
 
                                 shareContent(
-                                    'WPDA ${widget.wpda.writer.full_name}\n\n ${formatDateResult}\n\n Kitab Bacaan: ${dataReadingBook}\n\n Isi Ayat: ${dataVerseContent}\n\n Pesan Tuhan: ${dataPT}\n\n Aplikasi dalam kehidupan: ${dataAP}');
+                                    '*WPDA ${widget.wpda.writer.full_name}*\n\n${formatDateResult}\n\n*Kitab Bacaan:* ${dataReadingBook}\n\n*Isi Ayat:* ${dataVerseContent}\n\n*Pesan Tuhan:* ${dataPT}\n\n*Aplikasi dalam kehidupan:* ${dataAP}\n\n*DT:* ${doaTabernakel}');
                               },
                               child: SvgPicture.asset(
                                 'assets/icons/share.svg',
                                 color: MyColor.colorLightBlue,
                               ),
                             ),
-                            SizedBox(width: 16),
+                            SizedBox(width: 8),
                             Row(
                               children: [
-                                IconButton(
+                                TextButton(
                                   onPressed: () {
-                                    // wpdaProvider.refreshWpdaHistory(
-                                    //     value.userId!, token!);
-                                    // showModalBottomSheet(
-                                    //     shape: RoundedRectangleBorder(
-                                    //       borderRadius: BorderRadius.vertical(
-                                    //         top: Radius.circular(20),
-                                    //       ),
-                                    //     ),
-                                    //     isScrollControlled: true,
-                                    //     context: context,
-                                    //     builder: (context) {
-                                    //       return PartialCommentScreen(
-                                    //         wpda: widget.wpda,
-                                    //         profilePicture: imgUrl!,
-                                    //       );
-                                    //     });
                                     showModalBottomSheet(
                                       context: context,
                                       isScrollControlled: true,
@@ -837,17 +836,14 @@ class _CardWpdaState extends State<CardWpda> {
                                       },
                                     );
                                   },
-                                  icon: Icon(
-                                    Icons.comment,
-                                    color: MyColor.colorLightBlue,
-                                  ),
-                                ),
-                                Text(
-                                  widget.wpda.comments.length.toString(),
-                                  style: MyFonts.customTextStyle(
-                                    14,
-                                    FontWeight.w500,
-                                    MyColor.whiteColor,
+                                  child: Text(
+                                    widget.wpda.comments.length.toString() +
+                                        ' komentar',
+                                    style: MyFonts.customTextStyle(
+                                      12,
+                                      FontWeight.w600,
+                                      MyColor.greyText,
+                                    ),
                                   ),
                                 ),
                               ],

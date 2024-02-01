@@ -7,14 +7,12 @@ import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
 import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
 import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
-import 'package:diamond_generation_app/features/loading_diamond/loading_diamond.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_register.dart';
 import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
 import 'package:diamond_generation_app/features/register_form/presentation/register_form.dart';
-import 'package:diamond_generation_app/features/verified_email/presentation/verified_email_screen.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
@@ -111,7 +109,7 @@ class UserApi {
         return Navigator.pop(context);
       }
 
-      final response = await http.post(
+      await http.post(
         url,
         body: json.encode(body),
         headers: {
@@ -204,12 +202,12 @@ class UserApi {
                     }),
                     (route) => false,
                   );
-                  SnackBarWidget.showSnackBar(
-                    context: context,
-                    message: 'Anda telah berhasil masuk ke akun Anda.',
-                    textColor: MyColor.whiteColor,
-                    bgColor: MyColor.colorGreen,
-                  );
+                  // SnackBarWidget.showSnackBar(
+                  //   context: context,
+                  //   message: data['message'],
+                  //   textColor: MyColor.whiteColor,
+                  //   bgColor: MyColor.colorGreen,
+                  // );
                   TextFieldControllerLogin.emailController.text = '';
                   TextFieldControllerLogin.passwordController.text = '';
                 }
@@ -322,7 +320,7 @@ class UserApi {
           );
           return Navigator.pop(context);
         }
-        final response = await http
+        await http
             .post(
           Uri.parse(ApiConstants.registerUrl),
           headers: headers,
@@ -877,6 +875,81 @@ class UserApi {
       }
     } else {
       throw Exception('Failed to update full name');
+    }
+  }
+
+  Future<void> logout(BuildContext context, String token) async {
+    final url = Uri.parse(ApiConstants.logoutUrl);
+    final response = await http.delete(url, headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    });
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['success']) {
+        print(response.body);
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CoolLoading(),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) {
+              return LoginScreen();
+            }),
+            (route) => false,
+          );
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(
+          //     backgroundColor: MyColor.colorGreen,
+          //     content: Text(
+          //       '${data['message']}',
+          //       style: MyFonts.customTextStyle(
+          //         14,
+          //         FontWeight.w500,
+          //         MyColor.whiteColor,
+          //       ),
+          //     ),
+          //   ),
+          // );
+        });
+      } else {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CoolLoading(),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorGreen,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          Navigator.pop(context);
+        });
+      }
+    } else {
+      throw Exception('Logut API Error');
     }
   }
 }

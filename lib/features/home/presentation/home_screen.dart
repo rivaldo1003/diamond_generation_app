@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
+import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
 import 'package:diamond_generation_app/features/home/data/providers/home_provider.dart';
 import 'package:diamond_generation_app/features/home/widgets/placeholder_home.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
@@ -107,17 +108,28 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  late SearchUserProvider searchUserProvider;
+  late int countUserApprove;
+
   @override
   void initState() {
     loading().then((value) => print('Dijalankan'));
     getUserId().then((userId) {
       if (userId != null) {
         loadImage().then((value) {
-          setState(() {});
+          setState(() {
+            searchUserProvider =
+                Provider.of<SearchUserProvider>(context, listen: false);
+            searchUserProvider.fetchData(context, ApiConstants.getAllUser,
+                (token == null) ? '' : token!);
+            countUserApprove = searchUserProvider
+                .countUnapprovedUsers(searchUserProvider.filteredUserData);
+          });
         });
       }
     });
     getToken();
+
     super.initState();
   }
 
@@ -163,21 +175,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       print('Error: $e');
-    }
-  }
-
-  String buildImageUrlWithStaticTimestamp(String? profilePicture) {
-    if (profilePicture != null &&
-        profilePicture.isNotEmpty &&
-        profilePicture != 'null') {
-      // Tambahkan timestamp sebagai parameter query string
-      return Uri.https(
-              'gsjasungaikehidupan.com',
-              '/storage/profile_pictures/$profilePicture',
-              {'timestamp': DateTime.now().millisecondsSinceEpoch.toString()})
-          .toString();
-    } else {
-      return "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
     }
   }
 
@@ -231,6 +228,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final getUserUsecase = Provider.of<GetUserUsecase>(context);
+    final searchUserProvider = Provider.of<SearchUserProvider>(context);
+    countUserApprove = searchUserProvider
+        .countUnapprovedUsers(searchUserProvider.userData)
+        .toInt();
+    print('Data badges : ${countUserApprove}');
     var today = DateTime.now();
     var formatDateResult = DateFormat('EEEE, d MMMM y', 'id').format(today);
     return Scaffold(
@@ -388,15 +390,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Container(
                             child: Image.asset(
-                              'assets/images/logo_diamond.png',
-                              height: 65,
-                              width: 65,
+                              'assets/images/gsja.png',
+                              height: 50,
+                              width: 50,
                             ),
                           ),
                           Container(
                             width: MediaQuery.of(context).size.width / 2.7,
-                            child:
-                                Image.asset('assets/images/diamond_title.png'),
+                            child: Image.asset('assets/images/gsja_logo.png'),
                           ),
                         ],
                       ),
@@ -408,13 +409,25 @@ class _HomeScreenState extends State<HomeScreen> {
                           return ViewAllData();
                         }));
                       },
-                      child: Text(
-                        'Lihat semua\n pengguna',
-                        textAlign: TextAlign.right,
-                        style: MyFonts.customTextStyle(
-                          11,
-                          FontWeight.bold,
-                          MyColor.colorLightBlue,
+                      child: Badge(
+                        alignment: Alignment.topRight,
+                        backgroundColor: MyColor.colorRed,
+                        label: Text(
+                          '${countUserApprove}',
+                          style: MyFonts.customTextStyle(
+                            10,
+                            FontWeight.bold,
+                            MyColor.whiteColor,
+                          ),
+                        ),
+                        child: Text(
+                          'Lihat semua\n pengguna',
+                          textAlign: TextAlign.right,
+                          style: MyFonts.customTextStyle(
+                            11,
+                            FontWeight.bold,
+                            MyColor.colorLightBlue,
+                          ),
                         ),
                       ),
                     ),
@@ -426,230 +439,265 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
-                setState(() {});
+                setState(() {
+                  searchUserProvider.fetchData(context, ApiConstants.getAllUser,
+                      (token == null) ? '' : token!);
+                  countUserApprove = searchUserProvider.countUnapprovedUsers(
+                      searchUserProvider.filteredUserData);
+                });
               },
-              child: ListView(
-                physics: BouncingScrollPhysics(),
-                padding: EdgeInsets.only(
-                  top: 10,
-                  left: 20,
-                  right: 20,
-                  bottom: 40,
-                ),
-                children: [
-                  Consumer<HomeProvider>(
-                    builder: (context, homeProvider, _) => CarouselSlider(
-                      items: imageSliders,
-                      carouselController: _controller,
-                      options: CarouselOptions(
-                        autoPlay: true,
-                        enlargeCenterPage: true,
-                        aspectRatio: 2.0,
-                        viewportFraction: 0.8,
-                        onPageChanged: (index, reason) {
-                          homeProvider.current = index;
-                        },
+              child: Container(
+                // color: MyColor.colorGreen,
+                child: ListView(
+                  physics: BouncingScrollPhysics(),
+                  padding: EdgeInsets.only(
+                    top: 10,
+                    left: 20,
+                    right: 20,
+                    bottom: 40,
+                  ),
+                  children: [
+                    Consumer<HomeProvider>(
+                      builder: (context, homeProvider, _) => CarouselSlider(
+                        items: imageSliders,
+                        carouselController: _controller,
+                        options: CarouselOptions(
+                          autoPlay: true,
+                          enlargeCenterPage: true,
+                          aspectRatio: 2.0,
+                          viewportFraction: 0.8,
+                          onPageChanged: (index, reason) {
+                            homeProvider.current = index;
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                  Consumer<HomeProvider>(
-                    builder: (context, homeProvider, _) => Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: imgList.asMap().entries.map((entry) {
-                        return GestureDetector(
-                          onTap: () => _controller.animateToPage(entry.key),
-                          child: Container(
-                            width: 6.0,
-                            height: 6.0,
-                            margin: EdgeInsets.symmetric(
-                                vertical: 8.0, horizontal: 4.0),
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: (Theme.of(context).brightness ==
-                                            Brightness.dark
-                                        ? Colors.white
-                                        : Colors.black)
-                                    .withOpacity(
-                                        homeProvider.current == entry.key
-                                            ? 0.9
-                                            : 0.4)),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  FutureBuilder<Map<String, dynamic>>(
-                    future: Future.delayed(Duration(milliseconds: 700), () {
-                      return getUserUsecase
-                          .getTotalNewUsers((token != null) ? token! : '');
-                    }),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return PlaceholderHome();
-                      } else {
-                        if (snapshot.hasData) {
-                          if (snapshot.data!.isNotEmpty ||
-                              snapshot.data != null) {
-                            var data = snapshot.data;
-                            var totalUser = data!['total_users'];
-                            var totalNewUser = data['total_new_users'];
-                            var totalUserWithWpda =
-                                data['total_user_with_wpda'];
-                            return Container(
-                              padding: EdgeInsets.only(
-                                top: 20,
-                                left: 20,
-                                right: 20,
-                                bottom: 12,
-                              ),
+                    Consumer<HomeProvider>(
+                      builder: (context, homeProvider, _) => Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: imgList.asMap().entries.map((entry) {
+                          return GestureDetector(
+                            onTap: () => _controller.animateToPage(entry.key),
+                            child: Container(
+                              width: 6.0,
+                              height: 6.0,
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 4.0),
                               decoration: BoxDecoration(
-                                // color: MyColor.colorLightBlue.withOpacity(0.7),
-                                color: MyColor.colorBlackBg,
-                                borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(15)),
-                                // border: Border.all(color: MyColor.whiteColor),
-                              ),
+                                  shape: BoxShape.circle,
+                                  color: (Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? Colors.white
+                                          : Colors.black)
+                                      .withOpacity(
+                                          homeProvider.current == entry.key
+                                              ? 0.9
+                                              : 0.4)),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    FutureBuilder<Map<String, dynamic>>(
+                      future: Future.delayed(Duration(seconds: 1), () {
+                        return getUserUsecase
+                            .getTotalNewUsers((token != null) ? token! : '');
+                      }),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return PlaceholderHome();
+                        } else {
+                          if (snapshot.hasData) {
+                            if (snapshot.data!.isNotEmpty ||
+                                snapshot.data != null) {
+                              var data = snapshot.data;
+                              var totalUser = data!['total_users'];
+                              var totalNewUser = data['total_new_users'];
+                              var totalUserWithWpda =
+                                  data['total_user_with_wpda'];
+                              return Container(
+                                padding: EdgeInsets.only(
+                                  top: 20,
+                                  left: 20,
+                                  right: 20,
+                                  bottom: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  // color: MyColor.colorLightBlue.withOpacity(0.7),
+                                  color: MyColor.colorBlackBg,
+                                  borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(15)),
+                                  // border: Border.all(color: MyColor.whiteColor),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'DATA DG YOUTH',
+                                              style: MyFonts.customTextStyle(
+                                                20,
+                                                FontWeight.w800,
+                                                MyColor.whiteColor,
+                                              ),
+                                            ),
+                                            Text(
+                                              formatDateResult,
+                                              style: MyFonts.customTextStyle(
+                                                12,
+                                                FontWeight.w500,
+                                                MyColor.greyText,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        // Text(
+                                        //   'DIAMOND \nCOMMUNITY',
+                                        //   textAlign: TextAlign.right,
+                                        //   style: MyFonts.customTextStyle(
+                                        //     10,
+                                        //     FontWeight.bold,
+                                        //     MyColor.colorLightBlue,
+                                        //   ),
+                                        // ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 16),
+                                    Row(
+                                      children: [
+                                        CardBeranda(
+                                          title: 'Sudah WPDA',
+                                          subtitle1: '${totalUserWithWpda}',
+                                          subtitle2: ' / ${totalUser} ',
+                                          textColorSub2: Colors.grey[300],
+                                          description: 'Orang',
+                                          colorBg: MyColor.colorGreen,
+                                        ),
+                                        SizedBox(width: 12),
+                                        CardBeranda(
+                                          title: 'Pengguna',
+                                          subtitle1: '${totalUser}',
+                                          subtitle2: ' + ${totalNewUser}',
+                                          textColorSub2: Colors.amber,
+                                          description:
+                                              'Jiwa Baru (1 bulan terakhir)',
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            } else {
+                              return Center(
+                                child: Text('Data masih kosong'),
+                              );
+                            }
+                          } else {
+                            return Center(
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'DATA DG YOUTH',
-                                            style: MyFonts.customTextStyle(
-                                              20,
-                                              FontWeight.bold,
-                                              MyColor.whiteColor,
-                                            ),
-                                          ),
-                                          Text(
-                                            formatDateResult,
-                                            style: MyFonts.customTextStyle(
-                                              12,
-                                              FontWeight.w500,
-                                              MyColor.whiteColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
                                       Text(
-                                        'DIAMOND \nCOMMUNITY',
-                                        textAlign: TextAlign.right,
+                                        'Gagal memuat data',
                                         style: MyFonts.customTextStyle(
-                                          10,
-                                          FontWeight.bold,
-                                          MyColor.colorLightBlue,
+                                          14,
+                                          FontWeight.w500,
+                                          MyColor.whiteColor,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          setState(() {});
+                                        },
+                                        icon: Icon(
+                                          Icons.refresh,
                                         ),
                                       ),
                                     ],
                                   ),
-                                  SizedBox(height: 16),
-                                  Row(
-                                    children: [
-                                      CardBeranda(
-                                        title: 'Sudah WPDA',
-                                        subtitle1: '${totalUserWithWpda}',
-                                        subtitle2: ' / ${totalUser} ',
-                                        textColorSub2: Colors.grey[300],
-                                        description: 'Orang',
-                                        colorBg: MyColor.colorGreen,
-                                      ),
-                                      SizedBox(width: 12),
-                                      CardBeranda(
-                                        title: 'Pengguna',
-                                        subtitle1: '${totalUser}',
-                                        subtitle2: ' + ${totalNewUser}',
-                                        textColorSub2: Colors.amber,
-                                        description:
-                                            'Jiwa Baru (1 bulan terakhir)',
-                                      ),
-                                    ],
-                                  ),
+                                  PlaceholderHome(),
                                 ],
                               ),
                             );
-                          } else {
-                            return Center(
-                              child: Text('Data masih kosong'),
-                            );
                           }
-                        } else {
-                          return Center(
-                            child: PlaceholderHome(),
-                          );
                         }
-                      }
-                    },
-                  ),
-                  FutureBuilder(
-                    future: Future.delayed(
-                      Duration(milliseconds: 700),
-                      () => getUserUsecase
-                          .userGenderTotal((token == null) ? '' : token!),
+                      },
                     ),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return PlaceholderHome();
-                      } else {
-                        if (snapshot.hasData) {
-                          if (snapshot.data!.isNotEmpty ||
-                              snapshot.data != null) {
-                            final maleData = snapshot.data!['total_male_users'];
-                            final femaleData =
-                                snapshot.data!['total_female_users'];
-                            return Container(
-                              padding: EdgeInsets.only(
-                                left: 20,
-                                right: 20,
-                                bottom: 20,
-                              ),
-                              decoration: BoxDecoration(
-                                color: MyColor.colorBlackBg,
-                                borderRadius: BorderRadius.vertical(
-                                  bottom: Radius.circular(15),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  CardBeranda(
-                                    title: 'Laki-Laki',
-                                    subtitle1: maleData.toString(),
-                                    subtitle2: ' Orang',
-                                    textColorSub2: Colors.grey[300],
-                                    description: 'Total',
-                                    colorBg: MyColor.primaryColor,
-                                  ),
-                                  SizedBox(width: 12),
-                                  CardBeranda(
-                                    title: 'Perempuan',
-                                    subtitle1: femaleData.toString(),
-                                    subtitle2: ' Orang',
-                                    textColorSub2: Colors.grey[300],
-                                    description: 'Total',
-                                    colorBg: Colors.pink,
-                                  ),
-                                ],
-                              ),
-                            );
-                          } else {
-                            return Center(
-                              child: Text('Data masih kosong'),
-                            );
-                          }
-                        } else {
+                    FutureBuilder(
+                      future: Future.delayed(
+                        Duration(seconds: 1),
+                        () => getUserUsecase
+                            .userGenderTotal((token == null) ? '' : token!),
+                      ),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return PlaceholderHome();
+                        } else {
+                          if (snapshot.hasData) {
+                            if (snapshot.data!.isNotEmpty ||
+                                snapshot.data != null) {
+                              final maleData =
+                                  snapshot.data!['total_male_users'];
+                              final femaleData =
+                                  snapshot.data!['total_female_users'];
+                              return Container(
+                                padding: EdgeInsets.only(
+                                  left: 20,
+                                  right: 20,
+                                  bottom: 20,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: MyColor.colorBlackBg,
+                                  borderRadius: BorderRadius.vertical(
+                                    bottom: Radius.circular(15),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    CardBeranda(
+                                      title: 'Laki-Laki',
+                                      subtitle1: maleData.toString(),
+                                      subtitle2: ' Orang',
+                                      textColorSub2: Colors.grey[300],
+                                      description: 'Total',
+                                      colorBg: MyColor.primaryColor,
+                                    ),
+                                    SizedBox(width: 12),
+                                    CardBeranda(
+                                      title: 'Perempuan',
+                                      subtitle1: femaleData.toString(),
+                                      subtitle2: ' Orang',
+                                      textColorSub2: Colors.grey[300],
+                                      description: 'Total',
+                                      colorBg: Colors.pink,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            } else {
+                              return Center(
+                                child: Text('Data masih kosong'),
+                              );
+                            }
+                          } else {
+                            return PlaceholderHome();
+                          }
                         }
-                      }
-                    },
-                  )
-                ],
+                      },
+                    )
+                  ],
+                ),
               ),
             ),
           ),

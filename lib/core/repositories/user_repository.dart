@@ -23,6 +23,7 @@ abstract class UserRepository {
   Future<Map<String, dynamic>> userGenderTotal(String token);
   Future<void> updateFullName(BuildContext context, Map<String, dynamic> body,
       String userId, String token);
+  Future<void> logout(BuildContext context, String token);
 }
 
 class UserRepositoryImpl implements UserRepository {
@@ -110,5 +111,10 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> updateFullName(BuildContext context, Map<String, dynamic> body,
       String userId, String token) async {
     return await userApi!.updateFullName(context, body, userId, token);
+  }
+
+  @override
+  Future<void> logout(BuildContext context, String token) async {
+    await userApi!.logout(context, token);
   }
 }

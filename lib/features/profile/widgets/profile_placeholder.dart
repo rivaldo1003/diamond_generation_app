@@ -41,7 +41,7 @@ class ProfilePlaceholder extends StatelessWidget {
           ),
           SizedBox(height: 32),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

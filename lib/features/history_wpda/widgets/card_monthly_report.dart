@@ -1,9 +1,9 @@
-import 'dart:io';
 import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/widgets/build_image_url_with_timestamp.dart';
 import 'package:diamond_generation_app/shared/widgets/prayer_abbreviation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -34,47 +34,27 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
     return newFormat.format(dateTime);
   }
 
-  File? _image;
   final keyImageProfile = "image_profile";
 
   Future<void> loadImage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? imagePath = prefs.getString(keyImageProfile);
     if (imagePath != null && imagePath.isNotEmpty) {
-      setState(() {
-        _image = File(imagePath);
-      });
+      setState(() {});
     }
   }
 
-  String? imageUrl;
-
-  String buildImageUrlWithStaticTimestamp(String? profilePicture) {
-    final staticTimestamp = DateTime.now().millisecondsSinceEpoch;
-
-    if (profilePicture != null &&
-        profilePicture.isNotEmpty &&
-        profilePicture != 'null') {
-      // Hilangkan bagian "public" dari URL
-      final imageUrl =
-          "https://gsjasungaikehidupan.com/storage/profile_pictures/${profilePicture}?timestamp=$staticTimestamp";
-      return imageUrl;
-    } else {
-      return "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
-    }
-  }
+  late String imageUrl;
 
   @override
   void initState() {
     print('Image URL : ${widget.reportData.writer.profilePicture}');
     loadImage();
     super.initState();
-    if (widget.reportData.writer.profilePicture != null &&
-        widget.reportData.writer.profilePicture != null &&
-        widget.reportData.writer.profilePicture.isNotEmpty) {
+    if (widget.reportData.writer.profilePicture.isNotEmpty) {
       imageUrl = buildImageUrlWithStaticTimestamp(
           widget.reportData.writer.profilePicture);
-      imageUrl = imageUrl!.replaceAll("/public", "");
+      imageUrl = imageUrl.replaceAll("/public", "");
     } else {
       imageUrl =
           "${ApiConstants.baseUrlImage}/profile_pictures/profile_pictures/dummy.jpg";
@@ -99,7 +79,7 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
 
     List<String> abbreviations = [];
 
-    if (selectedPrayers.isEmpty || selectedPrayers == null) {
+    if (selectedPrayers.isEmpty) {
       abbreviations.add('Tidak Berdoa');
     } else {
       List<String> prayersList = selectedPrayers.split(',');
@@ -181,8 +161,7 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
                           ),
                         ),
                         SizedBox(width: 8),
-                        (widget.reportData.writer.profilePicture.isEmpty ||
-                                widget.reportData.writer.profilePicture == null)
+                        (widget.reportData.writer.profilePicture.isEmpty)
                             ? Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
@@ -206,7 +185,8 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
                                   ),
                                 ),
                                 child: CircleAvatar(
-                                  backgroundImage: NetworkImage(imageUrl!),
+                                  backgroundImage: NetworkImage(
+                                      'http://gsjasungaikehidupan.com/storage/profile_pictures/${widget.reportData.writer.profilePicture}'),
                                 ),
                               ),
                       ],
@@ -339,7 +319,7 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      (widget.reportData.writer.profilePicture == null)
+                      (widget.reportData.writer.profilePicture.isEmpty)
                           ? Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
@@ -363,7 +343,8 @@ class _CardMonthlyReportState extends State<CardMonthlyReport> {
                                 ),
                               ),
                               child: CircleAvatar(
-                                backgroundImage: NetworkImage(imageUrl!),
+                                backgroundImage: NetworkImage(
+                                    'http://gsjasungaikehidupan.com/storage/profile_pictures/${widget.reportData.writer.profilePicture}'),
                               ),
                             ),
                       SizedBox(width: 12),

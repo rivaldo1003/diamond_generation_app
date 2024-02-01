@@ -46,7 +46,7 @@ class CustomDialog extends StatelessWidget {
             'Cancel',
             style: MyFonts.customTextStyle(
               15,
-              FontWeight.bold,
+              FontWeight.w500,
               Colors.lightBlue,
             ),
           ),
@@ -60,7 +60,11 @@ class CustomDialog extends StatelessWidget {
             style: MyFonts.customTextStyle(
               15,
               FontWeight.bold,
-              (buttonYesColor == null) ? Colors.lightBlue : buttonYesColor,
+              (buttonYesColor == null)
+                  ? (textColorYes == 'Setujui')
+                      ? MyColor.colorLightBlue
+                      : Colors.red
+                  : buttonYesColor,
             ),
           ),
         ),
