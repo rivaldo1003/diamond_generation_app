@@ -32,6 +32,10 @@ class GetWpdaUsecase {
     return await wpdaRepository.getAllWpdaByUserId(userId, token);
   }
 
+  Future<void> notificationOneSignal(Map<String, dynamic> body) async {
+    return await wpdaRepository.notificationOneSignal(body);
+  }
+
   Future<MonthlyReport> fetchWpdaByMonth(
     BuildContext context,
     String token,

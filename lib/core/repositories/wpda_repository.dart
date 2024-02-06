@@ -16,6 +16,7 @@ abstract class WpdaRepository {
       BuildContext context, String token, String userId, int month, int year);
   Future<void> likeWpda(int userId, int wpdaId, String token);
   Future<void> unlikeWpda(int userId, int wpdaId, String token);
+  Future<void> notificationOneSignal(Map<String, dynamic> body);
 }
 
 class WpdaRepositoryImpl implements WpdaRepository {
@@ -71,5 +72,10 @@ class WpdaRepositoryImpl implements WpdaRepository {
   @override
   Future<void> unlikeWpda(int userId, int wpdaId, String token) async {
     await wpdaApi.unlikeWpda(userId, wpdaId, token);
+  }
+
+  @override
+  Future<void> notificationOneSignal(Map<String, dynamic> body) async {
+    await wpdaApi.notificationOneSignal(body);
   }
 }

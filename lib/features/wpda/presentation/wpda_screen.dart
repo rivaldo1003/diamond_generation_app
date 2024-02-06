@@ -567,6 +567,7 @@ class _WPDAScreenState extends State<WPDAScreen> {
                                           child: ButtonWidget(
                                             title: 'Coba lagi',
                                             onPressed: () {
+                                              getWpdaUsecase.getAllWpda(token!);
                                               setState(() {});
                                             },
                                           ),

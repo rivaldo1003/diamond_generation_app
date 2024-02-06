@@ -1,6 +1,8 @@
 class ApiConstants {
   static const baseUrl = 'https://gsjasungaikehidupan.com/api';
   static const baseUrlImage = 'https://gsjasungaikehidupan.com/storage';
+  static const ONE_SIGNAL_REST_API_KEY =
+      'OGRhZTY2M2YtMDNjOC00YTU2LTgyYzEtNzY4YzA2OWZiMDk0';
 
   static const loginUrl = baseUrl + '/login';
   static const logoutUrl = baseUrl + '/user/logout';
@@ -24,6 +26,8 @@ class ApiConstants {
   static const deleteCommentWpda = baseUrl + '/comments/delete';
   static const userGenderTotal = baseUrl + '/user-gender-total';
   static const updateFullName = baseUrl + '/update-full-name';
+  static const saveSubsriptionId = baseUrl + '/save-subscription-id';
+  static const notification = 'https://onesignal.com/api/v1/notifications';
 
   // OLD API URL
   static const newCreation1Url = baseUrl + 'new_creation_1.php';

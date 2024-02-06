@@ -44,6 +44,11 @@ class LoginProvider with ChangeNotifier {
   String? _gender;
   String? get gender => _gender;
 
+  // GENDER
+
+  String? _deviceToken;
+  String? get deviceToken => _deviceToken;
+
 // TEXTFIELD PASSWORD
   void showPassword() {
     _obscure = !_obscure;
@@ -146,6 +151,18 @@ class LoginProvider with ChangeNotifier {
 
   Future<String?> loadGender() async {
     _gender = await SharedPreferencesManager.loadGender();
+    notifyListeners();
+  }
+
+  // DEVICE TOKEN
+  void saveDeviceToken(String deviceToken) async {
+    await SharedPreferencesManager.saveDeviceToken(deviceToken);
+    _deviceToken = deviceToken;
+    notifyListeners();
+  }
+
+  Future<String?> loadDeviceToken() async {
+    _deviceToken = await SharedPreferencesManager.loadDeviceToken();
     notifyListeners();
   }
 

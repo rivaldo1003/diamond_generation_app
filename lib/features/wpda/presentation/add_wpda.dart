@@ -42,6 +42,8 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
   TextEditingController startVerseController = TextEditingController();
   TextEditingController endVerseController = TextEditingController();
 
+  bool kitabBacaanReadOnly = true;
+
   @override
   Widget build(BuildContext context) {
     final wpdaProvider = Provider.of<WpdaProvider>(context);
@@ -133,13 +135,28 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                               context: context,
                               builder: (context) {
                                 return AlertDialog(
-                                  title: Text(
-                                    'Kitab Bacaan',
-                                    style: MyFonts.customTextStyle(
-                                      14,
-                                      FontWeight.bold,
-                                      MyColor.whiteColor,
-                                    ),
+                                  title: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Kitab Bacaan',
+                                        style: MyFonts.customTextStyle(
+                                          14,
+                                          FontWeight.bold,
+                                          MyColor.whiteColor,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            kitabBacaanReadOnly = false;
+                                            Navigator.of(context).pop();
+                                          });
+                                        },
+                                        icon: Icon(Icons.edit),
+                                      ),
+                                    ],
                                   ),
                                   content: Column(
                                     mainAxisSize: MainAxisSize.min,
@@ -302,7 +319,7 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                         },
                         hintText: 'Kitab Bacaan',
                         obscureText: false,
-                        readOnly: true,
+                        readOnly: kitabBacaanReadOnly,
                         controller: wpdaProvider.readingBookController,
                         textColor: MyColor.greyText,
                         focusNode: wpdaProvider.readingBookFocusNode,

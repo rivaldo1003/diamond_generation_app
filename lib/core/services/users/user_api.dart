@@ -16,10 +16,12 @@ import 'package:diamond_generation_app/features/register_form/presentation/regis
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/utils/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserApi {
   final String urlApi;
@@ -135,6 +137,18 @@ class UserApi {
                 .saveProfileCompleted(userData['profile_completed'].toString());
             print('DATA : $data');
             print('Token : ${data['token']}');
+
+            getDeviceToken(context).then((value) {
+              String? deviceToken = value;
+              saveSubsriptionId(
+                context,
+                {
+                  'device_token': deviceToken,
+                },
+                userData['id'].toString(),
+                data['token'],
+              );
+            });
 
             if (data['role'] == 'admin') {
               // showDialog(
@@ -284,6 +298,32 @@ class UserApi {
         ),
       );
     });
+  }
+
+  Future<String> getDeviceToken(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? deviceToken =
+        prefs.getString(SharedPreferencesManager.keyDeviceToken);
+    print('Device Token from SP : $deviceToken');
+    return deviceToken ?? '';
+  }
+
+  Future<void> saveSubsriptionId(
+    BuildContext context,
+    Map<String, dynamic> body,
+    String id,
+    String token,
+  ) async {
+    final url = Uri.parse('${ApiConstants.saveSubsriptionId}/$id');
+    final response = await http.post(url, body: json.encode(body), headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode == 200) {
+      print('Success sub id user');
+    } else {
+      throw Exception('Failed to subscription id user');
+    }
   }
 
   Future<void> registerUser(

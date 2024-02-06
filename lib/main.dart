@@ -24,29 +24,78 @@ import 'package:diamond_generation_app/features/wpda/data/providers/edit_wpda_pr
 import 'package:diamond_generation_app/features/wpda/data/providers/like_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
+import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/utils/theme.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
+
+  FirebaseMessaging.onBackgroundMessage((message) {
+    // Handle background message here
+    return Future<void>.value();
+  });
+
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-
   OneSignal.initialize("ae235573-b52c-44a5-b2c3-23d9de4232fa");
-
-// The promptForPushNotificationsWithUserResponse function will show the iOS or Android push notification prompt. We recommend removing the following code and instead using an In-App Message to prompt for notification permission
   OneSignal.Notifications.requestPermission(true);
+  OneSignal.Notifications.addPermissionObserver((state) {
+    print("Has permission " + state.toString());
+  });
+
+  // Menunggu hingga mendapatkan device token sebelum menyimpannya
+  String? deviceToken;
+  OneSignal.User.pushSubscription.addObserver((state) async {
+    print('Output :${OneSignal.User.pushSubscription.optedIn}');
+    print('Output :${OneSignal.User.pushSubscription.id}');
+    deviceToken = OneSignal.User.pushSubscription.id;
+    print('Output :${OneSignal.User.pushSubscription.token}');
+    print(state.current.jsonRepresentation());
+
+    // Simpan device token setelah diperoleh
+    if (deviceToken != null && deviceToken!.isNotEmpty) {
+      SharedPreferences _prefs = await SharedPreferences.getInstance();
+      _prefs.setString(SharedPreferencesManager.keyDeviceToken, deviceToken!);
+      print('DEVICEE TOKENNNNNN : $deviceToken');
+    }
+  });
+
   await initializeDateFormatting('id_ID', null);
   timeago.setLocaleMessages('id', timeago.IdMessages());
   runApp(MyApp());
 }
+
+// class PushNotificationService {
+//   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+
+//   Future<String?> getDeviceToken() async {
+//     try {
+//       // Request permission for accessing the device token (if not already granted)
+//       await _firebaseMessaging.requestPermission();
+
+//       // Get the device token
+//       String? deviceToken = await _firebaseMessaging.getToken();
+
+//       return deviceToken;
+//     } catch (e) {
+//       print('Error getting device token: $e');
+//       return null;
+//     }
+//   }
+// }
 
 class MyApp extends StatefulWidget {
   @override

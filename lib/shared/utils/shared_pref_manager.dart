@@ -9,6 +9,7 @@ class SharedPreferencesManager {
   static final String keyProfileCompleted = 'profile_completed';
   static final String keyBirthDate = 'birth_date';
   static final String keyGender = 'gender';
+  static final String keyDeviceToken = 'device_token';
 
   // BIRTH DATE
   static Future<void> saveBirthDate(String birthDate) async {
@@ -96,6 +97,17 @@ class SharedPreferencesManager {
   static Future<String?> loadGender() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(keyGender) ?? '';
+  }
+
+// DEVICE TOKEN
+  static Future<void> saveDeviceToken(String deviceToken) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(keyGender, deviceToken);
+  }
+
+  static Future<String?> loadDeviceToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(keyDeviceToken) ?? '';
   }
 
 //CLEAR DATA

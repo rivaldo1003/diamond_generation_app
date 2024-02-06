@@ -64,6 +64,7 @@ dependencies:
   flutter_cache_manager: ^3.3.1
   onesignal_flutter: ^5.0.4
   firebase_core: ^2.25.2
+  firebase_messaging: ^14.7.13
 
 dev_dependencies:
   flutter_test:

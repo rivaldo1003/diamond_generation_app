@@ -253,7 +253,7 @@ class DetailHistoryItem extends StatelessWidget {
           ),
         ),
         Container(
-          width: 30,
+          width: 40,
           padding: EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             color: (bgColor == null) ? MyColor.primaryColor : bgColor,

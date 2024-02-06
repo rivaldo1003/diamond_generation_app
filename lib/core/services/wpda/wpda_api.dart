@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
+import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
 import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/bible_provider.dart';
@@ -115,6 +116,27 @@ class WpdaApi {
     }
   }
 
+  Future<void> notificationOneSignal(Map<String, dynamic> body) async {
+    try {
+      final url = Uri.parse(ApiConstants.notification);
+      final response = await http.post(url, body: json.encode(body), headers: {
+        'Authorization': 'Basic ${ApiConstants.ONE_SIGNAL_REST_API_KEY}',
+        'Content-Type': 'application/json',
+      });
+
+      if (response.statusCode == 200) {
+        print('Status code : ${response.statusCode}');
+        print('Success to send notif');
+      } else {
+        print('Failed to send notif. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error sending notification: $e');
+      throw Exception('Failed to send notif: $e');
+    }
+  }
+
   Future<void> createWpda(
       Map<String, dynamic> body, BuildContext context, String token) async {
     final wpdaProvider = Provider.of<WpdaProvider>(context, listen: false);
@@ -169,6 +191,12 @@ class WpdaApi {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
+
+        // notificationOneSignal({
+        //   "app_id": "ae235573-b52c-44a5-b2c3-23d9de4232fa",
+        //   "include_player_ids": ["1d5f82a0-1618-40c2-882a-278b4a81f3f2"],
+        //   "contents": {"en": "Hai"}
+        // });
         print('Success send WPDA');
         _showSuccessSnackBar(context, wpdaProvider, bibleProvider, data);
       } else if (response.statusCode == 400) {

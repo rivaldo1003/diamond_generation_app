@@ -2,15 +2,12 @@ import 'package:diamond_generation_app/features/login/data/providers/login_provi
 import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/register/data/providers/register_provider.dart';
 import 'package:diamond_generation_app/features/register/presentation/register_screen.dart';
-import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
-import 'package:diamond_generation_app/shared/widgets/button.dart';
 import 'package:diamond_generation_app/shared/widgets/textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -144,6 +141,7 @@ class LoginScreen extends StatelessWidget {
                                 TextFieldControllerLogin.emailController.text,
                             "password": TextFieldControllerLogin
                                 .passwordController.text,
+                            "device_token": "tes",
                           },
                           context,
                         );
@@ -282,7 +280,7 @@ class LoggedInPage extends StatelessWidget {
                       backgroundImage: NetworkImage(user!.photoUrl ?? ''),
                     ),
                     title: Text(user!.displayName ?? 'No Display Name'),
-                    subtitle: Text(user!.email ?? 'No Email'),
+                    subtitle: Text(user!.email),
                   )
                 : Text('User data is null.'),
           ],
