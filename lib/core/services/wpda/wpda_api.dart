@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:diamond_generation_app/core/models/all_users.dart';
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
-import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
 import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/bible_provider.dart';
@@ -137,8 +137,40 @@ class WpdaApi {
     }
   }
 
+  Future<List<String>> getAllDeviceTokens(String token) async {
+    final headers = {
+      "Content-Type": "application/json",
+      'Authorization': 'Bearer $token'
+    };
+    final response = await http.get(
+      Uri.parse(ApiConstants.getAllUser),
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      List<dynamic> jsonData = json.decode(response.body)['users_data'];
+
+      // Ambil device_token dari setiap user_data
+      List<String> deviceTokens = [];
+      for (var userData in jsonData) {
+        String? deviceToken =
+            userData['device_token']; // Tambahkan tanda tanya (?)
+        if (deviceToken != null) {
+          deviceTokens.add(deviceToken);
+        }
+      }
+
+      print('All device tokens: $deviceTokens');
+      return deviceTokens;
+    } else {
+      throw Exception('Failed to load users data');
+    }
+  }
+
   Future<void> createWpda(
-      Map<String, dynamic> body, BuildContext context, String token) async {
+    Map<String, dynamic> body,
+    BuildContext context,
+    String token,
+  ) async {
     final wpdaProvider = Provider.of<WpdaProvider>(context, listen: false);
     final bibleProvider = Provider.of<BibleProvider>(context, listen: false);
     final headers = {
@@ -146,10 +178,8 @@ class WpdaApi {
       'Authorization': 'Bearer $token',
     };
 
-    // Simpan data WPDA secara lokal terlebih dahulu
     await _saveMessageLocally(body);
 
-    // Tampilkan pemberitahuan loading
     showDialog(
       context: context,
       builder: (context) {
@@ -159,78 +189,110 @@ class WpdaApi {
       },
     );
 
-    // Coba kirim data WPDA ke server
-    await _sendWpdaToServer(pendingMessages, token);
+    int retries = 0;
+    const maxRetries = 3;
+    const initialDelay = Duration(seconds: 2);
 
-    try {
-      final isConnected = await checkInternetConnection();
-      if (!isConnected) {
-        Navigator.pop(context);
-        // Tidak ada koneksi internet setelah jeda, tampilkan notifikasi gagal
+    while (retries < maxRetries) {
+      try {
+        final isConnected = await checkInternetConnection();
+        if (!isConnected) {
+          Navigator.pop(context);
+          // Tidak ada koneksi internet setelah jeda, tampilkan notifikasi gagal
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorRed,
+              content: Text(
+                'Gagal mengirim WPDA. Periksa koneksi internet anda',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          return;
+        }
+
+        final response = await http.post(
+          Uri.parse(ApiConstants.createWpdaUrl),
+          headers: headers,
+          body: json.encode(body),
+        );
+
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> data = json.decode(response.body);
+          print('Success send WPDA');
+          _showSuccessSnackBar(context, wpdaProvider, bibleProvider, data);
+          return;
+        } else if (response.statusCode == 400) {
+          final Map<String, dynamic> data = json.decode(response.body);
+          _handleError(
+            context,
+            wpdaProvider,
+            data['message'],
+            MyColor.colorRed,
+          );
+          return;
+        } else if (response.statusCode == 429) {
+          // Status code 429: Terlalu banyak permintaan, tunggu dan coba lagi
+          await Future.delayed(
+            initialDelay * (retries + 1), // Exponential backoff
+          );
+          retries++;
+        } else {
+          _handleError(
+            context,
+            wpdaProvider,
+            'Gagal membuat WPDA',
+            MyColor.colorRed,
+          );
+          return;
+        }
+      } catch (error) {
+        // Tangani kesalahan apapun yang mungkin terjadi saat mengirim permintaan HTTP
+        print('Error: $error');
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: MyColor.colorRed,
             content: Text(
-              'Gagal mengirim WPDA. Periksa koneksi internet anda',
+              'Gagal: Terjadi kesalahan.',
               style: MyFonts.customTextStyle(
                 14,
                 FontWeight.w500,
                 MyColor.whiteColor,
               ),
             ),
+            action: SnackBarAction(
+              label: 'Coba Lagi',
+              onPressed: () {
+                Navigator.pop(context); // Tutup snackbar
+                createWpda(body, context, token); // Coba kirim lagi
+              },
+            ),
           ),
         );
         return;
       }
+    }
 
-      final response = await http.post(
-        Uri.parse(ApiConstants.createWpdaUrl),
-        headers: headers,
-        body: json.encode(body),
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-
-        // notificationOneSignal({
-        //   "app_id": "ae235573-b52c-44a5-b2c3-23d9de4232fa",
-        //   "include_player_ids": ["1d5f82a0-1618-40c2-882a-278b4a81f3f2"],
-        //   "contents": {"en": "Hai"}
-        // });
-        print('Success send WPDA');
-        _showSuccessSnackBar(context, wpdaProvider, bibleProvider, data);
-      } else if (response.statusCode == 400) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        _handleError(context, wpdaProvider, data['message'], MyColor.colorRed);
-      } else {
-        _handleError(
-            context, wpdaProvider, 'Gagal membuat WPDA', MyColor.colorRed);
-      }
-    } catch (error) {
-      // Tangani kesalahan apapun yang mungkin terjadi saat mengirim permintaan HTTP
-      print('Error: $error');
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: MyColor.colorRed,
-          content: Text(
-            'Gagal: Terjadi kesalahan.',
-            style: MyFonts.customTextStyle(
-              14,
-              FontWeight.w500,
-              MyColor.whiteColor,
-            ),
-          ),
-          action: SnackBarAction(
-            label: 'Coba Lagi',
-            onPressed: () {
-              Navigator.pop(context); // Tutup snackbar
-              createWpda(body, context, token); // Coba kirim lagi
-            },
+    // Jika semua upaya gagal
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: MyColor.colorRed,
+        content: Text(
+          'Gagal: Server terlalu banyak pengunjung. Harap coba lagi dalam 30 detik.',
+          style: MyFonts.customTextStyle(
+            14,
+            FontWeight.w500,
+            MyColor.whiteColor,
           ),
         ),
-      );
-    }
+      ),
+    );
+    Navigator.pop(context);
   }
 
   void _showSuccessSnackBar(BuildContext context, WpdaProvider wpdaProvider,
@@ -326,22 +388,44 @@ class WpdaApi {
   Future<List<WPDA>> getAllWpda(String token) async {
     final headers = {
       "Content-Type": "application/json",
-      'Authorization': 'Bearer ${token}',
+      'Authorization': 'Bearer $token',
     };
     String imageUrlWithTimestamp =
         "${ApiConstants.getAllWpdaUrl}?timestamp=${DateTime.now().millisecondsSinceEpoch}";
-    final response = await http.get(
-      Uri.parse(imageUrlWithTimestamp),
-      headers: headers,
-    );
-    if (response.statusCode == 200) {
-      List<dynamic> jsonResponse = json.decode(response.body)['data'];
-      return jsonResponse.map((json) {
-        return WPDA.fromJson(json);
-      }).toList();
-    } else {
-      throw Exception('Failed to get all wpda data');
+
+    int retries = 0;
+    const maxRetries = 3;
+    const initialDelay = Duration(seconds: 3);
+
+    while (retries < maxRetries) {
+      try {
+        final response = await http.get(
+          Uri.parse(imageUrlWithTimestamp),
+          headers: headers,
+        );
+
+        if (response.statusCode == 200) {
+          List<dynamic> jsonResponse = json.decode(response.body)['data'];
+          return jsonResponse.map((json) {
+            return WPDA.fromJson(json);
+          }).toList();
+        } else if (response.statusCode == 429) {
+          // Status code 429: Terlalu banyak permintaan, coba lagi setelah penundaan
+          await Future.delayed(
+              initialDelay * (retries + 1)); // Exponential backoff
+          retries++;
+        } else {
+          print("Status code: ${response.statusCode}");
+          throw Exception('Failed to get all wpda data');
+        }
+      } catch (error) {
+        print("Error: $error");
+        throw Exception('Failed to get all wpda data');
+      }
     }
+
+    // Jika semua upaya gagal
+    throw Exception('Failed to get all wpda data after $maxRetries retries');
   }
 
   Future<void> editWpda(Map<String, dynamic> body, BuildContext context,
@@ -574,22 +658,43 @@ class WpdaApi {
   }
 
   Future<History> getAllWpdaByUserId(String userId, String token) async {
-    final url = Uri.parse(ApiConstants.historyWpdaUrl + '/${userId}');
-    final response = await http.get(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token"
-      },
-    );
+    final url = Uri.parse('${ApiConstants.historyWpdaUrl}/$userId');
+    final headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    };
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> jsonResponse = json.decode(response.body);
+    int retries = 0;
+    const maxRetries = 3;
+    const initialDelay = Duration(seconds: 2);
 
-      return History.fromJson(jsonResponse);
-    } else {
-      throw Exception('Failed to load history data');
+    while (retries < maxRetries) {
+      try {
+        final response = await http.get(
+          url,
+          headers: headers,
+        );
+
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> jsonResponse = json.decode(response.body);
+          return History.fromJson(jsonResponse);
+        } else if (response.statusCode == 429) {
+          // Status code 429: Terlalu banyak permintaan, coba lagi setelah penundaan
+          await Future.delayed(
+              initialDelay * (retries + 1)); // Exponential backoff
+          retries++;
+        } else {
+          throw Exception(
+              'Failed to load history data. Status code: ${response.statusCode}');
+        }
+      } catch (error) {
+        throw Exception('Failed to load history data: $error');
+      }
     }
+
+    // Jika semua upaya gagal
+    throw Exception(
+        'Failed to load history data: Server terlalu banyak pengunjung. Harap coba lagi dalam 30 detik.');
   }
 
   Future<MonthlyReport> fetchWpdaByMonth(BuildContext context, String token,

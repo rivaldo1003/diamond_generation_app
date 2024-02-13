@@ -149,8 +149,6 @@ class BibleProvider extends ChangeNotifier {
   Future<void> fetchVerse(
       BuildContext context, String startVerse, String endVerse) async {
     final wpdaProvider = Provider.of<WpdaProvider>(context, listen: false);
-    final editWpdaProvider =
-        Provider.of<EditWpdaProvider>(context, listen: false);
     final bibleProvider = Provider.of<BibleProvider>(context, listen: false);
 
     try {
@@ -255,7 +253,7 @@ class BibleProvider extends ChangeNotifier {
         SnackBar(
           backgroundColor: MyColor.colorRed,
           content: Text(
-            'Gagal memuat data.  Pastikan ayat awal tidak kosong',
+            'Gagal memuat data. Pastikan ayat awal tidak kosong',
             style: MyFonts.customTextStyle(
               14,
               FontWeight.w500,

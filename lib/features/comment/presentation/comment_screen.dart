@@ -584,7 +584,10 @@ class _CommentListState extends State<CommentList> {
             ),
             leading: (imgUrl!.isEmpty || imgUrl == null)
                 ? CircleAvatar(
-                    backgroundImage: NetworkImage(imgUrl!),
+                    backgroundImage: NetworkImage(
+                      buildImageUrlWithStaticTimestamp(
+                          widget.commentsWpda[index].profilePicture),
+                    ),
                   )
                 : CircleAvatar(
                     radius: 20,

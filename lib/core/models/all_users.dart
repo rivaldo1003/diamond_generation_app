@@ -9,6 +9,7 @@ class AllUsers {
   final String role;
   final String totalWpda;
   final String address;
+  final String deviceToken;
 
   final String profileCompleted;
   final String approvalStatus;
@@ -28,6 +29,7 @@ class AllUsers {
     required this.approvalStatus,
     required this.dataWpda,
     required this.profile,
+    required this.deviceToken,
   });
 
   factory AllUsers.fromJson(Map<String, dynamic> json) {
@@ -52,6 +54,7 @@ class AllUsers {
       address: json['address'].toString(),
       profileCompleted: json['profile_completed'].toString(),
       approvalStatus: json['approval_status'].toString(),
+      deviceToken: json['device_token'].toString(),
       dataWpda: parsedWpdaHistoryList,
       profile: profile,
     );

@@ -73,6 +73,14 @@ void main() async {
     }
   });
 
+  String? _debugLabelString;
+
+  OneSignal.Notifications.addClickListener((event) {
+    print('NOTIFICATION CLICK LISTENER CALLED WITH EVENT: $event');
+    _debugLabelString =
+        "Clicked notification: \n${event.notification.jsonRepresentation().replaceAll("\\n", "\n")}";
+  });
+
   await initializeDateFormatting('id_ID', null);
   timeago.setLocaleMessages('id', timeago.IdMessages());
   runApp(MyApp());
@@ -100,6 +108,13 @@ void main() async {
 class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
+}
+
+Future openNotif() async {
+  OneSignal.InAppMessages.addClickListener((event) {
+    print(
+        "In App Message Clicked: \n${event.result.jsonRepresentation().replaceAll("\\n", "\n")}");
+  });
 }
 
 class _MyAppState extends State<MyApp> {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:diamond_generation_app/core/models/all_users.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
@@ -22,6 +23,9 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
 class WPDAScreen extends StatefulWidget {
+  AllUsers? users;
+
+  WPDAScreen({super.key, this.users});
   @override
   State<WPDAScreen> createState() => _WPDAScreenState();
 }
@@ -379,23 +383,29 @@ class _WPDAScreenState extends State<WPDAScreen> {
                                   return CircularProgressIndicator();
                                 } else {
                                   var currentDate = DateTime.now();
+                                  var today = DateTime(currentDate.year,
+                                      currentDate.month, currentDate.day);
 
                                   data = data!.reversed.toList();
                                   data!.sort((a, b) {
                                     var dateA = DateTime.parse(a.created_at);
                                     var dateB = DateTime.parse(b.created_at);
 
+                                    // Menentukan tanggal hari ini tanpa memperhatikan jam dan menit
+                                    var today = DateTime(currentDate.year,
+                                        currentDate.month, currentDate.day);
+
                                     if (a.user_id == value.userId &&
-                                        dateA.isAfter(currentDate)) {
+                                        dateA.isAfter(today)) {
                                       return -1;
                                     } else if (b.user_id == value.userId &&
-                                        dateB.isAfter(currentDate)) {
+                                        dateB.isAfter(today)) {
                                       return 1;
                                     } else if (a.user_id == value.userId &&
-                                        dateA.day == currentDate.day) {
+                                        dateA.isAtSameMomentAs(today)) {
                                       return -1;
                                     } else if (b.user_id == value.userId &&
-                                        dateB.day == currentDate.day) {
+                                        dateB.isAtSameMomentAs(today)) {
                                       return 1;
                                     } else {
                                       return dateB.compareTo(
@@ -566,6 +576,7 @@ class _WPDAScreenState extends State<WPDAScreen> {
                                               horizontal: 20),
                                           child: ButtonWidget(
                                             title: 'Coba lagi',
+                                            color: MyColor.primaryColor,
                                             onPressed: () {
                                               getWpdaUsecase.getAllWpda(token!);
                                               setState(() {});

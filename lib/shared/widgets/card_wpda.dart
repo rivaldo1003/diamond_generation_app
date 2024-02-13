@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:diamond_generation_app/core/models/all_users.dart';
+import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
 import 'package:diamond_generation_app/features/comment/presentation/comment_wpda.dart';
@@ -37,11 +39,11 @@ class _CardWpdaState extends State<CardWpda> {
   String? imgUrl;
 
   Future<void> fetchData() async {
-    await retryLogic(() async {
-      imgUrl =
-          buildImageUrlWithStaticTimestamp(widget.wpda.writer.profile_picture);
-      print('IMG URL : ${imgUrl}');
-    });
+    // await retryLogic(() async {
+    imgUrl =
+        buildImageUrlWithStaticTimestamp(widget.wpda.writer.profile_picture);
+    print('IMG URL : ${imgUrl}');
+    // });
   }
 
   Future<void> retryLogic(Function action, {int maxRetries = 3}) async {
@@ -86,8 +88,9 @@ class _CardWpdaState extends State<CardWpda> {
 
   @override
   void initState() {
-    print(widget.wpda.writer.profile_picture);
-    fetchData().then((value) => print('image dijalankan'));
+    imgUrl =
+        buildImageUrlWithStaticTimestamp(widget.wpda.writer.profile_picture);
+    // fetchData().then((value) => print('image dijalankan'));
     getToken();
     super.initState();
   }
@@ -264,9 +267,7 @@ class _CardWpdaState extends State<CardWpda> {
                                           return AlertDialog(
                                             backgroundColor: Colors.transparent,
                                             content: InkWell(
-                                              onTap: () {
-                                                // Close the dialog when the image is tapped
-                                              },
+                                              onTap: () {},
                                               child: Container(
                                                 height: 300,
                                                 width: 300,
@@ -295,8 +296,8 @@ class _CardWpdaState extends State<CardWpda> {
                                         // ),
                                       ),
                                       child: CircleAvatar(
-                                        backgroundImage: NetworkImage(
-                                            'https://gsjasungaikehidupan.com/storage/profile_pictures/${widget.wpda.writer.profile_picture}'),
+                                        backgroundImage:
+                                            CachedNetworkImageProvider(imgUrl!),
                                       ),
                                     ),
                                   ),
@@ -832,6 +833,8 @@ class _CardWpdaState extends State<CardWpda> {
                                       builder: (context) {
                                         return PartialCommentWpda(
                                           wpda: widget.wpda,
+                                          deviceToken:
+                                              widget.wpda.writer.deviceToken,
                                         );
                                       },
                                     );

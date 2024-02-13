@@ -78,41 +78,44 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                       ),
                     ),
                     actions: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text(
-                              'Batal',
-                              style: MyFonts.customTextStyle(
-                                16,
-                                FontWeight.w500,
-                                MyColor.whiteColor,
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text(
+                                'Batal',
+                                style: MyFonts.customTextStyle(
+                                  16,
+                                  FontWeight.w500,
+                                  MyColor.whiteColor,
+                                ),
                               ),
                             ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              wpdaProvider.readingBookController.clear();
-                              wpdaProvider.verseContentController.clear();
-                              wpdaProvider.messageOfGodController.clear();
-                              wpdaProvider.applicationInLifeController.clear();
-                              Navigator.of(context).pop();
-                              Navigator.of(context).pop();
-                            },
-                            child: Text(
-                              'Ya',
-                              style: MyFonts.customTextStyle(
-                                16,
-                                FontWeight.bold,
-                                MyColor.colorRed,
+                            TextButton(
+                              onPressed: () {
+                                wpdaProvider.readingBookController.clear();
+                                wpdaProvider.verseContentController.clear();
+                                wpdaProvider.messageOfGodController.clear();
+                                wpdaProvider.applicationInLifeController
+                                    .clear();
+                                Navigator.of(context).pop();
+                                Navigator.of(context).pop();
+                              },
+                              child: Text(
+                                'Ya',
+                                style: MyFonts.customTextStyle(
+                                  16,
+                                  FontWeight.bold,
+                                  MyColor.colorRed,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   );
@@ -147,172 +150,187 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                                           MyColor.whiteColor,
                                         ),
                                       ),
-                                      IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            kitabBacaanReadOnly = false;
-                                            Navigator.of(context).pop();
-                                          });
-                                        },
-                                        icon: Icon(Icons.edit),
-                                      ),
-                                    ],
-                                  ),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Consumer<BibleProvider>(
-                                        builder:
-                                            (context, bibleProvider, child) {
-                                          return Container(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 12),
-                                            decoration: BoxDecoration(
-                                              color: MyColor.whiteColor,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: DropdownButton<String>(
-                                              isExpanded: true,
-                                              underline: SizedBox(),
-                                              icon: Icon(
-                                                Icons.arrow_drop_down_rounded,
-                                                color: MyColor.greyText,
-                                              ),
-                                              value: bibleProvider.selectedBook,
-                                              items: bibleProvider.allBooks
-                                                  .map((String value) {
-                                                return DropdownMenuItem<String>(
-                                                  value: value,
-                                                  child: Text(
-                                                    value,
-                                                    style:
-                                                        MyFonts.customTextStyle(
-                                                      14,
-                                                      FontWeight.bold,
-                                                      MyColor.greyText,
-                                                    ),
-                                                  ),
-                                                );
-                                              }).toList(),
-                                              onChanged: (String? newValue) {
-                                                bibleProvider
-                                                    .updateSelectedBook(
-                                                        newValue!);
-                                              },
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                      SizedBox(height: 16),
-                                      TextFormField(
-                                        decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.all(10),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          labelText: 'Pasal',
-                                          labelStyle: MyFonts.customTextStyle(
-                                            14,
-                                            FontWeight.bold,
-                                            MyColor.whiteColor,
-                                          ),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: MyColor.primaryColor,
+                                          shape: BoxShape.circle,
                                         ),
-                                        keyboardType: TextInputType.number,
-                                        onChanged: (value) {
-                                          Provider.of<BibleProvider>(context,
-                                                  listen: false)
-                                              .updateSelectedChapter(value);
-                                        },
-                                      ),
-                                      SizedBox(height: 16),
-                                      TextFormField(
-                                        controller: bibleProvider
-                                            .startVerseControllerAdd,
-                                        decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.all(10),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          labelText: 'Ayat Awal',
-                                          labelStyle: MyFonts.customTextStyle(
-                                            14,
-                                            FontWeight.bold,
-                                            MyColor.whiteColor,
-                                          ),
-                                        ),
-                                        keyboardType: TextInputType.number,
-                                        onChanged: (value) {
-                                          Provider.of<BibleProvider>(context,
-                                                  listen: false)
-                                              .updateSelectedVerse(value);
-                                        },
-                                      ),
-                                      SizedBox(height: 16),
-                                      TextFormField(
-                                        controller:
-                                            bibleProvider.endVerseControllerAdd,
-                                        decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.all(10),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          labelText: 'Ayat Akhir',
-                                          labelStyle: MyFonts.customTextStyle(
-                                            14,
-                                            FontWeight.bold,
-                                            MyColor.whiteColor,
-                                          ),
-                                        ),
-                                        keyboardType: TextInputType.number,
-                                        onChanged: (value) {
-                                          Provider.of<BibleProvider>(context,
-                                                  listen: false)
-                                              .updateSelectedVerse(value);
-                                        },
-                                      ),
-                                      SizedBox(height: 16),
-                                      Consumer<BibleProvider>(
-                                        builder: (context, bibleProvider, _) {
-                                          return ButtonWidget(
-                                            title: 'Pilih Ayat',
-                                            color: MyColor.primaryColor,
-                                            onPressed: () async {
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return Center(
-                                                    child: CoolLoading(),
-                                                  );
-                                                },
-                                              );
-                                              Future.delayed(
-                                                  Duration(milliseconds: 300),
-                                                  () async {
-                                                await Provider.of<
-                                                    BibleProvider>(
-                                                  context,
-                                                  listen: false,
-                                                ).fetchVerse(
-                                                  context,
-                                                  bibleProvider
-                                                      .startVerseControllerAdd
-                                                      .text,
-                                                  bibleProvider
-                                                      .endVerseControllerAdd
-                                                      .text,
-                                                );
-                                                Navigator.of(context).pop();
+                                        child: Center(
+                                          child: IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                kitabBacaanReadOnly = false;
                                                 Navigator.of(context).pop();
                                               });
                                             },
-                                          );
-                                        },
-                                      )
+                                            icon: Icon(
+                                              Icons.edit,
+                                              color: MyColor.whiteColor,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ],
+                                  ),
+                                  content: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Consumer<BibleProvider>(
+                                          builder:
+                                              (context, bibleProvider, child) {
+                                            return Container(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 12),
+                                              decoration: BoxDecoration(
+                                                color: MyColor.whiteColor,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: DropdownButton<String>(
+                                                isExpanded: true,
+                                                underline: SizedBox(),
+                                                icon: Icon(
+                                                  Icons.arrow_drop_down_rounded,
+                                                  color: MyColor.greyText,
+                                                ),
+                                                value:
+                                                    bibleProvider.selectedBook,
+                                                items: bibleProvider.allBooks
+                                                    .map((String value) {
+                                                  return DropdownMenuItem<
+                                                      String>(
+                                                    value: value,
+                                                    child: Text(
+                                                      value,
+                                                      style: MyFonts
+                                                          .customTextStyle(
+                                                        14,
+                                                        FontWeight.bold,
+                                                        MyColor.greyText,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                                onChanged: (String? newValue) {
+                                                  bibleProvider
+                                                      .updateSelectedBook(
+                                                          newValue!);
+                                                },
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                        SizedBox(height: 16),
+                                        TextFormField(
+                                          decoration: InputDecoration(
+                                            contentPadding: EdgeInsets.all(10),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            labelText: 'Pasal',
+                                            labelStyle: MyFonts.customTextStyle(
+                                              14,
+                                              FontWeight.bold,
+                                              MyColor.whiteColor,
+                                            ),
+                                          ),
+                                          keyboardType: TextInputType.number,
+                                          onChanged: (value) {
+                                            Provider.of<BibleProvider>(context,
+                                                    listen: false)
+                                                .updateSelectedChapter(value);
+                                          },
+                                        ),
+                                        SizedBox(height: 16),
+                                        TextFormField(
+                                          controller: bibleProvider
+                                              .startVerseControllerAdd,
+                                          decoration: InputDecoration(
+                                            contentPadding: EdgeInsets.all(10),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            labelText: 'Ayat Awal',
+                                            labelStyle: MyFonts.customTextStyle(
+                                              14,
+                                              FontWeight.bold,
+                                              MyColor.whiteColor,
+                                            ),
+                                          ),
+                                          keyboardType: TextInputType.number,
+                                          onChanged: (value) {
+                                            Provider.of<BibleProvider>(context,
+                                                    listen: false)
+                                                .updateSelectedVerse(value);
+                                          },
+                                        ),
+                                        SizedBox(height: 16),
+                                        TextFormField(
+                                          controller: bibleProvider
+                                              .endVerseControllerAdd,
+                                          decoration: InputDecoration(
+                                            contentPadding: EdgeInsets.all(10),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            labelText: 'Ayat Akhir',
+                                            labelStyle: MyFonts.customTextStyle(
+                                              14,
+                                              FontWeight.bold,
+                                              MyColor.whiteColor,
+                                            ),
+                                          ),
+                                          keyboardType: TextInputType.number,
+                                          onChanged: (value) {
+                                            Provider.of<BibleProvider>(context,
+                                                    listen: false)
+                                                .updateSelectedVerse(value);
+                                          },
+                                        ),
+                                        SizedBox(height: 16),
+                                        Consumer<BibleProvider>(
+                                          builder: (context, bibleProvider, _) {
+                                            return ButtonWidget(
+                                              title: 'Pilih Ayat',
+                                              color: MyColor.primaryColor,
+                                              onPressed: () async {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return Center(
+                                                      child: CoolLoading(),
+                                                    );
+                                                  },
+                                                );
+                                                Future.delayed(
+                                                    Duration(milliseconds: 300),
+                                                    () async {
+                                                  await Provider.of<
+                                                      BibleProvider>(
+                                                    context,
+                                                    listen: false,
+                                                  ).fetchVerse(
+                                                    context,
+                                                    bibleProvider
+                                                        .startVerseControllerAdd
+                                                        .text,
+                                                    bibleProvider
+                                                        .endVerseControllerAdd
+                                                        .text,
+                                                  );
+                                                  Navigator.of(context).pop();
+                                                  Navigator.of(context).pop();
+                                                });
+                                              },
+                                            );
+                                          },
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 );
                               });

@@ -11,6 +11,7 @@ import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -18,10 +19,12 @@ import 'package:http/http.dart' as http;
 
 class CommentWpda extends StatefulWidget {
   final WPDA wpda;
+  final String deviceToken;
 
   CommentWpda({
     Key? key,
     required this.wpda,
+    required this.deviceToken,
   }) : super(key: key);
 
   @override
@@ -54,15 +57,40 @@ class _CommentWpdaState extends State<CommentWpda> {
     }
   }
 
+  late LoginProvider loginProvider;
+  String? _debugLabelString;
+
   @override
   void initState() {
     super.initState();
+    loginProvider = Provider.of<LoginProvider>(context, listen: false);
     loadImage();
     getToken();
 
     // Directly sort comments during initialization
     data = List<Comment>.from(widget.wpda.comments)
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  }
+
+  Future<void> notificationOneSignal(Map<String, dynamic> body) async {
+    try {
+      final url = Uri.parse(ApiConstants.notification);
+      final response = await http.post(url, body: json.encode(body), headers: {
+        'Authorization': 'Basic ${ApiConstants.ONE_SIGNAL_REST_API_KEY}',
+        'Content-Type': 'application/json',
+      });
+
+      if (response.statusCode == 200) {
+        print('Status code : ${response.statusCode}');
+        print('Success to send notif');
+      } else {
+        print('Failed to send notif. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error sending notification: $e');
+      throw Exception('Failed to send notif: $e');
+    }
   }
 
   Future<void> addCommentWpda(
@@ -88,7 +116,7 @@ class _CommentWpdaState extends State<CommentWpda> {
           },
         );
 
-        Future.delayed(Duration(seconds: 2), () {
+        Future.delayed(Duration(seconds: 2), () async {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -103,6 +131,35 @@ class _CommentWpdaState extends State<CommentWpda> {
               ),
             ),
           );
+
+          // Access the full name of the commentator
+          String? commenterFullName;
+          for (var comment in widget.wpda.comments) {
+            if (comment.comentator.id == comment.userId) {
+              commenterFullName = comment.comentator.fullName;
+              break; // Keluar dari loop setelah nilai ditemukan
+            }
+          }
+
+          if (loginProvider.userId == null) {
+            loginProvider.loadUserId();
+            return CircularProgressIndicator();
+          } else {
+            // Pastikan commenterFullName tidak null sebelum mengirim notifikasi
+            if (commenterFullName != null &&
+                loginProvider.userId != widget.wpda.user_id) {
+              // Mengirim notifikasi menggunakan OneSignal
+              notificationOneSignal({
+                "app_id": "ae235573-b52c-44a5-b2c3-23d9de4232fa",
+                "wpda_owner_id": "${widget.wpda.id}",
+                "commenter_name": commenterFullName,
+                "include_player_ids": ["${widget.deviceToken}"],
+                "contents": {
+                  "en": " $commenterFullName mengomentari WPDA anda",
+                }
+              });
+            }
+          }
         });
       } else {
         throw Exception(
@@ -155,7 +212,6 @@ class _CommentWpdaState extends State<CommentWpda> {
   @override
   Widget build(BuildContext context) {
     final loginProvider = Provider.of<LoginProvider>(context);
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Container(
@@ -317,10 +373,19 @@ class _CommentWpdaState extends State<CommentWpda> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                               ),
-                              child: Image.network(
-                                'https://gsjasungaikehidupan.com/storage/profile_pictures/${data[index].comentator.profilePicture}',
-                                fit: BoxFit.cover,
-                              ),
+                              child: (data[index]
+                                      .comentator
+                                      .profilePicture
+                                      .isEmpty)
+                                  ? CircleAvatar(
+                                      backgroundImage: AssetImage(
+                                        'assets/images/profile_empty.jpg',
+                                      ),
+                                    )
+                                  : Image.network(
+                                      'https://gsjasungaikehidupan.com/storage/profile_pictures/${data[index].comentator.profilePicture}',
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                           ),
                           title: Row(
@@ -397,40 +462,51 @@ class _CommentWpdaState extends State<CommentWpda> {
                             controller: _commentController,
                             suffixIcon: IconButton(
                               onPressed: () {
-                                final commentWpda = Comment(
-                                  id: 1,
-                                  wpdaId: 1,
-                                  userId: 1,
-                                  commentsContent: _commentController.text,
-                                  createdAt: DateTime.now().toString(),
-                                  comentator: Comentator(
-                                    id: 1,
-                                    fullName: value.fullName!,
-                                    email: '',
-                                    profilePicture:
-                                        'profile_pictures/user_${value.userId}.jpg',
-                                  ),
-                                );
-
-                                // Tambahkan komentar langsung ke WPDA dan perbarui tampilan
-                                widget.wpda.comments.add(commentWpda);
-                                addCommentWpda(
-                                  {
-                                    'wpda_id': widget.wpda.id,
-                                    'comments_content': _commentController.text,
-                                    'created_at': DateTime.now().toString(),
-                                  },
-                                  token!,
-                                  context,
-                                );
-                                setState(() {
-                                  _commentController.clear();
-                                  // Sort comments after adding a new one
-                                  data =
-                                      List<Comment>.from(widget.wpda.comments)
-                                        ..sort((a, b) =>
-                                            b.createdAt.compareTo(a.createdAt));
+                                OneSignal.Notifications.addClickListener(
+                                    (event) {
+                                  print(
+                                      'NOTIFICATION CLICK LISTENER CALLED WITH EVENT: $event');
+                                  _debugLabelString =
+                                      "Clicked notification: \n${event.notification.jsonRepresentation().replaceAll("\\n", "\n")}";
                                 });
+                                print('Device Token : ${widget.deviceToken}');
+                                if (_commentController.text.isNotEmpty) {
+                                  final commentWpda = Comment(
+                                    id: 1,
+                                    wpdaId: 1,
+                                    userId: 1,
+                                    commentsContent: _commentController.text,
+                                    createdAt: DateTime.now().toString(),
+                                    comentator: Comentator(
+                                      id: 1,
+                                      fullName: value.fullName!,
+                                      email: '',
+                                      profilePicture:
+                                          'profile_pictures/user_${value.userId}.jpg',
+                                    ),
+                                  );
+
+                                  // Tambahkan komentar langsung ke WPDA dan perbarui tampilan
+                                  widget.wpda.comments.add(commentWpda);
+                                  addCommentWpda(
+                                    {
+                                      'wpda_id': widget.wpda.id,
+                                      'comments_content':
+                                          _commentController.text,
+                                      'created_at': DateTime.now().toString(),
+                                    },
+                                    token!,
+                                    context,
+                                  );
+                                  setState(() {
+                                    _commentController.clear();
+                                    // Sort comments after adding a new one
+                                    data = List<Comment>.from(
+                                        widget.wpda.comments)
+                                      ..sort((a, b) =>
+                                          b.createdAt.compareTo(a.createdAt));
+                                  });
+                                }
                               },
                               icon: Icon(
                                 Icons.send,
@@ -479,10 +555,12 @@ class _CommentWpdaState extends State<CommentWpda> {
 
 class PartialCommentWpda extends StatelessWidget {
   final WPDA wpda;
+  final String deviceToken;
 
   PartialCommentWpda({
     Key? key,
     required this.wpda,
+    required this.deviceToken,
   }) : super(key: key);
 
   @override
@@ -494,6 +572,7 @@ class PartialCommentWpda extends StatelessWidget {
       height: partialScreenHeight,
       child: CommentWpda(
         wpda: wpda,
+        deviceToken: deviceToken,
       ),
     );
   }

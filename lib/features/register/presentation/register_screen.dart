@@ -8,6 +8,26 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatelessWidget {
+  String capitalizeFirstLetter(String text) {
+    if (text == null || text.isEmpty) {
+      return text;
+    }
+    return text[0].toUpperCase() + text.substring(1);
+  }
+
+  String? capitalizeEachWord(String? text) {
+    if (text == null || text.isEmpty) {
+      return text;
+    }
+
+    List<String> words = text.split(" ");
+    for (int i = 0; i < words.length; i++) {
+      words[i] = capitalizeFirstLetter(words[i]);
+    }
+
+    return words.join(" ");
+  }
+
   @override
   Widget build(BuildContext context) {
     final registerProvider = Provider.of<RegisterProvider>(context);
@@ -150,12 +170,14 @@ class RegisterScreen extends StatelessWidget {
                     ),
                     onPressed: () {
                       print(DateTime.now().toString());
+                      var full_name = capitalizeEachWord(
+                          TextFieldControllerRegister.fullNameController.text);
+                      print('Full Name : $full_name');
                       if (registerProvider.keyRegister.currentState!
                           .validate()) {
                         registerProvider.registerUser(
                           {
-                            'full_name': TextFieldControllerRegister
-                                .fullNameController.text,
+                            'full_name': full_name,
                             'email': TextFieldControllerRegister
                                 .emailController.text,
                             'password': TextFieldControllerRegister
