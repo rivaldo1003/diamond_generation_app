@@ -236,7 +236,7 @@ class _WPDAScreenState extends State<WPDAScreen> {
                                 }
                               }),
                               Text(
-                                'Ayo, jadikan semua bangsa murid-Mu.',
+                                'Ayo, jadikan semua bangsa murid Tuhan.',
                                 style: MyFonts.brownText(
                                   14,
                                   FontWeight.w500,

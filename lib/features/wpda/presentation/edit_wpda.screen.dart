@@ -69,15 +69,20 @@ class _EditWpdaScreenState extends State<EditWpdaScreen> {
                 child: Column(
                   children: [
                     TextFieldWidget(
+                      textStyle: MyFonts.customTextStyle(
+                        14,
+                        FontWeight.w500,
+                        MyColor.blackColor,
+                      ),
                       onTap: () {
-                        String getBook(String verseReference, int index) {
-                          // Pisahkan string menggunakan tanda spasi
-                          List<String> parts = verseReference.split(' ');
-                          // Ambil bagian pertama dari array hasil pemisahan
-                          String book = parts[index];
+                        // String getBook(String verseReference, int index) {
+                        //   // Pisahkan string menggunakan tanda spasi
+                        //   List<String> parts = verseReference.split(' ');
+                        //   // Ambil bagian pertama dari array hasil pemisahan
+                        //   String book = parts[index];
 
-                          return book;
-                        }
+                        //   return book;
+                        // }
 
                         // String getStartVerse(String verseRef) {
                         //   List<String> parts = verseRef.split(' : ');
@@ -97,18 +102,18 @@ class _EditWpdaScreenState extends State<EditWpdaScreen> {
                         // String result = getStartVerse(widget.wpda.reading_book);
                         // print('Verse Result : $result ');
 
-                        bibleProvider.selectedBook =
-                            getBook(widget.wpda.reading_book, 0);
-                        setState(() {
-                          bibleProvider.selectedChapter =
-                              int.parse(getBook(widget.wpda.reading_book, 1));
-                          bibleProvider.chapterController.text =
-                              getBook(widget.wpda.reading_book, 1);
-                          // bibleProvider.startVerseControllerEdit.text =
-                          //     getStartVerse(widget.wpda.reading_book);
-                          // bibleProvider.endVerseControllerEdit.text =
-                          //     getEndVerse(widget.wpda.reading_book);
-                        });
+                        // bibleProvider.selectedBook =
+                        //     getBook(widget.wpda.reading_book, 0);
+                        // setState(() {
+                        //   bibleProvider.selectedChapter =
+                        //       int.parse(getBook(widget.wpda.reading_book, 1));
+                        //   bibleProvider.chapterController.text =
+                        //       getBook(widget.wpda.reading_book, 1);
+                        // bibleProvider.startVerseControllerEdit.text =
+                        //     getStartVerse(widget.wpda.reading_book);
+                        // bibleProvider.endVerseControllerEdit.text =
+                        //     getEndVerse(widget.wpda.reading_book);
+                        // });
 
                         print('Chapter : ${bibleProvider.selectedChapter}');
                         showDialog(
@@ -300,6 +305,11 @@ class _EditWpdaScreenState extends State<EditWpdaScreen> {
                     ),
                     SizedBox(height: 12),
                     TextFieldWidget(
+                      textStyle: MyFonts.customTextStyle(
+                        14,
+                        FontWeight.w500,
+                        MyColor.blackColor,
+                      ),
                       hintText: 'Isi Ayat',
                       obscureText: false,
                       controller: editWpdaProvider.verseContentController,
@@ -320,6 +330,11 @@ class _EditWpdaScreenState extends State<EditWpdaScreen> {
                     ),
                     SizedBox(height: 12),
                     TextFieldWidget(
+                      textStyle: MyFonts.customTextStyle(
+                        14,
+                        FontWeight.w500,
+                        MyColor.blackColor,
+                      ),
                       hintText: 'Pesan Tuhan',
                       obscureText: false,
                       controller: editWpdaProvider.messageOfGodController,
@@ -340,6 +355,11 @@ class _EditWpdaScreenState extends State<EditWpdaScreen> {
                     ),
                     SizedBox(height: 12),
                     TextFieldWidget(
+                      textStyle: MyFonts.customTextStyle(
+                        14,
+                        FontWeight.w500,
+                        MyColor.blackColor,
+                      ),
                       hintText: 'Aplikasi dalam kehidupan',
                       obscureText: false,
                       controller: editWpdaProvider.applicationInLifeController,

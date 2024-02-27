@@ -1,4 +1,5 @@
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
+import 'package:diamond_generation_app/features/get_started/presentation/get_started_screen.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,7 +30,7 @@ class _SplashScreenState extends State<SplashScreen> {
         } else if (token != null && role == 'user' && profileCompleted == '1') {
           return BottomNavigationPage();
         } else {
-          return LoginScreen();
+          return GetStarted();
         }
       }));
     });

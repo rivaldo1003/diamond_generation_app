@@ -111,9 +111,19 @@ class _HomeScreenState extends State<HomeScreen> {
   late SearchUserProvider searchUserProvider;
   late int countUserApprove;
 
+  String? fullName;
+
+  Future getFullName() async {
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    fullName = _prefs.getString(SharedPreferencesManager.keyFullName);
+  }
+
   @override
   void initState() {
     loading().then((value) => print('Dijalankan'));
+    getFullName().then((value) {
+      print('Full Name : $fullName');
+    });
     getUserId().then((userId) {
       if (userId != null) {
         loadImage().then((value) {
@@ -129,6 +139,10 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
     getToken();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Panggil loadFullName() setelah widget dirender pertama kali
+      Provider.of<LoginProvider>(context, listen: false).loadFullName();
+    });
 
     super.initState();
   }
@@ -454,7 +468,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     top: 10,
                     left: 20,
                     right: 20,
-                    bottom: 40,
+                    bottom: 20,
                   ),
                   children: [
                     Consumer<HomeProvider>(
@@ -534,41 +548,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'DATA DG YOUTH',
-                                              style: MyFonts.customTextStyle(
-                                                20,
-                                                FontWeight.w800,
-                                                MyColor.whiteColor,
-                                              ),
-                                            ),
-                                            Text(
-                                              formatDateResult,
-                                              style: MyFonts.customTextStyle(
-                                                12,
-                                                FontWeight.w500,
-                                                MyColor.greyText,
-                                              ),
-                                            ),
-                                          ],
+                                        Text(
+                                          'DATA JEMAAT',
+                                          style: MyFonts.customTextStyle(
+                                            18,
+                                            FontWeight.w800,
+                                            MyColor.whiteColor,
+                                          ),
                                         ),
-                                        // Text(
-                                        //   'DIAMOND \nCOMMUNITY',
-                                        //   textAlign: TextAlign.right,
-                                        //   style: MyFonts.customTextStyle(
-                                        //     10,
-                                        //     FontWeight.bold,
-                                        //     MyColor.colorLightBlue,
-                                        //   ),
-                                        // ),
+                                        Text(
+                                          formatDateResult,
+                                          style: MyFonts.customTextStyle(
+                                            12,
+                                            FontWeight.w500,
+                                            MyColor.greyText,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                     SizedBox(height: 16),

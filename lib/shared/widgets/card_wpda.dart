@@ -594,7 +594,7 @@ class _CardWpdaState extends State<CardWpda> {
                                   Text(
                                     widget.wpda.writer.email,
                                     style: MyFonts.customTextStyle(
-                                      14,
+                                      12,
                                       FontWeight.w500,
                                       MyColor.greyText,
                                     ),

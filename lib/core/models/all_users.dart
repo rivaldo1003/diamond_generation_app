@@ -1,3 +1,4 @@
+import 'package:diamond_generation_app/core/models/partner.dart';
 import 'package:diamond_generation_app/core/models/user_profile.dart';
 
 class AllUsers {
@@ -15,6 +16,7 @@ class AllUsers {
   final String approvalStatus;
   final List<DataWpda> dataWpda;
   final UserProfile? profile;
+  final Partner? partner;
 
   AllUsers({
     required this.id,
@@ -30,6 +32,7 @@ class AllUsers {
     required this.dataWpda,
     required this.profile,
     required this.deviceToken,
+    required this.partner,
   });
 
   factory AllUsers.fromJson(Map<String, dynamic> json) {
@@ -41,6 +44,12 @@ class AllUsers {
     UserProfile? profile;
     if (userProfile != null) {
       profile = UserProfile.fromJson(userProfile);
+    }
+
+    var partner = json['partner'];
+    Partner? partnerUser;
+    if (partner != null) {
+      partnerUser = Partner.fromJson(partner);
     }
 
     return AllUsers(
@@ -57,6 +66,7 @@ class AllUsers {
       deviceToken: json['device_token'].toString(),
       dataWpda: parsedWpdaHistoryList,
       profile: profile,
+      partner: partnerUser,
     );
   }
 }

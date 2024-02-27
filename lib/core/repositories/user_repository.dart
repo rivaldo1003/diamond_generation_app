@@ -24,6 +24,15 @@ abstract class UserRepository {
   Future<void> updateFullName(BuildContext context, Map<String, dynamic> body,
       String userId, String token);
   Future<void> logout(BuildContext context, String token);
+  Future<void> verifyEmail(
+    BuildContext context,
+    String token,
+    String email,
+  );
+  Future<void> forgetPassword(
+    BuildContext context,
+    Map<String, dynamic> body,
+  );
 }
 
 class UserRepositoryImpl implements UserRepository {
@@ -116,5 +125,17 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<void> logout(BuildContext context, String token) async {
     await userApi!.logout(context, token);
+  }
+
+  @override
+  Future<void> verifyEmail(
+      BuildContext context, String token, String email) async {
+    await userApi!.verifyEmail(context, token, email);
+  }
+
+  @override
+  Future<void> forgetPassword(
+      BuildContext context, Map<String, dynamic> body) async {
+    await userApi!.forgetPassword(context, body);
   }
 }

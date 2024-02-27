@@ -27,6 +27,8 @@ class ApiConstants {
   static const userGenderTotal = baseUrl + '/user-gender-total';
   static const updateFullName = baseUrl + '/update-full-name';
   static const saveSubsriptionId = baseUrl + '/save-subscription-id';
+  static const verifyEmail = baseUrl + '/send-verify-mail';
+  static const forgetPassword = baseUrl + '/forget-password';
   static const notification = 'https://onesignal.com/api/v1/notifications';
 
   // OLD API URL

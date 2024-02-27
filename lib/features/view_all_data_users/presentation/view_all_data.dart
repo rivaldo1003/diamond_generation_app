@@ -325,6 +325,11 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                           obscureText: false,
                           controller: _findUserController,
                           suffixIcon: Icon(Icons.search),
+                          textStyle: MyFonts.customTextStyle(
+                            14,
+                            FontWeight.w500,
+                            MyColor.blackColor,
+                          ),
                           onTap: () {
                             print(valueViewAllDataProvider.isKeyboardVisible);
 

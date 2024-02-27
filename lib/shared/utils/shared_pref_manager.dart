@@ -115,4 +115,10 @@ class SharedPreferencesManager {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.clear();
   }
+
+//CLEAR FULL NAME
+  static Future<void> clearFullName() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.remove(keyFullName);
+  }
 }

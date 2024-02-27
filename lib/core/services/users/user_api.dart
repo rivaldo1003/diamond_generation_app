@@ -6,13 +6,16 @@ import 'package:diamond_generation_app/core/models/monthly_data_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
 import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
+import 'package:diamond_generation_app/features/forget_password/data/controller.dart';
+import 'package:diamond_generation_app/features/forget_password/presentation/email_has_been_sent_screen.dart';
 import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_register.dart';
-import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
+import 'package:diamond_generation_app/features/login/presentation/login.dart';
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
 import 'package:diamond_generation_app/features/register_form/presentation/register_form.dart';
+import 'package:diamond_generation_app/features/verified_email/presentation/verify_email_screen.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
@@ -85,6 +88,7 @@ class UserApi {
 
     // Tampilkan pemberitahuan loading
     showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (context) {
           return Center(
@@ -194,36 +198,62 @@ class UserApi {
               //       );
               //     });
               Future.delayed(Duration(seconds: 2), () {
-                if (userData['profile_completed'] == 0) {
+                if (userData['verified'] == 0) {
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (context) {
-                      return RegisterForm();
+                      return VerifyEmailScreen(
+                        email: userData['email'],
+                        verified: userData['verified'],
+                      );
                     }),
                     (route) => false,
-                  );
-                  SnackBarWidget.showSnackBar(
-                    context: context,
-                    message: 'Profil Anda tidak lengkap. Lengkapi profil Anda.',
-                    textColor: MyColor.whiteColor,
-                    bgColor: MyColor.colorLightBlue,
                   );
                 } else {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) {
-                      return BottomNavigationPage();
-                    }),
-                    (route) => false,
-                  );
-                  // SnackBarWidget.showSnackBar(
-                  //   context: context,
-                  //   message: data['message'],
-                  //   textColor: MyColor.whiteColor,
-                  //   bgColor: MyColor.colorGreen,
-                  // );
-                  TextFieldControllerLogin.emailController.text = '';
-                  TextFieldControllerLogin.passwordController.text = '';
+                  if (userData['profile_completed'] == 0) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) {
+                        return RegisterForm();
+                      }),
+                      (route) => false,
+                    );
+                    SnackBarWidget.showSnackBar(
+                      context: context,
+                      message:
+                          'Profil Anda tidak lengkap. Lengkapi profil Anda.',
+                      textColor: MyColor.whiteColor,
+                      bgColor: MyColor.colorLightBlue,
+                    );
+                  } else {
+                    if (userData['verified'] == 0) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) {
+                          return VerifyEmailScreen(
+                            email: userData['email'],
+                            verified: userData['verified'],
+                          );
+                        }),
+                        (route) => false,
+                      );
+                    } else {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) {
+                          return BottomNavigationPage();
+                        }),
+                        (route) => false,
+                      );
+                    }
+
+                    // SnackBarWidget.showSnackBar(
+                    //   context: context,
+                    //   message: data['message'],
+                    //   textColor: MyColor.whiteColor,
+                    //   bgColor: MyColor.colorGreen,
+                    // );
+                  }
                 }
               });
             }
@@ -251,18 +281,19 @@ class UserApi {
                   ),
                 ),
               );
+              Navigator.pop(context);
             });
           }
         } else {
           final data = json.decode(response.body);
-          showDialog(
-              barrierDismissible: false,
-              context: context,
-              builder: (context) {
-                return Center(
-                  child: CoolLoading(),
-                );
-              });
+          // showDialog(
+          //     barrierDismissible: false,
+          //     context: context,
+          //     builder: (context) {
+          //       return Center(
+          //         child: CoolLoading(),
+          //       );
+          //     });
           Future.delayed(Duration(seconds: 2), () {
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
@@ -334,6 +365,7 @@ class UserApi {
 
     // Tampilkan pemberitahuan loading
     showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (context) {
           return Center(
@@ -383,7 +415,7 @@ class UserApi {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) {
-                    return LoginScreen();
+                    return Login();
                   }),
                   (route) => false,
                 );
@@ -942,7 +974,7 @@ class UserApi {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) {
-              return LoginScreen();
+              return Login();
             }),
             (route) => false,
           );
@@ -990,6 +1022,80 @@ class UserApi {
       }
     } else {
       throw Exception('Logut API Error');
+    }
+  }
+
+  Future<void> verifyEmail(
+    BuildContext context,
+    String token,
+    String email,
+  ) async {
+    try {
+      final url = Uri.parse('${ApiConstants.verifyEmail}/$email');
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Verify API connect successfully');
+        // Tambahkan logika lain yang diperlukan setelah berhasil verifikasi email
+      } else {
+        throw Exception('Failed to connect API verification email');
+      }
+    } catch (error) {
+      print('Error: $error');
+      // Tambahkan penanganan kesalahan sesuai kebutuhan Anda, misalnya menampilkan dialog kesalahan kepada pengguna
+    }
+  }
+
+  Future<void> forgetPassword(
+      BuildContext context, Map<String, dynamic> body) async {
+    final url = Uri.parse('${ApiConstants.forgetPassword}');
+    final response = await http.post(url, body: jsonEncode(body), headers: {
+      "Content-Type": "application/json",
+    });
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return CoolLoading();
+        },
+      );
+      if (data['success']) {
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+            return EmailHasBeenSentScreen(
+              email: forgetPasswordEmail.text,
+            );
+          }));
+          forgetPasswordEmail.text = '';
+        });
+      } else {
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorRed,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+        });
+      }
+    } else {
+      throw Exception('Failed connect to forget password API.');
     }
   }
 }

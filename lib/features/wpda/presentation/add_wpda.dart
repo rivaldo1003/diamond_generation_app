@@ -133,6 +133,11 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                   child: Column(
                     children: [
                       TextFieldWidget(
+                        textStyle: MyFonts.customTextStyle(
+                          14,
+                          FontWeight.w500,
+                          MyColor.blackColor,
+                        ),
                         onTap: () {
                           showDialog(
                               context: context,
@@ -355,6 +360,11 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                       ),
                       SizedBox(height: 12),
                       TextFieldWidget(
+                        textStyle: MyFonts.customTextStyle(
+                          14,
+                          FontWeight.w500,
+                          MyColor.blackColor,
+                        ),
                         hintText: 'Isi Ayat',
                         obscureText: false,
                         controller: wpdaProvider.verseContentController,
@@ -374,6 +384,11 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                       ),
                       SizedBox(height: 12),
                       TextFieldWidget(
+                        textStyle: MyFonts.customTextStyle(
+                          14,
+                          FontWeight.w500,
+                          MyColor.blackColor,
+                        ),
                         hintText: 'Pesan Tuhan',
                         obscureText: false,
                         controller: wpdaProvider.messageOfGodController,
@@ -393,6 +408,11 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
                       ),
                       SizedBox(height: 12),
                       TextFieldWidget(
+                        textStyle: MyFonts.customTextStyle(
+                          14,
+                          FontWeight.w500,
+                          MyColor.blackColor,
+                        ),
                         hintText: 'Aplikasi Dalam Kehidupan',
                         obscureText: false,
                         controller: wpdaProvider.applicationInLifeController,

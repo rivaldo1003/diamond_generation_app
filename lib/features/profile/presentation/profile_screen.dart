@@ -13,7 +13,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
-import 'package:diamond_generation_app/features/login/presentation/login_screen.dart';
 import 'package:diamond_generation_app/features/profile/data/providers/profile_provider.dart';
 import 'package:diamond_generation_app/features/register_form/data/providers/register_form_provider.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
@@ -72,6 +71,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _newEmail = TextEditingController();
   final TextEditingController _newBirthPlace = TextEditingController();
   final TextEditingController _newNameController = TextEditingController();
+  final TextEditingController _partnerController = TextEditingController();
 
   late SharedPreferences _prefs;
   final String key = 'birth_date';
@@ -438,6 +438,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (dataUser['success']) {
                   Map<String, dynamic> user = dataUser['data'];
                   Map<String, dynamic> user_profile = user['user_profile'];
+                  Map<String, dynamic>? user_partner =
+                      user['partner'] as Map<String, dynamic>?;
+
+                  if (user_partner != null) {
+                    // Lakukan sesuatu dengan user_partner
+                  } else {
+                    // Kasus di mana user_partner adalah null
+                  }
                   String date = user['created_at'];
                   String formatDate = DateFormat('dd MMMM yyyy', 'id')
                       .format(DateTime.parse(date));
@@ -451,6 +459,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       : 'Perempuan';
                   _newAccountNumber.text = user['account_number'];
                   _newEmail.text = user['email'];
+                  if (user_partner != null && user_partner['partner'] != null) {
+                    _partnerController.text =
+                        user_partner['partner_name'] ?? '';
+                  }
+
                   _newNameController.text = user['full_name'];
                   _newAge.text = user_profile['age'] + ' Tahun';
 
@@ -639,6 +652,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 TextFieldWidget(
+                                                  textStyle:
+                                                      MyFonts.customTextStyle(
+                                                    14,
+                                                    FontWeight.w500,
+                                                    MyColor.blackColor,
+                                                  ),
                                                   hintText: 'Nama Lengkap',
                                                   obscureText: false,
                                                   controller:
@@ -662,7 +681,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                         .then((value) {
                                                       Future.delayed(
                                                           Duration(seconds: 2),
-                                                          () {
+                                                          () async {
+                                                        SharedPreferencesManager
+                                                                .clearFullName()
+                                                            .then((value) {
+                                                          print(
+                                                              'Nama sebelumnya di hapus');
+                                                          SharedPreferencesManager
+                                                                  .saveFullName(
+                                                                      _newNameController
+                                                                          .text)
+                                                              .then((value) {
+                                                            print(
+                                                                'Nama baru disave');
+                                                          });
+                                                        });
+
                                                         setState(() {});
                                                       });
                                                     });
@@ -802,6 +836,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                         ],
                                       ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    CardDetailProfile(
+                                      readOnly: false,
+                                      onPressed: () {
+                                        profileProvider
+                                            .updateProfile(
+                                                context,
+                                                {
+                                                  'partner_name':
+                                                      _partnerController.text
+                                                },
+                                                userId!,
+                                                token!)
+                                            .then((value) {
+                                          Future.delayed(Duration(seconds: 2),
+                                              () {
+                                            setState(() {});
+                                          });
+                                        });
+                                      },
+                                      controller: _partnerController,
+                                      iconData: SvgPicture.asset(
+                                        'assets/icons/partner.svg',
+                                        color: MyColor.primaryColor
+                                            .withOpacity(0.7),
+                                      ),
+                                      title: (user_profile['gender'] ==
+                                              'Laki-Laki')
+                                          ? 'Nama Istri'
+                                          : 'Nama Suami',
+                                      value: (user_partner?['partner_name'] !=
+                                              null)
+                                          ? user_partner!['partner_name']
+                                          : '-',
                                     ),
                                     SizedBox(height: 4),
                                     CardDetailProfile(

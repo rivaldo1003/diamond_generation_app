@@ -78,4 +78,14 @@ class GetUserUsecase {
   Future<void> logout(BuildContext context, String token) async {
     return await userRepository.logout(context, token);
   }
+
+  Future<void> verifyEmail(
+      BuildContext context, String token, String email) async {
+    return await userRepository.verifyEmail(context, token, email);
+  }
+
+  Future<void> forgetPassword(
+      BuildContext context, Map<String, dynamic> body) async {
+    return await userRepository.forgetPassword(context, body);
+  }
 }

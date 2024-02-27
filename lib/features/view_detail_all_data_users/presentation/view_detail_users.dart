@@ -44,6 +44,8 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
 
   TextEditingController _controllerBirthDateAndPlace = TextEditingController();
 
+  TextEditingController _controllerPartner = TextEditingController();
+
   String? imgUrl;
 
   @override
@@ -86,6 +88,7 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
       dateTimeBirth = DateTime.parse(widget.userData.profile!.birth_date);
       formattedDate = DateFormat('d MMMM yyyy', 'id').format(dateTimeBirth!);
     }
+
     return Scaffold(
       appBar: AppBarWidget(title: 'Detail Pengguna'),
       body: Column(
@@ -220,6 +223,19 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                       ),
                     ),
                     SizedBox(height: 8),
+                    DetailUser(
+                      readOnly: true,
+                      iconData: SvgPicture.asset(
+                        'assets/icons/partner.svg',
+                        color: MyColor.primaryColor.withOpacity(0.7),
+                      ),
+                      title: 'Nama Pasangan',
+                      value: (widget.userData.partner == null)
+                          ? '-'
+                          : widget.userData.partner!.partnerName,
+                      controller: _controllerPartner,
+                    ),
+                    SizedBox(height: 4),
                     DetailUser(
                       readOnly: true,
                       iconData: SvgPicture.asset(

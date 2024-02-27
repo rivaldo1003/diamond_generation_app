@@ -1,3 +1,4 @@
+import 'package:diamond_generation_app/features/forget_password/presentation/forget_password_screen.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
 import 'package:diamond_generation_app/features/register/data/providers/register_provider.dart';
@@ -30,8 +31,8 @@ class LoginScreen extends StatelessWidget {
                 Center(
                   child: Container(
                     child: Image.asset(
-                      'assets/icons/gsja_foreground.png',
-                      height: 200,
+                      'assets/icons/gsja.png',
+                      height: MediaQuery.of(context).size.height / 5,
                     ),
                   ),
                 ),
@@ -106,20 +107,26 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    // TextButton(
-                    //   onPressed: () {},
-                    //   child: Text(
-                    //     'Lupa kata sandi?',
-                    //     style: MyFonts.customTextStyle(
-                    //       14,
-                    //       FontWeight.w500,
-                    //       MyColor.primaryColor,
-                    //     ),
-                    //   ),
-                    // ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.of(context)
+                            .push(MaterialPageRoute(builder: (context) {
+                          return ForgetPasswordScreen();
+                        }));
+                      },
+                      child: Text(
+                        'Lupa kata sandi?',
+                        style: MyFonts.customTextStyle(
+                          14,
+                          FontWeight.w500,
+                          MyColor.primaryColor,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(height: 24),

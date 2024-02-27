@@ -7,6 +7,14 @@ enum Gender { Male, Female }
 
 class RegisterFormProvider with ChangeNotifier {
   final GetUserUsecase _getUserUsecase;
+  bool _isMarried = false;
+
+  bool get isMarried => _isMarried;
+
+  void updateIsMarried(value) {
+    _isMarried = value;
+    notifyListeners();
+  }
 
   String placeOfBirth = '';
   DateTime selectedDateOfBirth = DateTime.now();
@@ -28,22 +36,30 @@ class RegisterFormProvider with ChangeNotifier {
   bool showRequiredMessageAddress = false;
   bool showRequiredMessagePhoneNumber = false;
   bool showRequiredMessagePlaceOfBirth = false;
+  bool showRequiredMessagePartner = false;
+  bool showRequiredMessageChildren = false;
 
   TextEditingController addressController = TextEditingController();
   TextEditingController fullNameController = TextEditingController();
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController placeOfBirthController = TextEditingController();
+  TextEditingController partnerController = TextEditingController();
+  TextEditingController childrenController = TextEditingController();
 
   FocusNode fullNameFocusNode = FocusNode();
   FocusNode addressFocusNode = FocusNode();
   FocusNode phoneNumberFocusNode = FocusNode();
   FocusNode placeOfBirthFocusNode = FocusNode();
+  FocusNode PartnerFocusNode = FocusNode();
+  FocusNode childrenFocusNode = FocusNode();
 
   void validateInput() {
     showRequiredMessageFullName = fullNameController.text.isEmpty;
     showRequiredMessageAddress = addressController.text.isEmpty;
     showRequiredMessagePhoneNumber = phoneNumberController.text.isEmpty;
     showRequiredMessagePlaceOfBirth = placeOfBirthController.text.isEmpty;
+    showRequiredMessagePartner = partnerController.text.isEmpty;
+    showRequiredMessageChildren = childrenController.text.isEmpty;
     notifyListeners();
   }
 
@@ -55,16 +71,30 @@ class RegisterFormProvider with ChangeNotifier {
   ) {
     validateInput();
 
-    if (!showRequiredMessageAddress &&
-        !showRequiredMessagePhoneNumber &&
-        !showRequiredMessagePlaceOfBirth) {
-      //SUCCESS
-      _getUserUsecase.submitDataUser(
-        body,
-        context,
-        token,
-        id,
-      );
+    if (isMarried) {
+      if (!showRequiredMessageAddress &&
+          !showRequiredMessagePhoneNumber &&
+          !showRequiredMessagePlaceOfBirth &&
+          !showRequiredMessageChildren &&
+          !showRequiredMessagePartner) {
+        _getUserUsecase.submitDataUser(
+          body,
+          context,
+          token,
+          id,
+        );
+      }
+    } else {
+      if (!showRequiredMessageAddress &&
+          !showRequiredMessagePhoneNumber &&
+          !showRequiredMessagePlaceOfBirth) {
+        _getUserUsecase.submitDataUser(
+          body,
+          context,
+          token,
+          id,
+        );
+      }
     }
     notifyListeners();
   }

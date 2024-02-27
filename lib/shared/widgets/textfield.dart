@@ -20,6 +20,8 @@ class TextFieldWidget extends StatelessWidget {
   Color? fillColor;
   BorderSide? borderSide;
   TextStyle? textStyle;
+  Widget? label;
+  InputDecoration? inputDecoration;
 
   TextFieldWidget({
     super.key,
@@ -40,6 +42,8 @@ class TextFieldWidget extends StatelessWidget {
     this.fillColor,
     this.borderSide,
     this.textStyle,
+    this.label,
+    this.inputDecoration,
   });
 
   @override
@@ -61,41 +65,46 @@ class TextFieldWidget extends StatelessWidget {
           ? MyFonts.customTextStyle(
               14,
               FontWeight.w500,
-              MyColor.blackColor,
+              MyColor.whiteColor,
             )
           : textStyle,
-      decoration: InputDecoration(
-        filled: true,
-        errorText: errorText,
-        hintText: hintText,
-        errorStyle: MyFonts.customTextStyle(
-          10,
-          FontWeight.w500,
-          MyColor.colorRed.withOpacity(0.9),
-        ),
-        hintStyle: (textColor == null)
-            ? MyFonts.customTextStyle(
-                14,
+      decoration: (inputDecoration == null)
+          ? InputDecoration(
+              label: label,
+              filled: true,
+              errorText: errorText,
+              hintText: hintText,
+              errorStyle: MyFonts.customTextStyle(
+                10,
                 FontWeight.w500,
-                Colors.grey.shade400,
-              )
-            : MyFonts.customTextStyle(
-                14,
-                FontWeight.w500,
-                textColor!,
+                MyColor.colorRed.withOpacity(0.9),
               ),
-        suffixIcon: suffixIcon,
-        fillColor: (fillColor == null) ? Colors.white : fillColor,
-        contentPadding: EdgeInsets.all(10),
-        focusedBorder: OutlineInputBorder(
-          borderSide: (borderSide == null) ? BorderSide.none : borderSide!,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: (borderSide == null) ? BorderSide.none : borderSide!,
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
+              hintStyle: (textColor == null)
+                  ? MyFonts.customTextStyle(
+                      14,
+                      FontWeight.w500,
+                      Colors.grey.shade400,
+                    )
+                  : MyFonts.customTextStyle(
+                      14,
+                      FontWeight.w500,
+                      textColor!,
+                    ),
+              suffixIcon: suffixIcon,
+              fillColor: (fillColor == null) ? Colors.white : fillColor,
+              contentPadding: EdgeInsets.all(10),
+              focusedBorder: OutlineInputBorder(
+                borderSide:
+                    (borderSide == null) ? BorderSide.none : borderSide!,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide:
+                    (borderSide == null) ? BorderSide.none : borderSide!,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            )
+          : inputDecoration,
       validator: validator,
     );
   }

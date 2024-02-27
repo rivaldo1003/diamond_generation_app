@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CardDetailProfile extends StatefulWidget {
-  final Widget iconData;
+  Widget? iconData;
   final String title;
   final String value;
   final bool? readOnly;
@@ -22,7 +22,7 @@ class CardDetailProfile extends StatefulWidget {
 
   CardDetailProfile({
     super.key,
-    required this.iconData,
+    this.iconData,
     required this.title,
     required this.value,
     this.readOnly,
@@ -390,7 +390,9 @@ class _CardDetailProfileState extends State<CardDetailProfile> {
                     child: Row(
                       children: [
                         SizedBox(width: 12),
-                        widget.iconData,
+                        (widget.iconData == null)
+                            ? SizedBox()
+                            : widget.iconData!,
                         SizedBox(width: 16),
                         Expanded(
                           child: Text(
