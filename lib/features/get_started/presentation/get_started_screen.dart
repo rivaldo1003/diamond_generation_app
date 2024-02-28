@@ -21,7 +21,7 @@ class _GetStartedState extends State<GetStarted> {
         child: Padding(
           padding: const EdgeInsets.only(
             left: 20,
-            top: 20,
+            top: 30,
             right: 20,
             bottom: 20,
           ),
@@ -33,7 +33,7 @@ class _GetStartedState extends State<GetStarted> {
                     margin: EdgeInsets.symmetric(vertical: 20),
                     child: Image.asset(
                       'assets/icons/gsja.png',
-                      height: 30,
+                      height: MediaQuery.of(context).size.height / 25,
                     ),
                   ),
                 ],

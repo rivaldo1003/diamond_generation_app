@@ -27,6 +27,7 @@ import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/utils/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -43,10 +44,10 @@ void main() async {
     DeviceOrientation.portraitUp,
   ]);
 
-  // FirebaseMessaging.onBackgroundMessage((message) {
-  //   // Handle background message here
-  //   return Future<void>.value();
-  // });
+  FirebaseMessaging.onBackgroundMessage((message) {
+    // Handle background message here
+    return Future<void>.value();
+  });
 
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   OneSignal.initialize("ae235573-b52c-44a5-b2c3-23d9de4232fa");

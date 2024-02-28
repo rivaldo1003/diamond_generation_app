@@ -79,13 +79,8 @@ class _WPDAScreenState extends State<WPDAScreen> {
       setState(() {
         _image = File(imagePath);
       });
-    }
-
-    if (userId != null && _image == null) {
+    } else if (userId != null && _image == null) {
       await fetchProfilePicture(int.parse(userId!), token!);
-    } else {
-      print('Halo');
-      // Tindakan yang sesuai jika userId null
     }
   }
 
@@ -103,16 +98,16 @@ class _WPDAScreenState extends State<WPDAScreen> {
         var jsonResponse = json.decode(response.body);
         var profilePictureUrl = jsonResponse['profile_picture'];
 
-        // Modifikasi URL dengan menambahkan "profile_pictures"
         var modifiedUrl = profilePictureUrl.replaceFirst(
             "storage/", "storage/profile_pictures/");
 
-        print(modifiedUrl);
+        setState(() {
+          // Update state here
+        });
 
-        // Jika Anda masih ingin menyimpan gambar, Anda dapat memanggil downloadAndSaveImage
         await downloadAndSaveImage(modifiedUrl, userId);
       } else {
-        print('Gagal mengambil gambar. Kode status: ${response.statusCode}');
+        print('Failed to fetch image. Status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Error: $e');
@@ -130,20 +125,19 @@ class _WPDAScreenState extends State<WPDAScreen> {
 
     if (response.statusCode == 200) {
       final appDir = await getApplicationDocumentsDirectory();
-      final extension =
-          imageUrl.split('.').last; // Ambil ekstensi gambar dari URL
+      final extension = imageUrl.split('.').last;
       final localPath = appDir.path + '/user_$userId.$extension';
 
       final file = File(localPath);
       await file.writeAsBytes(response.bodyBytes);
 
-      print('Gambar berhasil diunduh dan disimpan di: $localPath');
-      _image = File(localPath);
-      saveImage(_image!).then((value) {
-        print('Berhasil di download dari server dan di save di SP');
+      setState(() {
+        _image = file;
       });
+
+      saveImage(file);
     } else {
-      print('Gagal mengunduh gambar. Status code: ${response.statusCode}');
+      print('Failed to download image. Status code: ${response.statusCode}');
     }
   }
 
