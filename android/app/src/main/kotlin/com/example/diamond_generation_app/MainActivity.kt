@@ -1,4 +1,4 @@
-package com.example.diamond_generation_app
+package com.riverapp.gsjasungaikehidupan
 
 import io.flutter.embedding.android.FlutterActivity
 

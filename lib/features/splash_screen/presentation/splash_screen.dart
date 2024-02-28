@@ -1,4 +1,5 @@
 import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation_page.dart';
+import 'package:diamond_generation_app/features/get_started/presentation/get_started_screen.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,12 +25,12 @@ class _SplashScreenState extends State<SplashScreen> {
     print(profileCompleted);
     Future.delayed(Duration(seconds: 3), () {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-        if (token != null && role == 'admin') {
+        if (token != null && role == 'admin' || role == 'super_admin') {
           return BottomNavigationPage();
-        } else if (token != null && role == 'user' && profileCompleted == "1") {
+        } else if (token != null && role == 'user' && profileCompleted == '1') {
           return BottomNavigationPage();
         } else {
-          return LoginScreen();
+          return GetStarted();
         }
       }));
     });
@@ -54,17 +55,33 @@ class _SplashScreenState extends State<SplashScreen> {
               fit: BoxFit.cover,
             ),
           ),
-          Container(
-            margin: EdgeInsets.all(20),
-            child: Center(
-              child: Shimmer.fromColors(
-                baseColor: Colors.amber, // Warna latar belakang shimmer
-                highlightColor: Colors.grey.shade300,
-                child: Image.asset(
-                  'assets/images/title.png',
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                height: 300,
+                width: 300,
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                  image: AssetImage(
+                    'assets/images/sk.png',
+                  ),
+                  fit: BoxFit.cover,
+                )),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                child: Center(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.amber, // Warna latar belakang shimmer
+                    highlightColor: Colors.grey.shade300,
+                    child: Image.asset(
+                      'assets/images/gsja_logo.png',
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           )
         ],
       ),

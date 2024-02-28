@@ -1,9 +1,6 @@
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
-import 'package:diamond_generation_app/core/models/user.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
 import 'package:diamond_generation_app/core/usecases/get_wpda_usecase.dart';
-import 'package:diamond_generation_app/shared/utils/color.dart';
-import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:flutter/material.dart';
 
 class WpdaProvider with ChangeNotifier {
@@ -11,119 +8,128 @@ class WpdaProvider with ChangeNotifier {
 
   WpdaProvider({required GetWpdaUsecase getWpdaUsecase})
       : _getWpdaUsecase = getWpdaUsecase,
-        kitabBacaanController = TextEditingController(),
-        isiKitabController = TextEditingController(),
-        pesanTuhanController = TextEditingController(),
-        aplikasiKehidupanController = TextEditingController();
+        readingBookController = TextEditingController(),
+        verseContentController = TextEditingController(),
+        messageOfGodController = TextEditingController(),
+        applicationInLifeController = TextEditingController();
 
-  void createWpda(Map<String, dynamic> body, BuildContext context) async {
-    await _getWpdaUsecase.createWpda(body, context);
+  void createWpda(
+      Map<String, dynamic> body, BuildContext context, String token) async {
+    await _getWpdaUsecase.createWpda(body, context, token);
     notifyListeners();
   }
 
   @override
   void dispose() {
-    aplikasiKehidupanController.dispose();
-    isiKitabController.dispose();
-    kitabBacaanController.dispose();
-    pesanTuhanController.dispose();
+    applicationInLifeController.dispose();
+    verseContentController.dispose();
+    readingBookController.dispose();
+    messageOfGodController.dispose();
     super.dispose();
   }
 
-  Future refreshApp(BuildContext context) async {
-    showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (context) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        });
-    Future.delayed(Duration(seconds: 2), () {
-      Navigator.pop(context);
-      notifyListeners();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: MyColor.colorGreen,
-          content: Text(
-            'Berhasil diperbarui',
-            style: MyFonts.customTextStyle(
-              14,
-              FontWeight.w500,
-              MyColor.whiteColor,
-            ),
-          ),
-        ),
-      );
-    });
+  List<Comment> _comments = [];
+
+  List<Comment> get comments => _comments;
+
+  void updateComments(List<Comment> newComments) {
+    _comments = newComments;
+    notifyListeners();
   }
 
   List<WPDA> wpdas = [];
   var history;
   List<HistoryWpda> historyWpda = [];
 
-  Future refreshAllUsers() async {
-    wpdas = await _getWpdaUsecase.getAllWpda();
-    Future.delayed(Duration(seconds: 2), () {
+  Future refreshAllUsers(String token) async {
+    try {
+      List<WPDA> fetchedWpdas = await _getWpdaUsecase.getAllWpda(token);
+      wpdas.clear();
+      wpdas.addAll(fetchedWpdas);
+      notifyListeners();
+    } catch (e) {
+      // Handle error
+      print("Error fetching WPDA: $e");
+    }
+  }
+
+  Future refreshWpdaHistory(String userId, String token) async {
+    // try {
+    //   History history = await _getWpdaUsecase.getAllWpdaByUserID(userId, token);
+    //   // Jika historyWpda adalah List<HistoryWpda>, perbarui sesuai kebutuhan
+    //   // Misalnya, jika history memiliki list HistoryWpda yang ingin Anda tambahkan ke historyWpda:
+    //   historyWpda.clear();
+    //   historyWpda.addAll(history.data);
+    //   notifyListeners();
+    // } catch (e) {
+    //   // Handle error
+    //   print("Error fetching WPDA history: $e");
+    // }
+    Future.delayed(Duration(seconds: 0), () async {
+      await _getWpdaUsecase.getAllWpdaByUserID(userId, token);
       notifyListeners();
     });
   }
 
-  Future refreshWpdaHistory(String userId) async {
-    await _getWpdaUsecase.getAllWpdaByUserID(userId);
-    notifyListeners();
-  }
+  bool showRequiredMessageReadingBook = false;
+  bool showRequiredMessageVerseContent = false;
+  bool showRequiredMessageMessageOfGod = false;
+  bool showRequiredMessageApplicationInLife = false;
 
-  bool showRequiredMessageKitabBacaan = false;
-  bool showRequiredMessageIsiKitab = false;
-  bool showRequiredMessagePesanTuhan = false;
-  bool showRequiredMessageAplikasiKehidupan = false;
+  late TextEditingController readingBookController;
+  late TextEditingController verseContentController;
+  late TextEditingController messageOfGodController;
+  late TextEditingController applicationInLifeController;
 
-  late TextEditingController kitabBacaanController;
-  late TextEditingController isiKitabController;
-  late TextEditingController pesanTuhanController;
-  late TextEditingController aplikasiKehidupanController;
-
-  FocusNode kitabBacaanFocusNode = FocusNode();
-  FocusNode isiKitabFocusNode = FocusNode();
-  FocusNode pesanTuhanFocusNode = FocusNode();
-  FocusNode aplikasiKehidupanFocusNode = FocusNode();
+  FocusNode readingBookFocusNode = FocusNode();
+  FocusNode verseContentFocusNode = FocusNode();
+  FocusNode messageOfGodFocusNode = FocusNode();
+  FocusNode applicationInLifeFocusNode = FocusNode();
 
   validateInput() {
-    showRequiredMessageKitabBacaan = kitabBacaanController.text.isEmpty;
-    showRequiredMessageIsiKitab = isiKitabController.text.isEmpty;
-    showRequiredMessagePesanTuhan = pesanTuhanController.text.isEmpty;
-    showRequiredMessageAplikasiKehidupan =
-        aplikasiKehidupanController.text.isEmpty;
+    showRequiredMessageReadingBook = readingBookController.text.isEmpty;
+    showRequiredMessageVerseContent = verseContentController.text.isEmpty;
+    showRequiredMessageMessageOfGod = messageOfGodController.text.isEmpty;
+    showRequiredMessageApplicationInLife =
+        applicationInLifeController.text.isEmpty;
     notifyListeners();
   }
 
-  void onSubmit(Map<String, dynamic> body, BuildContext context) {
+  void onSubmit(Map<String, dynamic> body, BuildContext context, String token) {
     validateInput();
-    if (!showRequiredMessageKitabBacaan &&
-        !showRequiredMessageIsiKitab &&
-        !showRequiredMessagePesanTuhan &&
-        !showRequiredMessageAplikasiKehidupan) {
+    if (!showRequiredMessageReadingBook &&
+        !showRequiredMessageVerseContent &&
+        !showRequiredMessageMessageOfGod &&
+        !showRequiredMessageApplicationInLife) {
       //SUCCESS
-      _getWpdaUsecase.createWpda(body, context);
+      _getWpdaUsecase.createWpda(body, context, token);
     }
     notifyListeners();
   }
 
-  void editWpda(Map<String, dynamic> body, BuildContext context) {
+  void editWpda(Map<String, dynamic> body, BuildContext context, String token,
+      String id) {
     validateInput();
-    if (!showRequiredMessageKitabBacaan &&
-        !showRequiredMessageIsiKitab &&
-        !showRequiredMessagePesanTuhan &&
-        !showRequiredMessageAplikasiKehidupan) {
+    if (!showRequiredMessageReadingBook &&
+        !showRequiredMessageVerseContent &&
+        !showRequiredMessageMessageOfGod &&
+        !showRequiredMessageApplicationInLife) {
       //SUCCESS
-      _getWpdaUsecase.editWpda(body, context);
+      _getWpdaUsecase.editWpda(body, context, token, id);
     }
     notifyListeners();
   }
 
-  void deleteWpda(Map<String, dynamic> body, BuildContext context) async {
-    await _getWpdaUsecase.deleteWpda(body, context);
+  void deleteWpda(
+    BuildContext context,
+    String id,
+    String token,
+  ) async {
+    await _getWpdaUsecase.deleteWpda(
+      context,
+      token,
+      id,
+    );
     Future.delayed(Duration(seconds: 2), () {
       notifyListeners();
     });

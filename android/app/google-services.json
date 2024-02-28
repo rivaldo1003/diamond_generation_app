@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "852389361527",
+    "project_id": "river-app-18095",
+    "storage_bucket": "river-app-18095.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:852389361527:android:5e0e80ca37902495319372",
+        "android_client_info": {
+          "package_name": "com.riverapp.gsjasungaikehidupan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB64RUtXuKtPeKvVSbmOctO293_p_qImzI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

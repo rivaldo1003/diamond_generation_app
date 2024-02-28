@@ -1,20 +1,31 @@
+import 'dart:io';
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
+import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/widgets/build_image_url_with_timestamp.dart';
 import 'package:diamond_generation_app/shared/widgets/prayer_abbreviation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class CardHistoryWpda extends StatelessWidget {
+class CardHistoryWpda extends StatefulWidget {
   final HistoryWpda historyWpda;
+  final String profilePictures;
 
   const CardHistoryWpda({
     super.key,
     required this.historyWpda,
+    required this.profilePictures,
   });
 
+  @override
+  State<CardHistoryWpda> createState() => _CardHistoryWpdaState();
+}
+
+class _CardHistoryWpdaState extends State<CardHistoryWpda> {
   String convertTimeFormat(String originalTime) {
     // Membuat formatter untuk waktu dengan format HH.mm.ss
     DateFormat originalFormat = DateFormat('HH:mm:ss');
@@ -29,21 +40,43 @@ class CardHistoryWpda extends StatelessWidget {
     return newFormat.format(dateTime);
   }
 
+  File? _image;
+  final keyImageProfile = "image_profile";
+
+  Future<void> loadImage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? imagePath = prefs.getString(keyImageProfile);
+    if (imagePath != null && imagePath.isNotEmpty) {
+      setState(() {
+        _image = File(imagePath);
+      });
+    }
+  }
+
+  late String imgUrl;
+
+  @override
+  void initState() {
+    print('URL IMAGE : ${widget.profilePictures}');
+    imgUrl = buildImageUrlWithStaticTimestamp(widget.profilePictures);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    String time = historyWpda.createdAt.split(' ').last;
+    String time = widget.historyWpda.createdAt.split(' ').last;
 
     String timeOnly = convertTimeFormat(time);
     String formatDate = DateFormat('dd MMMM yyyy', 'id')
-        .format(DateTime.parse(historyWpda.createdAt));
+        .format(DateTime.parse(widget.historyWpda.createdAt));
 
     String currentDate = DateTime.now().toString();
     var currentDateFormat =
         DateFormat('dd MMMM yyyy', 'id').format(DateTime.parse(currentDate));
-    String dateResult =
-        DateFormat('dd MMM yy').format(DateTime.parse(historyWpda.createdAt));
+    String dateResult = DateFormat('dd MMM yy')
+        .format(DateTime.parse(widget.historyWpda.createdAt));
 
-    String selectedPrayers = historyWpda.selectedPrayers;
+    String selectedPrayers = widget.historyWpda.doaTabernakel;
 
     List<String> abbreviations = [];
 
@@ -56,6 +89,8 @@ class CardHistoryWpda extends StatelessWidget {
     }
 
     String selectedItemsString = abbreviations.join(', ');
+    String filePath = widget.profilePictures;
+    FileImage fileImage = FileImage(File(filePath));
 
     return GestureDetector(
       onTap: () {
@@ -84,7 +119,7 @@ class CardHistoryWpda extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                historyWpda.fullName,
+                                widget.historyWpda.writer.fullName,
                                 textAlign: TextAlign.end,
                                 style: MyFonts.customTextStyle(
                                   14,
@@ -129,14 +164,39 @@ class CardHistoryWpda extends StatelessWidget {
                           ),
                         ),
                         SizedBox(width: 8),
-                        Container(
-                          height: 48,
-                          width: 48,
-                          child: Image.asset(
-                            'assets/images/profile.png',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                        (widget.profilePictures == null ||
+                                widget.profilePictures.isEmpty)
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white, // Warna border putih
+                                    width: 2.0, // Lebar border
+                                  ),
+                                ),
+                                child: CircleAvatar(
+                                  backgroundImage: AssetImage(
+                                    'assets/images/profile_empty.jpg',
+                                  ),
+                                ),
+                              )
+                            : Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white, // Warna border putih
+                                    width: 2.0, // Lebar border
+                                  ),
+                                ),
+                                child: (widget.profilePictures.startsWith(
+                                        '/data/user/0/com.riverapp.gsjasungaikehidupan/'))
+                                    ? CircleAvatar(
+                                        backgroundImage: fileImage,
+                                      )
+                                    : CircleAvatar(
+                                        backgroundImage: NetworkImage(imgUrl),
+                                      ),
+                              ),
                       ],
                     ),
                   ),
@@ -144,68 +204,70 @@ class CardHistoryWpda extends StatelessWidget {
               ),
               content: Container(
                 width: MediaQuery.of(context).size.width,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      historyWpda.isiKitab,
-                      style: MyFonts.customTextStyle(
-                        14,
-                        FontWeight.w500,
-                        MyColor.whiteColor,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        widget.historyWpda.verseContent,
+                        style: MyFonts.customTextStyle(
+                          14,
+                          FontWeight.w500,
+                          MyColor.whiteColor,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 8),
-                    Divider(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'PT : ',
-                          style: MyFonts.customTextStyle(
-                            14,
-                            FontWeight.bold,
-                            MyColor.colorLightBlue,
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            historyWpda.pesanTuhan,
+                      SizedBox(height: 8),
+                      Divider(),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'PT : ',
                             style: MyFonts.customTextStyle(
                               14,
-                              FontWeight.w500,
-                              MyColor.whiteColor,
+                              FontWeight.bold,
+                              MyColor.colorLightBlue,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'AP : ',
-                          style: MyFonts.customTextStyle(
-                            14,
-                            FontWeight.bold,
-                            MyColor.colorLightBlue,
+                          Expanded(
+                            child: Text(
+                              widget.historyWpda.messageOfGod,
+                              style: MyFonts.customTextStyle(
+                                14,
+                                FontWeight.w500,
+                                MyColor.whiteColor,
+                              ),
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            historyWpda.aplikasiKehidupan,
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'AP : ',
                             style: MyFonts.customTextStyle(
                               14,
-                              FontWeight.w500,
-                              MyColor.whiteColor,
+                              FontWeight.bold,
+                              MyColor.colorLightBlue,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          Expanded(
+                            child: Text(
+                              widget.historyWpda.applicationInLife,
+                              style: MyFonts.customTextStyle(
+                                14,
+                                FontWeight.w500,
+                                MyColor.whiteColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               actions: [
@@ -265,7 +327,38 @@ class CardHistoryWpda extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(),
+                      (widget.profilePictures.isEmpty)
+                          ? Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white, // Warna border putih
+                                  width: 2.0, // Lebar border
+                                ),
+                              ),
+                              child: CircleAvatar(
+                                backgroundImage: AssetImage(
+                                  'assets/images/profile_empty.jpg',
+                                ),
+                              ),
+                            )
+                          : Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white, // Warna border putih
+                                  width: 2.0, // Lebar border
+                                ),
+                              ),
+                              child: (widget.profilePictures.startsWith(
+                                      '/data/user/0/com.riverapp.gsjasungaikehidupan/'))
+                                  ? CircleAvatar(
+                                      backgroundImage: fileImage,
+                                    )
+                                  : CircleAvatar(
+                                      backgroundImage: NetworkImage(imgUrl),
+                                    ),
+                            ),
                       SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -278,7 +371,7 @@ class CardHistoryWpda extends StatelessWidget {
                                   return CircularProgressIndicator();
                                 } else {
                                   return Text(
-                                    historyWpda.fullName,
+                                    widget.historyWpda.writer.fullName,
                                     overflow: TextOverflow.ellipsis,
                                     style: MyFonts.customTextStyle(
                                       14,
@@ -290,7 +383,7 @@ class CardHistoryWpda extends StatelessWidget {
                               },
                             ),
                             Text(
-                              historyWpda.email,
+                              widget.historyWpda.writer.email,
                               style: MyFonts.customTextStyle(
                                 14,
                                 FontWeight.w500,
@@ -326,7 +419,7 @@ class CardHistoryWpda extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          historyWpda.kitabBacaan,
+                          widget.historyWpda.readingBook,
                           style: MyFonts.customTextStyle(
                             16,
                             FontWeight.bold,
@@ -391,8 +484,9 @@ class CardHistoryWpda extends StatelessWidget {
                         ),
                       ),
                       Flexible(
+                        flex: 2,
                         child: Text(
-                          '${selectedItemsString}',
+                          selectedItemsString,
                           textAlign: TextAlign.right,
                           style: MyFonts.customTextStyle(
                             12,
@@ -405,7 +499,7 @@ class CardHistoryWpda extends StatelessWidget {
                   ),
                   SizedBox(height: 12),
                   Text(
-                    historyWpda.isiKitab,
+                    widget.historyWpda.verseContent,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 4,
                     style: MyFonts.customTextStyle(

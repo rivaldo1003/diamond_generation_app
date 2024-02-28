@@ -8,6 +8,26 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatelessWidget {
+  String capitalizeFirstLetter(String text) {
+    if (text == null || text.isEmpty) {
+      return text;
+    }
+    return text[0].toUpperCase() + text.substring(1);
+  }
+
+  String? capitalizeEachWord(String? text) {
+    if (text == null || text.isEmpty) {
+      return text;
+    }
+
+    List<String> words = text.split(" ");
+    for (int i = 0; i < words.length; i++) {
+      words[i] = capitalizeFirstLetter(words[i]);
+    }
+
+    return words.join(" ");
+  }
+
   @override
   Widget build(BuildContext context) {
     final registerProvider = Provider.of<RegisterProvider>(context);
@@ -27,8 +47,8 @@ class RegisterScreen extends StatelessWidget {
                 Center(
                   child: Container(
                     child: Image.asset(
-                      'assets/icons/logo_new.png',
-                      height: 150,
+                      'assets/icons/gsja.png',
+                      height: MediaQuery.of(context).size.height / 5,
                     ),
                   ),
                 ),
@@ -97,7 +117,11 @@ class RegisterScreen extends StatelessWidget {
                         if (value!.isEmpty || value.length == 0) {
                           return 'Kata sandi tidak boleh kosong';
                         } else {
-                          return null;
+                          if (value.length >= 6) {
+                            return null;
+                          } else {
+                            return 'Password minimal 6 karakter';
+                          }
                         }
                       },
                     ),
@@ -120,20 +144,20 @@ class RegisterScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'Lupa kata sandi?',
-                        style: MyFonts.customTextStyle(
-                          14,
-                          FontWeight.w500,
-                          MyColor.primaryColor,
-                        ),
-                      ),
-                    ),
+                    // TextButton(
+                    //   onPressed: () {},
+                    //   child: Text(
+                    //     'Lupa kata sandi?',
+                    //     style: MyFonts.customTextStyle(
+                    //       14,
+                    //       FontWeight.w500,
+                    //       MyColor.primaryColor,
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
-                SizedBox(height: 12),
+                SizedBox(height: 24),
                 SizedBox(
                   height: 48,
                   width: MediaQuery.of(context).size.width,
@@ -146,12 +170,14 @@ class RegisterScreen extends StatelessWidget {
                     ),
                     onPressed: () {
                       print(DateTime.now().toString());
+                      var full_name = capitalizeEachWord(
+                          TextFieldControllerRegister.fullNameController.text);
+                      print('Full Name : $full_name');
                       if (registerProvider.keyRegister.currentState!
                           .validate()) {
                         registerProvider.registerUser(
                           {
-                            'full_name': TextFieldControllerRegister
-                                .fullNameController.text,
+                            'full_name': full_name,
                             'email': TextFieldControllerRegister
                                 .emailController.text,
                             'password': TextFieldControllerRegister
@@ -172,7 +198,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 8),
+                SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

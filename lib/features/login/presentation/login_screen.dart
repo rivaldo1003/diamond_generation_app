@@ -1,11 +1,15 @@
+import 'package:diamond_generation_app/features/forget_password/presentation/forget_password_screen.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
+import 'package:diamond_generation_app/features/register/data/providers/register_provider.dart';
 import 'package:diamond_generation_app/features/register/presentation/register_screen.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
+import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -27,12 +31,12 @@ class LoginScreen extends StatelessWidget {
                 Center(
                   child: Container(
                     child: Image.asset(
-                      'assets/icons/logo_new.png',
-                      height: 150,
+                      'assets/images/sk.png',
+                      fit: BoxFit.cover,
+                      height: MediaQuery.of(context).size.height / 4,
                     ),
                   ),
                 ),
-                SizedBox(height: 32),
                 Text.rich(
                   TextSpan(
                     children: [
@@ -103,11 +107,17 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(
-                      onPressed: () {},
+                    InkWell(
+                      onTap: () {
+                        Navigator.of(context)
+                            .push(MaterialPageRoute(builder: (context) {
+                          return ForgetPasswordScreen();
+                        }));
+                      },
                       child: Text(
                         'Lupa kata sandi?',
                         style: MyFonts.customTextStyle(
@@ -119,7 +129,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 12),
+                SizedBox(height: 24),
                 SizedBox(
                   height: 48,
                   width: MediaQuery.of(context).size.width,
@@ -138,6 +148,7 @@ class LoginScreen extends StatelessWidget {
                                 TextFieldControllerLogin.emailController.text,
                             "password": TextFieldControllerLogin
                                 .passwordController.text,
+                            "device_token": "tes",
                           },
                           context,
                         );
@@ -153,7 +164,14 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 8),
+                // SizedBox(height: 12),
+                // ButtonWidget(
+                //   logo: 'assets/images/google.png',
+                //   title: 'Login with Google',
+                //   color: MyColor.colorBlackBg,
+                //   onPressed: () => signIn(context),
+                // ),
+                SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -186,6 +204,93 @@ class LoginScreen extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Future signIn(BuildContext context) async {
+    final registerProvider =
+        Provider.of<RegisterProvider>(context, listen: false);
+
+    final user = await GoogleSignInApi.login();
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: MyColor.colorRed,
+          content: Text(
+            'Sign in failed',
+            style: MyFonts.customTextStyle(
+              14,
+              FontWeight.w500,
+              MyColor.whiteColor,
+            ),
+          )));
+    } else {
+      registerProvider.registerUser(
+        {
+          'full_name': user.displayName,
+          'email': user.email,
+          'password': 'sir123',
+          'registration_date': DateTime.now().toString(),
+        },
+        context,
+      );
+      Navigator.of(context)
+          .pushReplacement(MaterialPageRoute(builder: (context) {
+        return LoggedInPage(user: user);
+      }));
+    }
+  }
+}
+
+class GoogleSignInApi {
+  static final _googleSignIn = GoogleSignIn();
+  static Future<GoogleSignInAccount?> login() => _googleSignIn.signIn();
+  static Future<GoogleSignInAccount?> logout() => _googleSignIn.disconnect();
+}
+
+class LoggedInPage extends StatelessWidget {
+  final GoogleSignInAccount? user;
+
+  const LoggedInPage({
+    Key? key,
+    required this.user,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBarWidget(
+        title: 'Login with Google',
+        action: [
+          TextButton(
+            onPressed: () async {
+              await GoogleSignInApi.logout();
+              Navigator.of(context)
+                  .pushReplacement(MaterialPageRoute(builder: (context) {
+                return LoginScreen();
+              }));
+            },
+            child: Text('Logout'),
+          ),
+        ],
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Profile'),
+            (user != null)
+                ? ListTile(
+                    leading: CircleAvatar(
+                      radius: 40,
+                      backgroundImage: NetworkImage(user!.photoUrl ?? ''),
+                    ),
+                    title: Text(user!.displayName ?? 'No Display Name'),
+                    subtitle: Text(user!.email),
+                  )
+                : Text('User data is null.'),
+          ],
         ),
       ),
     );
