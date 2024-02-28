@@ -163,14 +163,19 @@ class UserApi {
               //         child: CoolLoading(),
               //       );
               //     });
-              Future.delayed(Duration(seconds: 2), () {
+              Future.delayed(Duration(seconds: 2), () async {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) {
                     return BottomNavigationPage();
                   }),
                   (route) => false,
-                );
+                ).then((value) {
+                  Future.delayed(Duration(seconds: 5), () {
+                    TextFieldControllerLogin.emailController.text = '';
+                    TextFieldControllerLogin.passwordController.text = '';
+                  });
+                });
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -186,8 +191,6 @@ class UserApi {
                   ),
                 );
               });
-              TextFieldControllerLogin.emailController.text = '';
-              TextFieldControllerLogin.passwordController.text = '';
             } else {
               // showDialog(
               //     barrierDismissible: false,
@@ -256,6 +259,8 @@ class UserApi {
                   }
                 }
               });
+              TextFieldControllerLogin.emailController.text = '';
+              TextFieldControllerLogin.passwordController.text = '';
             }
           } else {
             // showDialog(
@@ -281,7 +286,7 @@ class UserApi {
                   ),
                 ),
               );
-              Navigator.pop(context);
+              // Navigator.pop(context);
             });
           }
         } else {
@@ -1074,7 +1079,6 @@ class UserApi {
               email: forgetPasswordEmail.text,
             );
           }));
-          forgetPasswordEmail.text = '';
         });
       } else {
         Future.delayed(Duration(seconds: 2), () {

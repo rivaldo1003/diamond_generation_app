@@ -68,7 +68,7 @@ class _RegisterState extends State<Register> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 20, top: 50, bottom: 0),
+            padding: const EdgeInsets.only(left: 20, top: 40, bottom: 0),
             child: Column(
               children: [
                 Row(
@@ -86,9 +86,9 @@ class _RegisterState extends State<Register> {
                       child: Icon(Icons.arrow_back_ios),
                     ),
                     Image.asset(
-                      'assets/images/gsja.png',
+                      'assets/icons/gsja.png',
                       fit: BoxFit.cover,
-                      height: 32,
+                      height: MediaQuery.of(context).size.height / 25,
                     ),
                   ],
                 ),

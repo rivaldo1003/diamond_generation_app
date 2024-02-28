@@ -127,14 +127,14 @@ class _HomeScreenState extends State<HomeScreen> {
     getUserId().then((userId) {
       if (userId != null) {
         loadImage().then((value) {
-          setState(() {
-            searchUserProvider =
-                Provider.of<SearchUserProvider>(context, listen: false);
-            searchUserProvider.fetchData(context, ApiConstants.getAllUser,
-                (token == null) ? '' : token!);
-            countUserApprove = searchUserProvider
-                .countUnapprovedUsers(searchUserProvider.filteredUserData);
-          });
+          // setState(() {
+          //   searchUserProvider =
+          //       Provider.of<SearchUserProvider>(context, listen: false);
+          //   searchUserProvider.fetchData(context, ApiConstants.getAllUser,
+          //       (token == null) ? '' : token!);
+          //   countUserApprove = searchUserProvider
+          //       .countUnapprovedUsers(searchUserProvider.filteredUserData);
+          // });
         });
       }
     });
@@ -287,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             }
                           }),
                           Text(
-                            'Ayo, jadikan semua bangsa murid-Ku',
+                            'Ayo, jadikan semua bangsa murid Tuhan',
                             style: MyFonts.brownText(
                               14,
                               FontWeight.w500,
@@ -404,9 +404,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Container(
                             child: Image.asset(
-                              'assets/images/gsja.png',
-                              height: 50,
-                              width: 50,
+                              'assets/icons/gsja.png',
+                              height: 40,
+                              fit: BoxFit.cover,
                             ),
                           ),
                           Container(

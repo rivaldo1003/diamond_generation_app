@@ -31,12 +31,12 @@ class LoginScreen extends StatelessWidget {
                 Center(
                   child: Container(
                     child: Image.asset(
-                      'assets/icons/gsja.png',
-                      height: MediaQuery.of(context).size.height / 5,
+                      'assets/images/sk.png',
+                      fit: BoxFit.cover,
+                      height: MediaQuery.of(context).size.height / 4,
                     ),
                   ),
                 ),
-                SizedBox(height: 32),
                 Text.rich(
                   TextSpan(
                     children: [

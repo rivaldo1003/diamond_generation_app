@@ -64,9 +64,9 @@ class _LoginState extends State<Login> {
                       child: Icon(Icons.arrow_back_ios),
                     ),
                     Image.asset(
-                      'assets/images/gsja.png',
+                      'assets/icons/gsja.png',
                       fit: BoxFit.cover,
-                      height: 32,
+                      height: MediaQuery.of(context).size.height / 25,
                     ),
                   ],
                 ),
@@ -254,12 +254,7 @@ class _LoginState extends State<Login> {
                               },
                               context,
                             );
-                            Future.delayed(Duration(seconds: 2), () {
-                              TextFieldControllerLogin.emailController.text =
-                                  '';
-                              TextFieldControllerLogin.passwordController.text =
-                                  '';
-                            });
+                            // Future.delayed(Duration(seconds: 2), () {});
                           }
                         },
                         color: MyColor.primaryColor,
