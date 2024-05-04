@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:diamond_generation_app/core/models/all_users.dart';
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/core/models/monthly_report.dart';
 import 'package:diamond_generation_app/core/models/wpda.dart';
@@ -751,5 +750,48 @@ class WpdaApi {
     } else {
       throw Exception('Failed to connect unlikeWPDA API');
     }
+  }
+
+  Future<List<WPDA>> getWpdaObedEdom(String token) async {
+    final headers = {
+      "Content-Type": "application/json",
+      'Authorization': 'Bearer $token',
+    };
+    String imageUrlWithTimestamp =
+        "${ApiConstants.getWpdaObedEdom}?timestamp=${DateTime.now().millisecondsSinceEpoch}";
+
+    int retries = 0;
+    const maxRetries = 3;
+    const initialDelay = Duration(seconds: 3);
+
+    while (retries < maxRetries) {
+      try {
+        final response = await http.get(
+          Uri.parse(imageUrlWithTimestamp),
+          headers: headers,
+        );
+
+        if (response.statusCode == 200) {
+          List<dynamic> jsonResponse = json.decode(response.body)['data'];
+          return jsonResponse.map((json) {
+            return WPDA.fromJson(json);
+          }).toList();
+        } else if (response.statusCode == 429) {
+          // Status code 429: Terlalu banyak permintaan, coba lagi setelah penundaan
+          await Future.delayed(
+              initialDelay * (retries + 1)); // Exponential backoff
+          retries++;
+        } else {
+          print("Status code: ${response.statusCode}");
+          throw Exception('Failed to get all wpda data');
+        }
+      } catch (error) {
+        print("Error: $error");
+        throw Exception('Failed to get all wpda data');
+      }
+    }
+
+    // Jika semua upaya gagal
+    throw Exception('Failed to get all wpda data after $maxRetries retries');
   }
 }

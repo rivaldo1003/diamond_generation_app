@@ -171,9 +171,13 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                       child: Divider(),
                     ),
                     Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 2,
+                      ),
                       margin: EdgeInsets.symmetric(horizontal: 10),
-                      height: 24,
-                      width: widget.userData.role == 'super_admin' ? 120 : 70,
+                      // height: 24,
+                      // width: widget.userData.role == 'super_admin' ? 120 : 70,
                       decoration: BoxDecoration(
                         color: (widget.userData.role == 'super_admin')
                             ? MyColor.primaryColor
@@ -185,8 +189,9 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
                           (widget.userData.role) == 'super_admin'
                               ? 'Super Admin'
                               : widget.userData.role,
+                          textAlign: TextAlign.center,
                           style: MyFonts.customTextStyle(
-                            14,
+                            12,
                             FontWeight.bold,
                             MyColor.whiteColor,
                           ),

@@ -20,6 +20,7 @@ import 'package:diamond_generation_app/features/verified_email/data/providers/ve
 import 'package:diamond_generation_app/features/view_all_data_users/data/providers/view_all_data_user_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/add_wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/bible_provider.dart';
+import 'package:diamond_generation_app/features/wpda/data/providers/drop_down_state_model.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/edit_wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/like_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
@@ -129,6 +130,9 @@ class _MyAppState extends State<MyApp> {
                       userApi: UserApi(
             urlApi: ApiConstants.verifyUserUrl,
           )))),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => DropdownStateModel(),
         ),
         ChangeNotifierProvider(
           create: (context) => TodayWpdaProvider(),
