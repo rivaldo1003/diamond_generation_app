@@ -8,7 +8,7 @@
 PRODUCT_NAME = diamond_generation_app
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.diamondGenerationApp
+PRODUCT_BUNDLE_IDENTIFIER = com.riverapp.gsjasungaikehidupan
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2023 com.example. All rights reserved.

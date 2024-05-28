@@ -41,7 +41,7 @@ dependencies:
   http: ^1.1.0
   shared_preferences: ^2.2.2
   flutter_svg: ^2.0.9
-  intl: ^0.18.1
+  intl: ^0.19.0
   package_info: ^2.0.2
   image_picker: ^1.0.4
   permission_handler: ^11.0.1
@@ -63,8 +63,8 @@ dependencies:
   fluttertoast: ^8.2.4
   flutter_cache_manager: ^3.3.1
   onesignal_flutter: ^5.0.4
-  firebase_core: ^2.25.2
-  firebase_messaging: ^14.7.16
+  firebase_core: ^2.31.1
+  firebase_messaging: ^14.9.3
   animated_bottom_navigation_bar: ^1.3.3
 
 dev_dependencies:
@@ -72,9 +72,9 @@ dev_dependencies:
     sdk: flutter
 
 flutter_launcher_icons:
-  android: "launcher_icon"
+  android: true
   ios: true
-  image_path: "assets/icons/gsja.png"
+  image_path: "assets/icons/instagram.png"
   adaptive_icon_background: "#ffffff"
   adaptive_icon_foreground: "assets/icons/gsja_foreground.png"
   min_sdk_android: 21 # android min sdk min:16, default 21

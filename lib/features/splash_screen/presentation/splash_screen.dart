@@ -4,7 +4,6 @@ import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
-import '../../login/presentation/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -55,33 +54,17 @@ class _SplashScreenState extends State<SplashScreen> {
               fit: BoxFit.cover,
             ),
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 300,
-                width: 300,
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                  image: AssetImage(
-                    'assets/images/sk.png',
-                  ),
-                  fit: BoxFit.cover,
-                )),
-              ),
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                child: Center(
-                  child: Shimmer.fromColors(
-                    baseColor: Colors.amber, // Warna latar belakang shimmer
-                    highlightColor: Colors.grey.shade300,
-                    child: Image.asset(
-                      'assets/images/gsja_logo.png',
-                    ),
-                  ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 20),
+            child: Center(
+              child: Shimmer.fromColors(
+                baseColor: Colors.amber, // Warna latar belakang shimmer
+                highlightColor: Colors.grey.shade300,
+                child: Image.asset(
+                  'assets/images/gsja_logo.png',
                 ),
               ),
-            ],
+            ),
           )
         ],
       ),

@@ -27,7 +27,6 @@ import 'package:intl/intl.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:http/http.dart' as http;
 
 class ProfileScreen extends StatefulWidget {

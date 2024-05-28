@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:diamond_generation_app/core/repositories/user_repository.dart';
 import 'package:diamond_generation_app/core/repositories/wpda_repository.dart';
 import 'package:diamond_generation_app/core/services/users/user_api.dart';
@@ -29,7 +31,6 @@ import 'package:diamond_generation_app/shared/utils/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
@@ -39,10 +40,19 @@ import 'package:timeago/timeago.dart' as timeago;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
+  if (Platform.isAndroid) {
+    await Firebase.initializeApp();
+  } else {
+    await Firebase.initializeApp(
+        options: FirebaseOptions(
+      apiKey: "AIzaSyDw0kDalU9_This-vH-kY-_LA9JounhsmQ",
+      appId: "1:852389361527:ios:3e090b9122aa93bb319372",
+      messagingSenderId: "852389361527",
+      projectId: "river-app-18095",
+    )); // Initialize Firebase
+  }
+  // Initialize Firebase
+  runApp(MyApp());
 
   FirebaseMessaging.onBackgroundMessage((message) {
     // Handle background message here
@@ -56,7 +66,7 @@ void main() async {
     print("Has permission " + state.toString());
   });
 
-  // Menunggu hingga mendapatkan device token sebelum menyimpannya
+  // Menunggu hingga mendapat```kan device token sebelum menyimpannya
   String? deviceToken;
   OneSignal.User.pushSubscription.addObserver((state) async {
     print('Output :${OneSignal.User.pushSubscription.optedIn}');

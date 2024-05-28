@@ -1,24 +1,8 @@
 class ApiConstants {
-<<<<<<< HEAD
-  // static const baseUrl = 'http://192.168.110.85/diamond_generation/';
-  // static const loginUrl = baseUrl + 'login.php';
-
-  static const baseUrl =
-      'http://192.168.110.85/diamond-generation-service/public/api';
-
-  static const loginUrl = baseUrl + '/login';
-  static const readUserProfileByIdUrl = baseUrl + '/users';
-  static const getAllWpdaUrl = baseUrl + '/wpda';
-  static const historyWpdaUrl = baseUrl + '/wpda/history';
-  static const createWpdaUrl = baseUrl + '/wpda/create';
-  static const editWpdaUrl = baseUrl + '/wpda/update';
-  static const deleteWpdaUrl = baseUrl + '/wpda/delete';
-=======
   static const baseUrl = 'https://gsjasungaikehidupan.com/api';
   static const baseUrlImage = 'https://gsjasungaikehidupan.com/storage';
   static const ONE_SIGNAL_REST_API_KEY =
       'OGRhZTY2M2YtMDNjOC00YTU2LTgyYzEtNzY4YzA2OWZiMDk0';
->>>>>>> development
 
   static const loginUrl = baseUrl + '/login';
   static const logoutUrl = baseUrl + '/user/logout';
@@ -52,12 +36,6 @@ class ApiConstants {
   static const newCreation2Url = baseUrl + 'new_creation_2.php';
   static const lightUrl = baseUrl + 'light.php';
   static const getUserProfileUrl = baseUrl + 'read_user_profile.php';
-<<<<<<< HEAD
-  static const getAllUser = baseUrl + 'read_all_users.php';
-  static const approveUserUrl = baseUrl + 'approved.php';
-  static const deleteUserUrl = baseUrl + 'delete_user.php';
-=======
->>>>>>> development
   static const uploadImageUrl = baseUrl + 'upload_image.php';
   static const readImageUrl = baseUrl + 'read_image.php';
 }
