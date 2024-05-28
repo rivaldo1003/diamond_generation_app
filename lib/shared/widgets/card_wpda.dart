@@ -562,6 +562,19 @@ class _CardWpdaState extends State<CardWpda> {
                                               ),
                                             ),
                                             SizedBox(width: 12),
+                                            (widget.wpda.writer.ministry ==
+                                                    'obed-edom')
+                                                ? Text(
+                                                    'OE',
+                                                    style:
+                                                        MyFonts.customTextStyle(
+                                                      12,
+                                                      FontWeight.bold,
+                                                      MyColor.primaryColor,
+                                                    ),
+                                                  )
+                                                : SizedBox(),
+                                            SizedBox(width: 8),
                                             (widget.wpda.user_id ==
                                                     value.userId)
                                                 ? Container(
@@ -604,6 +617,7 @@ class _CardWpdaState extends State<CardWpda> {
                             ),
                           ],
                         ),
+
                         SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

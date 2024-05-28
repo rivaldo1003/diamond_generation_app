@@ -54,4 +54,8 @@ class GetWpdaUsecase {
   Future<void> unlikeWpda(int userId, int wpdaId, String token) async {
     await wpdaRepository.unlikeWpda(userId, wpdaId, token);
   }
+
+  Future<List<WPDA>> getWpdaObedEdom(String token) async {
+    return await wpdaRepository.getWpdaObedEdom(token);
+  }
 }

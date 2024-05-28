@@ -189,34 +189,38 @@ class _ViewAllDataState extends State<ViewAllData> with WidgetsBindingObserver {
                                       color: MyColor.colorBlackBg,
                                     ),
                                     child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Icon(
                                           Icons.person,
                                           color: MyColor.colorGreen,
                                         ),
                                         SizedBox(width: 8),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Total pengguna (${usersData.length} pengguna).',
-                                              style: MyFonts.customTextStyle(
-                                                14,
-                                                FontWeight.w500,
-                                                MyColor.whiteColor,
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Total pengguna (${usersData.length} pengguna).',
+                                                style: MyFonts.customTextStyle(
+                                                  14,
+                                                  FontWeight.w500,
+                                                  MyColor.whiteColor,
+                                                ),
                                               ),
-                                            ),
-                                            SizedBox(height: 4),
-                                            Text(
-                                              'Total admin ${totalAdminUser}',
-                                              style: MyFonts.customTextStyle(
-                                                12,
-                                                FontWeight.w500,
-                                                MyColor.primaryColor,
+                                              SizedBox(height: 4),
+                                              Text(
+                                                'Total admin ${totalAdminUser}',
+                                                style: MyFonts.customTextStyle(
+                                                  12,
+                                                  FontWeight.w500,
+                                                  MyColor.primaryColor,
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),

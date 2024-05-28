@@ -127,14 +127,14 @@ class _HomeScreenState extends State<HomeScreen> {
     getUserId().then((userId) {
       if (userId != null) {
         loadImage().then((value) {
-          // setState(() {
-          //   searchUserProvider =
-          //       Provider.of<SearchUserProvider>(context, listen: false);
-          //   searchUserProvider.fetchData(context, ApiConstants.getAllUser,
-          //       (token == null) ? '' : token!);
-          //   countUserApprove = searchUserProvider
-          //       .countUnapprovedUsers(searchUserProvider.filteredUserData);
-          // });
+          setState(() {
+            searchUserProvider =
+                Provider.of<SearchUserProvider>(context, listen: false);
+            searchUserProvider.fetchData(context, ApiConstants.getAllUser,
+                (token == null) ? '' : token!);
+            countUserApprove = searchUserProvider
+                .countUnapprovedUsers(searchUserProvider.filteredUserData);
+          });
         });
       }
     });
@@ -578,7 +578,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           subtitle1: '${totalUserWithWpda}',
                                           subtitle2: ' / ${totalUser} ',
                                           textColorSub2: Colors.grey[300],
-                                          description: 'Orang',
+                                          description: 'Orang\n',
                                           colorBg: MyColor.colorGreen,
                                         ),
                                         SizedBox(width: 12),
@@ -669,7 +669,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       subtitle1: maleData.toString(),
                                       subtitle2: ' Orang',
                                       textColorSub2: Colors.grey[300],
-                                      description: 'Total',
+                                      description: 'Total\n',
                                       colorBg: MyColor.primaryColor,
                                     ),
                                     SizedBox(width: 12),
@@ -678,7 +678,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       subtitle1: femaleData.toString(),
                                       subtitle2: ' Orang',
                                       textColorSub2: Colors.grey[300],
-                                      description: 'Total',
+                                      description: 'Total\n',
                                       colorBg: Colors.pink,
                                     ),
                                   ],
@@ -728,7 +728,7 @@ class CardBeranda extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        height: 130,
+        // height: 130,
         decoration: BoxDecoration(
           color: (colorBg == null)
               ? MyColor.colorLightBlue.withOpacity(0.9)

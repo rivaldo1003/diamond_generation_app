@@ -725,12 +725,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       child: Divider(),
                                     ),
                                     Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 4,
+                                        vertical: 2,
+                                      ),
                                       margin:
                                           EdgeInsets.symmetric(horizontal: 10),
-                                      height: 24,
-                                      width: (user['role'] == 'super_admin')
-                                          ? 120
-                                          : 70,
+                                      // height: 24,
+                                      // width: (user['role'] == 'super_admin')
+                                      //     ? 120
+                                      //     : 70,
                                       decoration: BoxDecoration(
                                         color: (user['role'] == 'admin' ||
                                                 user['role'] == 'super_admin')
@@ -748,8 +752,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               : (user['role'] == 'admin')
                                                   ? 'Admin'
                                                   : 'User',
+                                          textAlign: TextAlign.center,
                                           style: MyFonts.customTextStyle(
-                                            14,
+                                            12,
                                             FontWeight.bold,
                                             MyColor.whiteColor,
                                           ),
