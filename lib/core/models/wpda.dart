@@ -50,6 +50,7 @@ class Writer {
   final String email;
   final String deviceToken;
   String profile_picture;
+  String ministry;
 
   Writer({
     required this.id,
@@ -57,6 +58,7 @@ class Writer {
     required this.email,
     required this.deviceToken,
     required this.profile_picture,
+    required this.ministry,
   });
 
   factory Writer.fromJson(Map<String, dynamic> json) {
@@ -66,6 +68,7 @@ class Writer {
       email: json['email'],
       deviceToken: json['device_token'] ?? '',
       profile_picture: json['profile_picture'] ?? '',
+      ministry: json['ministry'] ?? '',
     );
   }
 }
