@@ -29,6 +29,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
       //   statusBarBrightness:
       //       Brightness.light, //<-- For iOS SEE HERE (dark icons)
       // ),
+
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       centerTitle: true,

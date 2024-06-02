@@ -88,4 +88,9 @@ class GetUserUsecase {
       BuildContext context, Map<String, dynamic> body) async {
     return await userRepository.forgetPassword(context, body);
   }
+
+  Future<void> changeRole(BuildContext context, Map<String, dynamic> body,
+      String id, String token) async {
+    return await userRepository.changeRole(context, body, id, token);
+  }
 }

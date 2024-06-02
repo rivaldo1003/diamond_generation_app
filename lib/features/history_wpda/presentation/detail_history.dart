@@ -77,7 +77,7 @@ class _DetailHistoryWPDAState extends State<DetailHistoryWPDA> {
     print('ID USER :${widget.id}');
 
     return Scaffold(
-      appBar: AppBarWidget(title: 'Detail History WPDA'),
+      appBar: AppBarWidget(title: 'Detail Riwayat WPDA'),
       body: FutureBuilder(
         future: Future.delayed(
           Duration(milliseconds: 300),

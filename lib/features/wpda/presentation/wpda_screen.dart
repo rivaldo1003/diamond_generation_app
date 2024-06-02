@@ -79,6 +79,7 @@ class _WPDAScreenState extends State<WPDAScreen> {
     if (imagePath != null && imagePath.isNotEmpty) {
       setState(() {
         _image = File(imagePath);
+        print(_image);
       });
     } else if (userId != null && _image == null) {
       await fetchProfilePicture(int.parse(userId!), token!);
@@ -128,7 +129,7 @@ class _WPDAScreenState extends State<WPDAScreen> {
       final appDir = await getApplicationDocumentsDirectory();
       final extension = imageUrl.split('.').last;
       final localPath = appDir.path + '/user_$userId.$extension';
-
+      print(localPath);
       final file = File(localPath);
       await file.writeAsBytes(response.bodyBytes);
 
@@ -518,7 +519,7 @@ class _WPDAScreenState extends State<WPDAScreen> {
                                                           formatDateResult,
                                                           style: MyFonts
                                                               .customTextStyle(
-                                                            12,
+                                                            14,
                                                             FontWeight.bold,
                                                             MyColor.whiteColor,
                                                           ),

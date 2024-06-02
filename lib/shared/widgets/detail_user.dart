@@ -194,8 +194,11 @@ class _DetailUserState extends State<DetailUser> {
                           ? Expanded(
                               child: IconButton(
                                   onPressed: () {
+                                    String phoneNumb = widget.value;
+                                    String formattedNumber = phoneNumb
+                                        .replaceFirst(RegExp(r'^0'), '');
                                     WhatsAppLauncher.openWhatsApp(
-                                        phoneNumber: "+62 ${widget.value} ",
+                                        phoneNumber: formattedNumber,
                                         message:
                                             "Ayo, jangan lupa WPDA. Terus bertumbuh ya");
                                   },

@@ -30,6 +30,7 @@ class ApiConstants {
   static const verifyEmail = baseUrl + '/send-verify-mail';
   static const forgetPassword = baseUrl + '/forget-password';
   static const getWpdaObedEdom = baseUrl + '/wpda/obed-edom';
+  static const changeRoleUrl = baseUrl + '/change-role';
   static const notification = 'https://onesignal.com/api/v1/notifications';
 
   // OLD API URL

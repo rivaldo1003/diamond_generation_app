@@ -206,7 +206,6 @@ class _HomeScreenState extends State<HomeScreen> {
       final extension =
           imageUrl.split('.').last; // Ambil ekstensi gambar dari URL
       final localPath = appDir.path + '/user_$userId.$extension';
-
       final file = File(localPath);
       await file.writeAsBytes(response.bodyBytes);
 
