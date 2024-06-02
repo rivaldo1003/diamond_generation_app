@@ -1,4 +1,6 @@
+import 'package:diamond_generation_app/core.dart';
 import 'package:diamond_generation_app/core/models/all_users.dart';
+import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/history_wpda/presentation/history_screen.dart';
 import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
@@ -10,6 +12,7 @@ import 'package:diamond_generation_app/shared/widgets/detail_user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class ViewAllDataUsers extends StatefulWidget {
   final AllUsers userData;
@@ -82,330 +85,454 @@ class _ViewAllDataUsersState extends State<ViewAllDataUsers> {
     return words.join(" ");
   }
 
+  List<String> _roles = ['User', 'Admin', 'Super Admin'];
+
   @override
   Widget build(BuildContext context) {
+    final getUserUsecase = Provider.of<GetUserUsecase>(context);
+
     if (widget.userData.profile != null) {
       dateTimeBirth = DateTime.parse(widget.userData.profile!.birth_date);
       formattedDate = DateFormat('d MMMM yyyy', 'id').format(dateTimeBirth!);
     }
 
     return Scaffold(
-      appBar: AppBarWidget(title: 'Detail Pengguna'),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-                child: Column(
-              children: [
-                GestureDetector(
-                  onTap: () {
+      appBar: AppBarWidget(
+        title: 'Detail Penggunaa',
+        action: [
+          Consumer<LoginProvider>(
+            builder: (context, loginProvider, _) {
+              if (loginProvider.token == null) {
+                loginProvider.loadToken();
+                return CircularProgressIndicator();
+              } else {
+                return PopupMenuButton<String>(
+                  icon: SvgPicture.asset(
+                    'assets/icons/more.svg',
+                    color: Colors.white,
+                  ),
+                  onSelected: (String newValue) {
+                    // Handle menu item selection
                     showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          backgroundColor: Colors.transparent,
-                          content: InkWell(
-                            onTap: () {},
-                            child: Container(
-                              height: 300,
-                              width: 300,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text(
+                              'Konfirmasi Role',
+                              style: MyFonts.customTextStyle(
+                                16,
+                                FontWeight.bold,
+                                MyColor.whiteColor,
                               ),
-                              child: (imgUrl != null)
-                                  ? CircleAvatar(
-                                      backgroundImage: NetworkImage(imgUrl!),
-                                    )
-                                  : CircleAvatar(
-                                      backgroundImage: AssetImage(
-                                        'assets/images/profile_empty.jpg',
-                                      ),
-                                    ),
                             ),
-                          ),
-                        );
-                      },
-                    );
+                            content: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text:
+                                        'Apakah anda yakin ingin menjadikan ${widget.userData.fullName} sebagai',
+                                    style: MyFonts.customTextStyle(
+                                      14,
+                                      FontWeight.w500,
+                                      MyColor.whiteColor,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: ' $newValue?',
+                                    style: MyFonts.customTextStyle(
+                                      14,
+                                      FontWeight.bold,
+                                      MyColor.primaryColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  'Batalkan',
+                                  style: MyFonts.customTextStyle(
+                                    14,
+                                    FontWeight.bold,
+                                    MyColor.whiteColor,
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  getUserUsecase
+                                      .changeRole(
+                                    context,
+                                    {
+                                      "role": (newValue == 'User')
+                                          ? "user"
+                                          : (newValue == "Admin")
+                                              ? "admin"
+                                              : "super_admin",
+                                    },
+                                    widget.userData.id,
+                                    loginProvider.token!,
+                                  )
+                                      .then((value) {
+                                    setState(() {});
+                                  });
+                                },
+                                child: Text(
+                                  'Ya',
+                                  style: MyFonts.customTextStyle(
+                                    14,
+                                    FontWeight.bold,
+                                    MyColor.whiteColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        });
                   },
-                  child: Container(
-                    margin: EdgeInsets.only(
-                      top: 16,
-                      bottom: 18,
-                    ),
-                    height: 120,
-                    width: 120,
-                    child: (imgUrl!.isEmpty || imgUrl == null)
-                        ? CircleAvatar(
-                            backgroundImage:
-                                AssetImage('assets/images/profile_empty.jpg'),
-                            backgroundColor: Colors.white,
-                            radius: 20,
-                          )
-                        : CircleAvatar(
-                            backgroundImage: NetworkImage(imgUrl!),
-                            backgroundColor: Colors.white,
-                            radius: 20,
-                          ),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 5.0,
-                      ),
-                    ),
-                  ),
-                ),
-                Text(
-                  capitalizeEachWord(widget.userData.fullName)!,
-                  style: MyFonts.customTextStyle(
-                    18,
-                    FontWeight.bold,
-                    MyColor.whiteColor,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Divider(),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 2,
-                      ),
-                      margin: EdgeInsets.symmetric(horizontal: 10),
-                      // height: 24,
-                      // width: widget.userData.role == 'super_admin' ? 120 : 70,
-                      decoration: BoxDecoration(
-                        color: (widget.userData.role == 'super_admin')
-                            ? MyColor.primaryColor
-                            : MyColor.colorLightBlue,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Center(
+                  itemBuilder: (BuildContext context) {
+                    return _roles.map<PopupMenuEntry<String>>((String value) {
+                      return PopupMenuItem<String>(
+                        value: value,
                         child: Text(
-                          (widget.userData.role) == 'super_admin'
-                              ? 'Super Admin'
-                              : widget.userData.role,
-                          textAlign: TextAlign.center,
+                          value,
                           style: MyFonts.customTextStyle(
-                            12,
+                            14,
                             FontWeight.bold,
                             MyColor.whiteColor,
                           ),
                         ),
+                      );
+                    }).toList();
+                  },
+                );
+              }
+            },
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {},
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                  child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            backgroundColor: Colors.transparent,
+                            content: InkWell(
+                              onTap: () {},
+                              child: Container(
+                                height: 300,
+                                width: 300,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: (imgUrl != null)
+                                    ? CircleAvatar(
+                                        backgroundImage: NetworkImage(imgUrl!),
+                                      )
+                                    : CircleAvatar(
+                                        backgroundImage: AssetImage(
+                                          'assets/images/profile_empty.jpg',
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(
+                        top: 16,
+                        bottom: 18,
                       ),
-                    ),
-                    Expanded(
-                      child: Divider(),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Aktif sejak - ${widget.userData.createdAt}',
-                  style: MyFonts.customTextStyle(
-                    13,
-                    FontWeight.w500,
-                    MyColor.greyText,
-                  ),
-                ),
-                SizedBox(height: 32),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Text(
-                        'Informasi Pribadi',
-                        style: MyFonts.customTextStyle(
-                          12,
-                          FontWeight.w500,
-                          MyColor.greyText,
+                      height: 120,
+                      width: 120,
+                      child: (imgUrl!.isEmpty || imgUrl == null)
+                          ? CircleAvatar(
+                              backgroundImage:
+                                  AssetImage('assets/images/profile_empty.jpg'),
+                              backgroundColor: Colors.white,
+                              radius: 20,
+                            )
+                          : CircleAvatar(
+                              backgroundImage: NetworkImage(imgUrl!),
+                              backgroundColor: Colors.white,
+                              radius: 20,
+                            ),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 5.0,
                         ),
                       ),
                     ),
-                    SizedBox(height: 8),
-                    DetailUser(
-                      readOnly: true,
-                      iconData: SvgPicture.asset(
-                        'assets/icons/partner.svg',
-                        color: MyColor.primaryColor.withOpacity(0.7),
-                      ),
-                      title: 'Nama Pasangan',
-                      value: (widget.userData.partner == null)
-                          ? '-'
-                          : widget.userData.partner!.partnerName,
-                      controller: _controllerPartner,
+                  ),
+                  Text(
+                    capitalizeEachWord(widget.userData.fullName)!,
+                    style: MyFonts.customTextStyle(
+                      18,
+                      FontWeight.bold,
+                      MyColor.whiteColor,
                     ),
-                    SizedBox(height: 4),
-                    DetailUser(
-                      readOnly: true,
-                      iconData: SvgPicture.asset(
-                        'assets/icons/account_number.svg',
-                        color: MyColor.primaryColor.withOpacity(0.7),
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Divider(),
                       ),
-                      title: 'Nomor Akun',
-                      value: widget.userData.accountNumber,
-                      controller: _controllerAccountNumber,
-                    ),
-                    SizedBox(height: 4),
-                    DetailUser(
-                      readOnly: true,
-                      iconData: SvgPicture.asset(
-                        'assets/icons/age.svg',
-                        color: MyColor.primaryColor.withOpacity(0.7),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 2,
+                        ),
+                        margin: EdgeInsets.symmetric(horizontal: 10),
+                        // height: 24,
+                        // width: widget.userData.role == 'super_admin' ? 120 : 70,
+                        decoration: BoxDecoration(
+                          color: (widget.userData.role == 'super_admin')
+                              ? MyColor.primaryColor
+                              : MyColor.colorLightBlue,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Center(
+                          child: Text(
+                            (widget.userData.role) == 'super_admin'
+                                ? 'Super Admin'
+                                : widget.userData.role,
+                            textAlign: TextAlign.center,
+                            style: MyFonts.customTextStyle(
+                              12,
+                              FontWeight.bold,
+                              MyColor.whiteColor,
+                            ),
+                          ),
+                        ),
                       ),
-                      title: 'Umur',
-                      value: (widget.userData.profile == null)
-                          ? '-'
-                          : widget.userData.profile!.age + ' Tahun',
-                      controller: _controllerAge,
-                    ),
-                    SizedBox(height: 4),
-                    DetailUser(
-                      readOnly: true,
-                      iconData: SvgPicture.asset(
-                        'assets/icons/email.svg',
-                        color: MyColor.primaryColor.withOpacity(0.7),
+                      Expanded(
+                        child: Divider(),
                       ),
-                      title: 'Email',
-                      value: widget.userData.email,
-                      controller: _controllerEmail,
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Aktif sejak - ${widget.userData.createdAt}',
+                    style: MyFonts.customTextStyle(
+                      13,
+                      FontWeight.w500,
+                      MyColor.greyText,
                     ),
-                    SizedBox(height: 4),
-                    DetailUser(
-                      readOnly: true,
-                      iconData: SvgPicture.asset(
-                        'assets/icons/address.svg',
-                        color: MyColor.primaryColor.withOpacity(0.7),
+                  ),
+                  SizedBox(height: 32),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(
+                          'Informasi Pribadi',
+                          style: MyFonts.customTextStyle(
+                            12,
+                            FontWeight.w500,
+                            MyColor.greyText,
+                          ),
+                        ),
                       ),
-                      title: 'Alamat',
-                      value: (widget.userData.profile == null)
-                          ? '-'
-                          : capitalizeEachWord(
-                              widget.userData.profile!.address)!,
-                      controller: _controllerAddress,
-                    ),
-                    SizedBox(height: 4),
-                    DetailUser(
-                      readOnly: true,
-                      iconData: SvgPicture.asset(
-                        'assets/icons/phone_number.svg',
-                        color: MyColor.primaryColor.withOpacity(0.7),
+                      SizedBox(height: 8),
+                      DetailUser(
+                        readOnly: true,
+                        iconData: SvgPicture.asset(
+                          'assets/icons/partner.svg',
+                          color: MyColor.primaryColor.withOpacity(0.7),
+                        ),
+                        title: 'Nama Pasangan',
+                        value: (widget.userData.partner == null)
+                            ? '-'
+                            : widget.userData.partner!.partnerName,
+                        controller: _controllerPartner,
                       ),
-                      title: 'No Telepon',
-                      value: (widget.userData.profile == null)
-                          ? '-'
-                          : widget.userData.profile!.phone_number,
-                      controller: _controllerPhoneNumber,
-                    ),
-                    SizedBox(height: 4),
-                    DetailUser(
-                      readOnly: true,
-                      iconData: SvgPicture.asset(
-                        'assets/icons/gender.svg',
-                        color: MyColor.primaryColor.withOpacity(0.7),
+                      SizedBox(height: 4),
+                      DetailUser(
+                        readOnly: true,
+                        iconData: SvgPicture.asset(
+                          'assets/icons/account_number.svg',
+                          color: MyColor.primaryColor.withOpacity(0.7),
+                        ),
+                        title: 'Nomor Akun',
+                        value: widget.userData.accountNumber,
+                        controller: _controllerAccountNumber,
                       ),
-                      title: 'Jenis Kelamin',
-                      value: (widget.userData.profile == null)
-                          ? '-'
-                          : widget.userData.profile!.gender,
-                      controller: _controllerGender,
-                    ),
-                    SizedBox(height: 4),
-                    DetailUser(
-                      readOnly: true,
-                      iconData: SvgPicture.asset(
-                        'assets/icons/born.svg',
-                        color: MyColor.primaryColor.withOpacity(0.7),
+                      SizedBox(height: 4),
+                      DetailUser(
+                        readOnly: true,
+                        iconData: SvgPicture.asset(
+                          'assets/icons/age.svg',
+                          color: MyColor.primaryColor.withOpacity(0.7),
+                        ),
+                        title: 'Umur',
+                        value: (widget.userData.profile == null)
+                            ? '-'
+                            : widget.userData.profile!.age + ' Tahun',
+                        controller: _controllerAge,
                       ),
-                      title: 'Tempat/Tanggal Lahir',
-                      value: (widget.userData.profile == null)
-                          ? '-'
-                          : '${capitalizeEachWord(widget.userData.profile!.birth_place)}' +
-                              ', ' +
-                              '${formattedDate}',
-                      controller: _controllerBirthDateAndPlace,
-                    ),
-                    SizedBox(height: 4),
-                  ],
-                ),
-              ],
-            )),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: ButtonWidget(
-              title: 'Lihat WPDA',
-              color: (widget.userData.dataWpda.isEmpty)
-                  ? MyColor.colorBlackBg
-                  : MyColor.primaryColor,
-              onPressed: () {
-                // if (widget.userData != null) {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return HistoryScreen(
-                    id: widget.userData.id,
-                    fullName: widget.userData.fullName,
-                    profilePictures: (widget.userData.profile != null)
-                        ? widget.userData.profile!.profile_picture
-                        : '',
-                  );
-                }));
-                // } else {
-                // showDialog(
-                //     context: context,
-                //     builder: (context) {
-                //       return AlertDialog(
-                //         title: Row(
-                //           children: [
-                //             Icon(
-                //               Icons.notifications,
-                //               color: MyColor.primaryColor,
-                //             ),
-                //             SizedBox(width: 8),
-                //             Text(
-                //               'Notifikasi',
-                //               style: MyFonts.customTextStyle(
-                //                 14,
-                //                 FontWeight.bold,
-                //                 MyColor.whiteColor,
-                //               ),
-                //             ),
-                //           ],
-                //         ),
-                //         content: Text(
-                //           '${widget.userData.fullName} belum melengkapi profil dan data WPDA ${widget.userData.fullName} masih kosong.',
-                //           style: MyFonts.customTextStyle(
-                //             14,
-                //             FontWeight.w500,
-                //             MyColor.whiteColor,
-                //           ),
-                //         ),
-                //         actions: [
-                //           TextButton(
-                //             onPressed: () {
-                //               Navigator.pop(context);
-                //             },
-                //             child: Text(
-                //               'Oke',
-                //               style: MyFonts.customTextStyle(
-                //                 14,
-                //                 FontWeight.w500,
-                //                 MyColor.whiteColor,
-                //               ),
-                //             ),
-                //           ),
-                //         ],
-                //       );
-                //     });
-                // }
-              },
+                      SizedBox(height: 4),
+                      DetailUser(
+                        readOnly: true,
+                        iconData: SvgPicture.asset(
+                          'assets/icons/email.svg',
+                          color: MyColor.primaryColor.withOpacity(0.7),
+                        ),
+                        title: 'Email',
+                        value: widget.userData.email,
+                        controller: _controllerEmail,
+                      ),
+                      SizedBox(height: 4),
+                      DetailUser(
+                        readOnly: true,
+                        iconData: SvgPicture.asset(
+                          'assets/icons/address.svg',
+                          color: MyColor.primaryColor.withOpacity(0.7),
+                        ),
+                        title: 'Alamat',
+                        value: (widget.userData.profile == null)
+                            ? '-'
+                            : capitalizeEachWord(
+                                widget.userData.profile!.address)!,
+                        controller: _controllerAddress,
+                      ),
+                      SizedBox(height: 4),
+                      DetailUser(
+                        readOnly: true,
+                        iconData: SvgPicture.asset(
+                          'assets/icons/phone_number.svg',
+                          color: MyColor.primaryColor.withOpacity(0.7),
+                        ),
+                        title: 'No Telepon',
+                        value: (widget.userData.profile == null)
+                            ? '-'
+                            : widget.userData.profile!.phone_number,
+                        controller: _controllerPhoneNumber,
+                      ),
+                      SizedBox(height: 4),
+                      DetailUser(
+                        readOnly: true,
+                        iconData: SvgPicture.asset(
+                          'assets/icons/gender.svg',
+                          color: MyColor.primaryColor.withOpacity(0.7),
+                        ),
+                        title: 'Jenis Kelamin',
+                        value: (widget.userData.profile == null)
+                            ? '-'
+                            : widget.userData.profile!.gender,
+                        controller: _controllerGender,
+                      ),
+                      SizedBox(height: 4),
+                      DetailUser(
+                        readOnly: true,
+                        iconData: SvgPicture.asset(
+                          'assets/icons/born.svg',
+                          color: MyColor.primaryColor.withOpacity(0.7),
+                        ),
+                        title: 'Tempat/Tanggal Lahir',
+                        value: (widget.userData.profile == null)
+                            ? '-'
+                            : '${capitalizeEachWord(widget.userData.profile!.birth_place)}' +
+                                ', ' +
+                                '${formattedDate}',
+                        controller: _controllerBirthDateAndPlace,
+                      ),
+                      SizedBox(height: 4),
+                    ],
+                  ),
+                ],
+              )),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: ButtonWidget(
+                title: 'Lihat WPDA',
+                color: (widget.userData.dataWpda.isEmpty)
+                    ? MyColor.colorBlackBg
+                    : MyColor.primaryColor,
+                onPressed: () {
+                  // if (widget.userData != null) {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return HistoryScreen(
+                      id: widget.userData.id,
+                      fullName: widget.userData.fullName,
+                      profilePictures: (widget.userData.profile != null)
+                          ? widget.userData.profile!.profile_picture
+                          : '',
+                    );
+                  }));
+                  // } else {
+                  // showDialog(
+                  //     context: context,
+                  //     builder: (context) {
+                  //       return AlertDialog(
+                  //         title: Row(
+                  //           children: [
+                  //             Icon(
+                  //               Icons.notifications,
+                  //               color: MyColor.primaryColor,
+                  //             ),
+                  //             SizedBox(width: 8),
+                  //             Text(
+                  //               'Notifikasi',
+                  //               style: MyFonts.customTextStyle(
+                  //                 14,
+                  //                 FontWeight.bold,
+                  //                 MyColor.whiteColor,
+                  //               ),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //         content: Text(
+                  //           '${widget.userData.fullName} belum melengkapi profil dan data WPDA ${widget.userData.fullName} masih kosong.',
+                  //           style: MyFonts.customTextStyle(
+                  //             14,
+                  //             FontWeight.w500,
+                  //             MyColor.whiteColor,
+                  //           ),
+                  //         ),
+                  //         actions: [
+                  //           TextButton(
+                  //             onPressed: () {
+                  //               Navigator.pop(context);
+                  //             },
+                  //             child: Text(
+                  //               'Oke',
+                  //               style: MyFonts.customTextStyle(
+                  //                 14,
+                  //                 FontWeight.w500,
+                  //                 MyColor.whiteColor,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         ],
+                  //       );
+                  //     });
+                  // }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

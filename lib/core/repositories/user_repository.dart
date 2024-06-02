@@ -33,6 +33,8 @@ abstract class UserRepository {
     BuildContext context,
     Map<String, dynamic> body,
   );
+  Future<void> changeRole(
+      BuildContext context, Map<String, dynamic> body, String id, String token);
 }
 
 class UserRepositoryImpl implements UserRepository {
@@ -137,5 +139,11 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> forgetPassword(
       BuildContext context, Map<String, dynamic> body) async {
     await userApi!.forgetPassword(context, body);
+  }
+
+  @override
+  Future<void> changeRole(BuildContext context, Map<String, dynamic> body,
+      String id, String token) async {
+    return await userApi!.changeRole(context, body, id, token);
   }
 }

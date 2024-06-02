@@ -1,10 +1,8 @@
 import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
-import 'package:diamond_generation_app/features/loading_diamond/loading_diamond.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/add_wpda_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/bible_provider.dart';
 import 'package:diamond_generation_app/features/wpda/data/providers/wpda_provider.dart';
-import 'package:diamond_generation_app/features/wpda/presentation/bible_app.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
@@ -58,68 +56,71 @@ class _AddWPDAFormState extends State<AddWPDAForm> {
               wpdaProvider.messageOfGodController.text.isNotEmpty ||
               wpdaProvider.messageOfGodController.text.isNotEmpty) {
             showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Text(
-                      'Konfirmasi Keluar',
-                      style: MyFonts.customTextStyle(
-                        16,
-                        FontWeight.bold,
-                        MyColor.whiteColor,
-                      ),
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text(
+                    'Konfirmasi Keluar',
+                    style: MyFonts.customTextStyle(
+                      16,
+                      FontWeight.bold,
+                      MyColor.whiteColor,
                     ),
-                    content: Text(
-                      'Data yang sudah anda buat saat ini akan hilang. Tetap lanjutkan?',
-                      style: MyFonts.customTextStyle(
-                        14,
-                        FontWeight.w500,
-                        MyColor.whiteColor,
-                      ),
+                  ),
+                  content: Text(
+                    'Data yang sudah anda buat saat ini akan hilang. Tetap lanjutkan?',
+                    style: MyFonts.customTextStyle(
+                      14,
+                      FontWeight.w500,
+                      MyColor.whiteColor,
                     ),
-                    actions: [
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text(
-                                'Batal',
-                                style: MyFonts.customTextStyle(
-                                  16,
-                                  FontWeight.w500,
-                                  MyColor.whiteColor,
-                                ),
+                  ),
+                  actions: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text(
+                              'Batal',
+                              style: MyFonts.customTextStyle(
+                                16,
+                                FontWeight.w500,
+                                MyColor.whiteColor,
                               ),
                             ),
-                            TextButton(
-                              onPressed: () {
-                                wpdaProvider.readingBookController.clear();
-                                wpdaProvider.verseContentController.clear();
-                                wpdaProvider.messageOfGodController.clear();
-                                wpdaProvider.applicationInLifeController
-                                    .clear();
-                                Navigator.of(context).pop();
-                                Navigator.of(context).pop();
-                              },
-                              child: Text(
-                                'Ya',
-                                style: MyFonts.customTextStyle(
-                                  16,
-                                  FontWeight.bold,
-                                  MyColor.colorRed,
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
-                  );
-                });
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () {
+                              wpdaProvider.readingBookController.clear();
+                              wpdaProvider.verseContentController.clear();
+                              wpdaProvider.messageOfGodController.clear();
+                              wpdaProvider.applicationInLifeController.clear();
+                              Navigator.of(context).pop();
+                              Navigator.of(context).pop();
+                            },
+                            child: Text(
+                              'Ya',
+                              style: MyFonts.customTextStyle(
+                                16,
+                                FontWeight.bold,
+                                MyColor.colorRed,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            );
+
             return true;
           }
           return true;

@@ -56,134 +56,129 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: BottomAppBar(
-        padding: EdgeInsets.all(0),
-        color: Colors.grey.shade800,
-        shape: CircularNotchedRectangle(),
-        child: BottomNavigationBar(
-          elevation: 0,
-          currentIndex: selected,
-          onTap: (value) {
-            setState(() {
-              selected = value;
-            });
-          },
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: MyColor.greyText,
-          selectedLabelStyle: MyFonts.customTextStyle(
-            12,
-            FontWeight.bold,
-            MyColor.blackColor,
-          ),
-          unselectedLabelStyle: MyFonts.customTextStyle(
-            12,
-            FontWeight.w500,
-            MyColor.blackColor,
-          ),
-          selectedFontSize: 12, // ukuran font untuk item yang dipilih
-          unselectedFontSize: 12, // ukuran font untuk item yang tidak dipilih
-          // menambahkan jarak antara ikon dan label untuk item yang dipilih
-          items: (role == 'admin' || role == 'super_admin')
-              ? [
-                  BottomNavigationBarItem(
-                      label: 'Beranda',
-                      icon: (selected == 0)
-                          ? SvgPicture.asset(
-                              'assets/bottom_navbar/home.svg',
-                              color: MyColor.primaryColor,
-                              height: 20,
-                            )
-                          : SvgPicture.asset(
-                              'assets/bottom_navbar/home.svg',
-                              color: MyColor.greyText,
-                              height: 20,
-                            )),
-                  BottomNavigationBarItem(
-                      label: 'WPDA',
-                      icon: (selected == 1)
-                          ? SvgPicture.asset(
-                              'assets/bottom_navbar/book.svg',
-                              color: MyColor.primaryColor,
-                              height: 20,
-                            )
-                          : SvgPicture.asset(
-                              'assets/bottom_navbar/book.svg',
-                              color: MyColor.greyText,
-                              height: 20,
-                            )),
-                  BottomNavigationBarItem(
-                      label: 'Riwayat',
-                      icon: (selected == 2)
-                          ? SvgPicture.asset(
-                              'assets/bottom_navbar/riwayat.svg',
-                              color: MyColor.primaryColor,
-                              height: 20,
-                            )
-                          : SvgPicture.asset(
-                              'assets/bottom_navbar/riwayat.svg',
-                              color: MyColor.greyText,
-                              height: 20,
-                            )),
-                  BottomNavigationBarItem(
-                    icon: (selected == 3)
-                        ? SvgPicture.asset(
-                            'assets/bottom_navbar/profile.svg',
-                            color: MyColor.primaryColor,
-                            height: 20,
-                          )
-                        : SvgPicture.asset(
-                            'assets/bottom_navbar/profile.svg',
-                            color: MyColor.greyText,
-                            height: 20,
-                          ),
-                    label: 'Akun',
-                  ),
-                ]
-              : [
-                  BottomNavigationBarItem(
-                    label: 'WPDA',
+      bottomNavigationBar: BottomNavigationBar(
+        elevation: 0,
+        currentIndex: selected,
+        onTap: (value) {
+          setState(() {
+            selected = value;
+          });
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: MyColor.greyText,
+        selectedLabelStyle: MyFonts.customTextStyle(
+          12,
+          FontWeight.bold,
+          MyColor.blackColor,
+        ),
+        unselectedLabelStyle: MyFonts.customTextStyle(
+          12,
+          FontWeight.w500,
+          MyColor.blackColor,
+        ),
+        selectedFontSize: 12, // ukuran font untuk item yang dipilih
+        unselectedFontSize: 12, // ukuran font untuk item yang tidak dipilih
+        // menambahkan jarak antara ikon dan label untuk item yang dipilih
+        items: (role == 'admin' || role == 'super_admin')
+            ? [
+                BottomNavigationBarItem(
+                    label: 'Beranda',
                     icon: (selected == 0)
                         ? SvgPicture.asset(
-                            'assets/bottom_navbar/book.svg',
+                            'assets/bottom_navbar/home.svg',
                             color: MyColor.primaryColor,
                             height: 20,
                           )
                         : SvgPicture.asset(
-                            'assets/bottom_navbar/book.svg',
+                            'assets/bottom_navbar/home.svg',
                             color: MyColor.greyText,
                             height: 20,
-                          ),
-                  ),
-                  BottomNavigationBarItem(
-                    label: 'Riwayat',
+                          )),
+                BottomNavigationBarItem(
+                    label: 'WPDA',
                     icon: (selected == 1)
                         ? SvgPicture.asset(
-                            'assets/bottom_navbar/riwayat.svg',
+                            'assets/bottom_navbar/book.svg',
                             color: MyColor.primaryColor,
                             height: 20,
                           )
                         : SvgPicture.asset(
-                            'assets/bottom_navbar/riwayat.svg',
+                            'assets/bottom_navbar/book.svg',
                             color: MyColor.greyText,
                             height: 20,
-                          ),
-                  ),
-                  BottomNavigationBarItem(
+                          )),
+                BottomNavigationBarItem(
+                    label: 'Riwayat',
                     icon: (selected == 2)
                         ? SvgPicture.asset(
-                            'assets/bottom_navbar/profile.svg',
+                            'assets/bottom_navbar/riwayat.svg',
                             color: MyColor.primaryColor,
                             height: 20,
                           )
                         : SvgPicture.asset(
-                            'assets/bottom_navbar/profile.svg',
+                            'assets/bottom_navbar/riwayat.svg',
                             color: MyColor.greyText,
                             height: 20,
-                          ),
-                    label: 'Akun',
-                  ),
-                ],
-        ),
+                          )),
+                BottomNavigationBarItem(
+                  icon: (selected == 3)
+                      ? SvgPicture.asset(
+                          'assets/bottom_navbar/profile.svg',
+                          color: MyColor.primaryColor,
+                          height: 20,
+                        )
+                      : SvgPicture.asset(
+                          'assets/bottom_navbar/profile.svg',
+                          color: MyColor.greyText,
+                          height: 20,
+                        ),
+                  label: 'Akun',
+                ),
+              ]
+            : [
+                BottomNavigationBarItem(
+                  label: 'WPDA',
+                  icon: (selected == 0)
+                      ? SvgPicture.asset(
+                          'assets/bottom_navbar/book.svg',
+                          color: MyColor.primaryColor,
+                          height: 20,
+                        )
+                      : SvgPicture.asset(
+                          'assets/bottom_navbar/book.svg',
+                          color: MyColor.greyText,
+                          height: 20,
+                        ),
+                ),
+                BottomNavigationBarItem(
+                  label: 'Riwayat',
+                  icon: (selected == 1)
+                      ? SvgPicture.asset(
+                          'assets/bottom_navbar/riwayat.svg',
+                          color: MyColor.primaryColor,
+                          height: 20,
+                        )
+                      : SvgPicture.asset(
+                          'assets/bottom_navbar/riwayat.svg',
+                          color: MyColor.greyText,
+                          height: 20,
+                        ),
+                ),
+                BottomNavigationBarItem(
+                  icon: (selected == 2)
+                      ? SvgPicture.asset(
+                          'assets/bottom_navbar/profile.svg',
+                          color: MyColor.primaryColor,
+                          height: 20,
+                        )
+                      : SvgPicture.asset(
+                          'assets/bottom_navbar/profile.svg',
+                          color: MyColor.greyText,
+                          height: 20,
+                        ),
+                  label: 'Akun',
+                ),
+              ],
       ),
       body: AnimatedSwitcher(
         duration: Duration(milliseconds: 300),

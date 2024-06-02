@@ -4,7 +4,6 @@ import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
-import '../../login/presentation/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   @override

@@ -1,4 +1,3 @@
-import 'package:diamond_generation_app/features/history_wpda/data/detail_history_provider.dart';
 import 'package:diamond_generation_app/features/history_wpda/data/today_wpda.dart';
 import 'package:diamond_generation_app/features/history_wpda/widgets/year_drop_down.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';

@@ -1,6 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:diamond_generation_app/core/models/all_users.dart';
 import 'package:diamond_generation_app/features/history_wpda/presentation/history_screen.dart';
 import 'package:diamond_generation_app/features/history_wpda/widgets/filter_date_dropdown.dart';

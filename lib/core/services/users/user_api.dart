@@ -1102,4 +1102,74 @@ class UserApi {
       throw Exception('Failed connect to forget password API.');
     }
   }
+
+  Future<void> changeRole(
+    BuildContext context,
+    Map<String, dynamic> body,
+    String id,
+    String token,
+  ) async {
+    final url =
+        Uri.parse("https://gsjasungaikehidupan.com/api/change-role/$id");
+    final headers = {
+      "Content-Type": "application/json",
+      'Authorization': "Bearer $token",
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        body: json.encode(body),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success']) {
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context) {
+              return Center(
+                child: CoolLoading(),
+              );
+            },
+          );
+          Future.delayed(Duration(seconds: 2), () {
+            Navigator.pop(context); // Pop loading dialog
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${data['message']}'),
+              ),
+            );
+            Navigator.pop(context); // Pop confirmation dialog
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${data['message']}'),
+            ),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${response.statusCode}'),
+          ),
+        );
+      }
+    } on SocketException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Network error: $e'),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred: $e'),
+        ),
+      );
+    }
+  }
 }
