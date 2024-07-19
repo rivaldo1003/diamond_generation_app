@@ -519,7 +519,7 @@ class _WPDAScreenState extends State<WPDAScreen> {
                                                           formatDateResult,
                                                           style: MyFonts
                                                               .customTextStyle(
-                                                            14,
+                                                            12,
                                                             FontWeight.bold,
                                                             MyColor.whiteColor,
                                                           ),

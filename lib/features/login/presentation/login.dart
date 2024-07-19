@@ -66,7 +66,7 @@ class _LoginState extends State<Login> {
                     Image.asset(
                       'assets/icons/gsja.png',
                       fit: BoxFit.cover,
-                      height: MediaQuery.of(context).size.height / 25,
+                      height: MediaQuery.of(context).size.height / 15,
                     ),
                   ],
                 ),
@@ -260,30 +260,7 @@ class _LoginState extends State<Login> {
                         color: MyColor.primaryColor,
                       ),
                       SizedBox(height: 12),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.center,
-                      //   children: [
-                      //     Text(
-                      //       'Anda belum memiliki akun? ',
-                      //       style: MyFonts.customTextStyle(
-                      //         12,
-                      //         FontWeight.w500,
-                      //         MyColor.whiteColor,
-                      //       ),
-                      //     ),
-                      //     GestureDetector(
-                      //       onTap: () {},
-                      //       child: Text(
-                      //         'Daftar',
-                      //         style: MyFonts.customTextStyle(
-                      //           14,
-                      //           FontWeight.bold,
-                      //           MyColor.primaryColor,
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
+
                       (appVersion != null)
                           ? Center(
                               child: Text(

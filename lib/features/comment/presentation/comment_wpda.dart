@@ -155,7 +155,7 @@ class _CommentWpdaState extends State<CommentWpda> {
                 "commenter_name": commenterFullName,
                 "include_player_ids": ["${widget.deviceToken}"],
                 "contents": {
-                  "en": " $commenterFullName mengomentari WPDA anda",
+                  "en": "$commenterFullName mengomentari WPDA anda",
                 }
               });
             }

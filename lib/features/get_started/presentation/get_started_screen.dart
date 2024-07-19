@@ -33,7 +33,7 @@ class _GetStartedState extends State<GetStarted> {
                     margin: EdgeInsets.symmetric(vertical: 20),
                     child: Image.asset(
                       'assets/icons/gsja.png',
-                      height: MediaQuery.of(context).size.height / 25,
+                      height: MediaQuery.of(context).size.height / 15,
                     ),
                   ),
                 ],

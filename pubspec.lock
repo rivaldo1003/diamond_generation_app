@@ -177,6 +177,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  delete_un_used_assets:
+    dependency: "direct main"
+    description:
+      name: delete_un_used_assets
+      sha256: "97d7658831031b5c72871d82c9c30760e97fd42170cbd9af4f35e3e754d8cc95"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   device_frame:
     dependency: transitive
     description:
@@ -334,6 +342,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.2"
+  flutter_clean:
+    dependency: "direct main"
+    description:
+      name: flutter_clean
+      sha256: "1543beaf59cc9ce719200067a6d2e2a8eef0de1c7f5c5d8b1bd98ecfd6c45bd7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   flutter_keyboard_visibility:
     dependency: "direct main"
     description:

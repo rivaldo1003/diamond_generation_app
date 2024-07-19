@@ -88,7 +88,7 @@ class _RegisterState extends State<Register> {
                     Image.asset(
                       'assets/icons/gsja.png',
                       fit: BoxFit.cover,
-                      height: MediaQuery.of(context).size.height / 25,
+                      height: MediaQuery.of(context).size.height / 15,
                     ),
                   ],
                 ),
@@ -119,15 +119,6 @@ class _RegisterState extends State<Register> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Center(
-                      //   child: Container(
-                      //     child: Image.asset(
-                      //       'assets/icons/gsja.png',
-                      //       height: MediaQuery.of(context).size.height / 8,
-                      //     ),
-                      //   ),
-                      // ),
-                      // SizedBox(height: 12),
                       Text(
                         'Selamat Datang!',
                         style: MyFonts.customTextStyle(
@@ -181,7 +172,7 @@ class _RegisterState extends State<Register> {
                           }
                         },
                       ),
-                      SizedBox(height: 16),
+                      SizedBox(height: 12),
                       TextFieldWidget(
                         hintText: 'Email',
                         obscureText: false,
@@ -276,7 +267,6 @@ class _RegisterState extends State<Register> {
                           ),
                         ],
                       ),
-
                       SizedBox(height: 24),
                       ButtonWidget(
                         title: 'Daftar',
@@ -304,41 +294,14 @@ class _RegisterState extends State<Register> {
                         color: MyColor.primaryColor,
                       ),
                       SizedBox(height: 12),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.center,
-                      //   children: [
-                      //     Text(
-                      //       'Anda belum memiliki akun? ',
-                      //       style: MyFonts.customTextStyle(
-                      //         12,
-                      //         FontWeight.w500,
-                      //         MyColor.whiteColor,
-                      //       ),
-                      //     ),
-                      //     GestureDetector(
-                      //       onTap: () {},
-                      //       child: Text(
-                      //         'Daftar',
-                      //         style: MyFonts.customTextStyle(
-                      //           14,
-                      //           FontWeight.bold,
-                      //           MyColor.primaryColor,
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
-                      SizedBox(height: 24),
                       (appVersion != null)
-                          ? Expanded(
-                              child: Center(
-                                child: Text(
-                                  'App Version - ${appVersion} ',
-                                  style: MyFonts.customTextStyle(
-                                    12,
-                                    FontWeight.w500,
-                                    MyColor.greyText,
-                                  ),
+                          ? Center(
+                              child: Text(
+                                'App Version - ${appVersion} ',
+                                style: MyFonts.customTextStyle(
+                                  12,
+                                  FontWeight.w500,
+                                  MyColor.greyText,
                                 ),
                               ),
                             )
