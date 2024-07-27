@@ -32,11 +32,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>reason</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>reason</string>
+	<string>River App membutuhkan akses kamera untuk mengunggah foto profil pengguna agar pengguna lain bisa melihat wajah anda sebegai pemilik akun..</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>reason</string>
+	<string>River App membutuhkan akses pustaka foto untuk mengunggah foto WPDA dari galeri pengguna.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

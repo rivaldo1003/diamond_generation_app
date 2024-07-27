@@ -48,6 +48,11 @@ class GetUserUsecase {
     await userRepository.deleteUser(userId, context, token);
   }
 
+  Future<void> deleteAccount(
+      String userId, BuildContext context, String token) async {
+    await userRepository.deleteAccount(userId, context, token);
+  }
+
   Future<void> updateProfile(String userId, BuildContext context, String token,
       Map<String, dynamic> body) async {
     await userRepository.updateProfile(context, body, userId, token);

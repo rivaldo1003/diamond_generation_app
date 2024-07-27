@@ -351,6 +351,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       appBar: AppBarWidget(
         title: 'Akun',
+        action: [],
       ),
       body: Consumer<LoginProvider>(builder: (context, value, _) {
         if (value.userId == null) {
@@ -1096,19 +1097,164 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       title: 'Syarat dan Kondisi',
                                       value: '',
                                     ),
-                                    SizedBox(height: 32),
-                                    (appVersion != null)
-                                        ? Center(
+                                    SizedBox(height: 8),
+
+                                    Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16),
+                                        child: SizedBox(
+                                          width: double.infinity,
+                                          child: OutlinedButton(
+                                            style: OutlinedButton.styleFrom(
+                                              side: BorderSide.none,
+                                            ),
+                                            onPressed: () {
+                                              showDialog(
+                                                  context: context,
+                                                  barrierDismissible: false,
+                                                  builder: (context) {
+                                                    return AlertDialog(
+                                                      title: Text(
+                                                        'Konfirmasi Hapus Akun',
+                                                        style: MyFonts
+                                                            .customTextStyle(
+                                                          16,
+                                                          FontWeight.bold,
+                                                          MyColor.whiteColor,
+                                                        ),
+                                                      ),
+                                                      content: Text(
+                                                        '''Apakah anda yakin ingin menghapus akun anda? Ini '''
+                                                        '''akan menghapus akun anda dan semua data yang tersimpan secara permanen.''',
+                                                        style: MyFonts
+                                                            .customTextStyle(
+                                                          14,
+                                                          FontWeight.w500,
+                                                          MyColor.whiteColor,
+                                                        ),
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          },
+                                                          child: Text(
+                                                            'Batal',
+                                                            style: MyFonts
+                                                                .customTextStyle(
+                                                              15,
+                                                              FontWeight.w500,
+                                                              Colors.lightBlue,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            showDialog(
+                                                                context:
+                                                                    context,
+                                                                barrierDismissible:
+                                                                    false,
+                                                                builder:
+                                                                    (context) {
+                                                                  return AlertDialog(
+                                                                    title: Text(
+                                                                      'Tetap Lanjutkan?',
+                                                                      style: MyFonts
+                                                                          .customTextStyle(
+                                                                        16,
+                                                                        FontWeight
+                                                                            .bold,
+                                                                        MyColor
+                                                                            .whiteColor,
+                                                                      ),
+                                                                    ),
+                                                                    content:
+                                                                        Text(
+                                                                      '''Proses hapus akun siap dilakukan.''',
+                                                                      style: MyFonts
+                                                                          .customTextStyle(
+                                                                        14,
+                                                                        FontWeight
+                                                                            .w500,
+                                                                        MyColor
+                                                                            .whiteColor,
+                                                                      ),
+                                                                    ),
+                                                                    actions: [
+                                                                      TextButton(
+                                                                        onPressed:
+                                                                            () {
+                                                                          Navigator.of(context)
+                                                                              .pop();
+                                                                        },
+                                                                        child:
+                                                                            Text(
+                                                                          'Batal',
+                                                                          style:
+                                                                              MyFonts.customTextStyle(
+                                                                            15,
+                                                                            FontWeight.w500,
+                                                                            Colors.lightBlue,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      TextButton(
+                                                                        onPressed:
+                                                                            () {
+                                                                          getUserUsecase
+                                                                              .deleteAccount(
+                                                                            userId!,
+                                                                            context,
+                                                                            token!,
+                                                                          );
+                                                                        },
+                                                                        child:
+                                                                            Text(
+                                                                          'Hapus',
+                                                                          style:
+                                                                              MyFonts.customTextStyle(
+                                                                            15,
+                                                                            FontWeight.bold,
+                                                                            MyColor.colorLogOut,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                                });
+                                                          },
+                                                          child: Text(
+                                                            'Hapus',
+                                                            style: MyFonts
+                                                                .customTextStyle(
+                                                              15,
+                                                              FontWeight.bold,
+                                                              MyColor
+                                                                  .colorLogOut,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  });
+                                            },
                                             child: Text(
-                                              'App Version - ${appVersion} ',
+                                              'Hapus Akun',
                                               style: MyFonts.customTextStyle(
                                                 12,
                                                 FontWeight.w500,
-                                                MyColor.greyText,
+                                                MyColor.colorRed,
                                               ),
                                             ),
-                                          )
-                                        : CoolLoading(),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 32),
                                   ],
                                 ),
                               ],
@@ -1117,69 +1263,86 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(20),
-                          child: ButtonWidget(
-                            profileProvider: profileProvider,
-                            title: 'Keluar',
-                            icon: Icons.logout,
-                            color: MyColor.colorLogOut,
-                            onPressed: () {
-                              showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: Text(
-                                        'Konfirmasi keluar akun',
+                          child: Column(
+                            children: [
+                              (appVersion != null)
+                                  ? Center(
+                                      child: Text(
+                                        'App Version - ${appVersion} ',
                                         style: MyFonts.customTextStyle(
-                                          16,
-                                          FontWeight.bold,
-                                          MyColor.whiteColor,
-                                        ),
-                                      ),
-                                      content: Text(
-                                        'Apakah anda yakin ingin keluar dari akun anda?',
-                                        style: MyFonts.customTextStyle(
-                                          14,
+                                          12,
                                           FontWeight.w500,
-                                          MyColor.whiteColor,
+                                          MyColor.greyText,
                                         ),
                                       ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Text(
-                                            'Batal',
+                                    )
+                                  : CoolLoading(),
+                              SizedBox(height: 16),
+                              ButtonWidget(
+                                profileProvider: profileProvider,
+                                title: 'Keluar',
+                                icon: Icons.logout,
+                                color: MyColor.colorLogOut,
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: Text(
+                                            'Konfirmasi keluar akun',
                                             style: MyFonts.customTextStyle(
-                                              15,
-                                              FontWeight.w500,
-                                              Colors.lightBlue,
-                                            ),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            getUserUsecase
-                                                .logout(context, token!)
-                                                .then((value) {
-                                              return profileProvider
-                                                  .clearAllData();
-                                            });
-                                          },
-                                          child: Text(
-                                            'Keluar',
-                                            style: MyFonts.customTextStyle(
-                                              15,
+                                              16,
                                               FontWeight.bold,
-                                              MyColor.colorLogOut,
+                                              MyColor.whiteColor,
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    );
-                                  });
-                            },
+                                          content: Text(
+                                            'Apakah anda yakin ingin keluar dari akun anda?',
+                                            style: MyFonts.customTextStyle(
+                                              14,
+                                              FontWeight.w500,
+                                              MyColor.whiteColor,
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text(
+                                                'Batal',
+                                                style: MyFonts.customTextStyle(
+                                                  15,
+                                                  FontWeight.w500,
+                                                  Colors.lightBlue,
+                                                ),
+                                              ),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                getUserUsecase
+                                                    .logout(context, token!)
+                                                    .then((value) {
+                                                  return profileProvider
+                                                      .clearAllData();
+                                                });
+                                              },
+                                              child: Text(
+                                                'Keluar',
+                                                style: MyFonts.customTextStyle(
+                                                  15,
+                                                  FontWeight.bold,
+                                                  MyColor.colorLogOut,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       ],

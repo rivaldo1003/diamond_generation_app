@@ -14,6 +14,7 @@ abstract class UserRepository {
   Future<List<AllUsers>> getAllUser(String token);
   Future<void> approveUser(BuildContext context, String token, String id);
   Future<void> deleteUser(String userId, BuildContext context, String token);
+  Future<void> deleteAccount(String userId, BuildContext context, String token);
   Future<void> updateProfile(BuildContext context, Map<String, dynamic> body,
       String userId, String token);
   Future<Map<String, dynamic>> getTotalNewUsers(String token);
@@ -89,6 +90,12 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> deleteUser(
       String userId, BuildContext context, String token) async {
     await userApi!.deleteUser(userId, context, token);
+  }
+
+  @override
+  Future<void> deleteAccount(
+      String userId, BuildContext context, String token) async {
+    await userApi!.deleteAccount(userId, context, token);
   }
 
   @override

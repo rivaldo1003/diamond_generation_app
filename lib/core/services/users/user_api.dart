@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:diamond_generation_app/core.dart';
 import 'package:diamond_generation_app/core/models/all_users.dart';
 import 'package:diamond_generation_app/core/models/monthly_data_wpda.dart';
 import 'package:diamond_generation_app/core/models/user.dart';
@@ -8,6 +9,7 @@ import 'package:diamond_generation_app/features/bottom_nav_bar/bottom_navigation
 import 'package:diamond_generation_app/features/detail_community/data/providers/search_user_provider.dart';
 import 'package:diamond_generation_app/features/forget_password/data/controller.dart';
 import 'package:diamond_generation_app/features/forget_password/presentation/email_has_been_sent_screen.dart';
+import 'package:diamond_generation_app/features/get_started/presentation/get_started_screen.dart';
 import 'package:diamond_generation_app/features/loading_diamond/cool_loading.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
 import 'package:diamond_generation_app/features/login/data/utils/controller_login.dart';
@@ -88,7 +90,7 @@ class UserApi {
 
     // Tampilkan pemberitahuan loading
     showDialog(
-        barrierDismissible: false,
+        barrierDismissible: true,
         context: context,
         builder: (context) {
           return Center(
@@ -1170,6 +1172,84 @@ class UserApi {
           content: Text('An error occurred: $e'),
         ),
       );
+    }
+  }
+
+  Future<void> deleteAccount(
+    String userId,
+    BuildContext context,
+    String token,
+  ) async {
+    final response = await http.delete(
+      Uri.parse(ApiConstants.deleteAccountUrl + '/$userId'),
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['success']) {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CoolLoading(),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorGreen,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => GetStarted()),
+            (Route<dynamic> route) => false,
+          );
+        });
+      } else {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return Center(
+              child: CoolLoading(),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: MyColor.colorGreen,
+              content: Text(
+                '${data['message']}',
+                style: MyFonts.customTextStyle(
+                  14,
+                  FontWeight.w500,
+                  MyColor.whiteColor,
+                ),
+              ),
+            ),
+          );
+          Navigator.pop(context);
+        });
+      }
+    } else {
+      throw Exception('Failed to delete account');
     }
   }
 }

@@ -18,6 +18,7 @@ class ApiConstants {
   static const approveUserUrl = baseUrl + '/approve';
   static const submitDataUserUrl = baseUrl + '/profile';
   static const deleteUserUrl = baseUrl + '/user/delete';
+  static const deleteAccountUrl = baseUrl + '/user/delete-account';
   static const updateProfile = baseUrl + '/profile/update';
   static const getTotalNewUsers = baseUrl + '/total-new-users';
   static const getMonthlyDataForAllUsers = baseUrl + '/users/monthly-data';
