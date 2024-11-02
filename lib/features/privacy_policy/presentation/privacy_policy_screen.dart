@@ -48,7 +48,14 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 Center(
                   child: TextButton(
                     onPressed: () => _launchPrivacyPolicyUrl(),
-                    child: Text('Lihat Kebijakan Privasi'),
+                    child: Text(
+                      'Lihat Kebijakan Privasi',
+                      style: MyFonts.customTextStyle(
+                        14,
+                        FontWeight.w500,
+                        MyColor.primaryColor,
+                      ),
+                    ),
                   ),
                 ),
               ],

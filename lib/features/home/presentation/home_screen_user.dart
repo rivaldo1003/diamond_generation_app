@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:diamond_generation_app/core/usecases/get_user_usecase.dart';
 import 'package:diamond_generation_app/features/home/data/providers/home_provider.dart';
@@ -11,7 +10,7 @@ import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/utils/shared_pref_manager.dart';
 import 'package:diamond_generation_app/shared/widgets/app_bar.dart';
 import 'package:diamond_generation_app/shared/widgets/placeholder_card_wpda.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide CarouselController;
 import 'package:map_launcher/map_launcher.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -206,7 +205,8 @@ class _HomeScreenUserState extends State<HomeScreenUser> {
     }
   }
 
-  final CarouselController _controller = CarouselController();
+  CarouselSliderController buttonCarouselController =
+      CarouselSliderController();
   _openMap() async {
     final availableMaps = await MapLauncher.installedMaps;
 
@@ -399,7 +399,7 @@ class _HomeScreenUserState extends State<HomeScreenUser> {
                   Consumer<HomeProvider>(
                     builder: (context, homeProvider, _) => CarouselSlider(
                       items: imageSliders,
-                      carouselController: _controller,
+                      carouselController: buttonCarouselController,
                       options: CarouselOptions(
                         autoPlay: true,
                         enlargeCenterPage: true,
@@ -416,7 +416,8 @@ class _HomeScreenUserState extends State<HomeScreenUser> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: imgList.asMap().entries.map((entry) {
                         return GestureDetector(
-                          onTap: () => _controller.animateToPage(entry.key),
+                          onTap: () =>
+                              buttonCarouselController.animateToPage(entry.key),
                           child: Container(
                             width: 6.0,
                             height: 6.0,

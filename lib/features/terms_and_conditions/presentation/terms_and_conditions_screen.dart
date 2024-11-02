@@ -48,7 +48,14 @@ class TermAndConditionsScreen extends StatelessWidget {
                 Center(
                   child: TextButton(
                     onPressed: () => _launchTemofUseUrl(),
-                    child: Text('Lihat Syarat dan Kondisi'),
+                    child: Text(
+                      'Lihat Syarat dan Kondisi',
+                      style: MyFonts.customTextStyle(
+                        14,
+                        FontWeight.w500,
+                        MyColor.primaryColor,
+                      ),
+                    ),
                   ),
                 ),
               ],

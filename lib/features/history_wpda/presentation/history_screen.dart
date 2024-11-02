@@ -1126,7 +1126,7 @@ class HeaderMonthlyReport extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final historyProvider = Provider.of<HistoryProvider>(context);
-    var now = DateTime.now();
+    // var now = DateTime.now();
     return Center(
       child: Column(
         children: [

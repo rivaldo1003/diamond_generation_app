@@ -4,6 +4,8 @@ import 'package:diamond_generation_app/features/register/presentation/register.d
 import 'package:diamond_generation_app/features/sign_in/app%20banner/app_banner.dart';
 import 'package:diamond_generation_app/features/sign_in/app%20banner/banner_item.dart';
 import 'package:diamond_generation_app/features/sign_in/app%20banner/indicator.dart';
+import 'package:diamond_generation_app/state_util.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class GetStarted extends StatefulWidget {
@@ -129,6 +131,13 @@ class _GetStartedState extends State<GetStarted> {
                           MyColor.whiteColor,
                         )),
                     TextSpan(
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return TermAndConditionsScreen();
+                            }));
+                          },
                         text: ' Ketentuan layanan',
                         style: MyFonts.customTextStyle(
                           13,
@@ -143,6 +152,13 @@ class _GetStartedState extends State<GetStarted> {
                           MyColor.whiteColor,
                         )),
                     TextSpan(
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return PrivacyPolicyScreen();
+                            }));
+                          },
                         text: ' Kebijakan privasi.',
                         style: MyFonts.customTextStyle(
                           13,

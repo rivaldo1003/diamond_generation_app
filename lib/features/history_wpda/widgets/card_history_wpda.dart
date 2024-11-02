@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:diamond_generation_app/core/models/history_wpda.dart';
 import 'package:diamond_generation_app/features/login/data/providers/login_provider.dart';
-import 'package:diamond_generation_app/shared/constants/constants.dart';
 import 'package:diamond_generation_app/shared/utils/color.dart';
 import 'package:diamond_generation_app/shared/utils/fonts.dart';
 import 'package:diamond_generation_app/shared/widgets/build_image_url_with_timestamp.dart';

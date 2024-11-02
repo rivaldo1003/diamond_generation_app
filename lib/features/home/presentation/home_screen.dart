@@ -219,7 +219,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  final CarouselController _controller = CarouselController();
+  CarouselSliderController buttonCarouselController =
+      CarouselSliderController();
   _openMap() async {
     final availableMaps = await MapLauncher.installedMaps;
 
@@ -473,7 +474,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Consumer<HomeProvider>(
                       builder: (context, homeProvider, _) => CarouselSlider(
                         items: imageSliders,
-                        carouselController: _controller,
+                        carouselController: buttonCarouselController,
                         options: CarouselOptions(
                           autoPlay: true,
                           enlargeCenterPage: true,
@@ -490,7 +491,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: imgList.asMap().entries.map((entry) {
                           return GestureDetector(
-                            onTap: () => _controller.animateToPage(entry.key),
+                            onTap: () => buttonCarouselController
+                                .animateToPage(entry.key),
                             child: Container(
                               width: 6.0,
                               height: 6.0,
